@@ -11,7 +11,7 @@ instance.interceptors.request.use(function (config) {
     // if(localStorage.getItem("token")){
     //     config.headers["Authorization"] = localStorage.getItem("token");
     // }
-    console.log(document.cookie)
+    // console.log(document.cookie)
     return config;
 }, function (error) {
     return Promise.reject(error);
