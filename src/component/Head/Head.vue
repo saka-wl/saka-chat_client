@@ -3,8 +3,13 @@ import { NPopover, NBadge, NAvatar, NModal, NCard, NGradientText, useMessage } f
 import Login from './Login.vue';
 import { ref } from 'vue';
 import Enroll from './Enroll.vue';
+import { useUserInfoStore } from '../../store/userInfo.pinia';
+import { storeToRefs } from 'pinia';
 
-const modalStatus = ref<null | 'login' | 'enroll'>(null);
+const { userInfo } = storeToRefs(useUserInfoStore());
+const { userLoginOut } = useUserInfoStore();
+
+const modalStatus = ref<null | 'login' | 'enroll'>('login');
 const isModalShow = ref(false);
 declare global {
 	interface Window {
@@ -27,18 +32,21 @@ window.$message = useMessage();
             <n-popover trigger="hover" placement="bottom">
                 <template #trigger>
                     <n-badge value="">
-                        <n-avatar @click="isModalShow = true">Saka</n-avatar>
+                        <n-avatar @click="!userInfo?.id && (isModalShow = true)">Saka</n-avatar>
                     </n-badge>
                 </template>
-                <div>
-                    <div>你好，saka</div>
-                    <div>我的信息</div>
-                    <div>退出登陆</div>
+                <div v-if="userInfo?.id">
+                    <div>你好，{{ userInfo?.nickname || 'saka' }}</div>
+                    <div>去信息详情页</div>
+                    <div @click="userLoginOut()">退出登陆</div>
+                </div>
+                <div v-else>
+                    <div>点击头像登录</div>
                 </div>
             </n-popover>
         </div>
         <n-modal v-model:show="isModalShow">
-            <n-card style="width: 600px" title="登陆" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            <n-card style="width: 600px" :title="modalStatus === 'login' ? '登录' : '注册'" :bordered="false" size="huge" role="dialog" aria-modal="true">
                 <template v-if="modalStatus === 'login'">
                     <Login />
                 </template>
@@ -52,7 +60,7 @@ window.$message = useMessage();
                             还未注册？去注册 ^-^
                         </n-gradient-text>
                         <n-gradient-text type="info" v-else>
-                            去登陆
+                            有账号啦？去登陆 ^-^
                         </n-gradient-text>
                     </div>
                 </template>

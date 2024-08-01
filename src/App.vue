@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import Head from './view/Home/component/Head.vue';
 import { NMessageProvider } from 'naive-ui';
+import Head from './component/Head/Head.vue';
+import { useUserInfoStore } from './store/userInfo.pinia';
 
+const { userAutoLogin } = useUserInfoStore();
+userAutoLogin();
 </script>
 
 <template>

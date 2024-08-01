@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { NForm, NFormItem, NInput, NRow, NCol } from 'naive-ui';
-import { useUserInfoStore } from "../../../store/userInfo.pinia"
-import { getCaptchaApi } from '../../../api/user/captcha';
+import { NForm, NFormItem, NInput, NRow, NCol, NButton } from 'naive-ui';
+import { useUserInfoStore } from "../../store/userInfo.pinia"
+import { getCaptchaApi } from '../../api/user/captcha';
 
-const { userInfo, userLogin } = useUserInfoStore();
+const { userLogin } = useUserInfoStore();
+
 const formRef = ref(null);
 const model = ref({
     account: "",
@@ -12,8 +13,6 @@ const model = ref({
     code: ""
 })
 const codeImageUrl = ref<string>("");
-
-
 
 const getCaptcha = async () => {
     codeImageUrl.value = await getCaptchaApi();
@@ -39,7 +38,7 @@ const login = () => {
         window.$message.warning("请填写完整信息!");
         return;
     }
-    userLogin(model.value.account, model.value.password, model.value.code);
+    userLogin(model.value.account, model.value.password, model.value.code, getCaptcha);
 }
 
 </script>
@@ -77,8 +76,5 @@ const login = () => {
 </template>
 
 <style scoped lang="scss">
-.login-componet {
-    height: 800px;
-    width: 50%;
-}
+
 </style>
