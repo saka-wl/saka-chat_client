@@ -43,9 +43,12 @@ const enroll = async () => {
         window.$message.warning("请填写完整信息!");
         return;
     }
-    userEnroll({
+    const resp = await userEnroll({
         ...model.value
     }, getCaptcha);
+    if(resp) {
+        emit('closeMoal');
+    }
 }
 
 const handleImageUploadFinish = ({
@@ -78,6 +81,10 @@ const beforeImageUpload = (data: {
     }
     return true
 }
+
+const emit = defineEmits<{
+    closeMoal: []
+}>();
 
 </script>
 

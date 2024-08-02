@@ -32,14 +32,21 @@ const rules = {
     ]
 }
 
-const login = () => {
+const login = async () => {
     const notAllow = [null, undefined, ""];
     if(notAllow.includes(model.value.account) || notAllow.includes(model.value.password) || notAllow.includes(model.value.code)) {
         window.$message.warning("请填写完整信息!");
         return;
     }
-    userLogin(model.value.account, model.value.password, model.value.code, getCaptcha);
+    const resp = await userLogin(model.value.account, model.value.password, model.value.code, getCaptcha);
+    if(resp) {
+        emit('closeMoal');
+    }
 }
+
+const emit = defineEmits<{
+    closeMoal: []
+}>();
 
 </script>
 

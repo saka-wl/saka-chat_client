@@ -16,8 +16,8 @@ export interface IUserEnrollParams {
 
 interface IUserStore {
     userInfo: Ref<Ilogin | null>;
-    userLogin: (account: string, password: string, code: string, reFreshCaptcha: Function) => void;
-    userEnroll: (obj: IUserEnrollParams, reFreshCaptcha: Function) => void;
+    userLogin: (account: string, password: string, code: string, reFreshCaptcha: Function) => Promise<boolean | undefined>;
+    userEnroll: (obj: IUserEnrollParams, reFreshCaptcha: Function) => Promise<boolean | undefined>;
     userLoginOut: () => void;
     userAutoLogin: () => void;
 }
@@ -36,6 +36,8 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         if (resp.code === 200 && resp.data) {
             userInfo.value = resp.data;
             window.$message.success('登录成功，你好' + (resp.data?.nickname || 'saka'));
+            isLoading = false;
+            return true;
         }
         else if(resp.code === 410) {
             window.$message.warning(resp.msg);
@@ -45,6 +47,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             window.$message.warning(resp.msg);
         }
         isLoading = false;
+        return false;
     }
     // 注册
     const userEnroll = async (obj: IUserEnrollParams, reFreshCaptcha: Function) => {
@@ -55,7 +58,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         isLoading = true;
         const resp = await enrollApi(obj);
         if (resp.code === 200 && resp.data) {
-            userInfo.value = { 
+            userInfo.value = {
                 account: obj.account, 
                 nickname: obj.nickname, 
                 phone: obj.phone, 
@@ -64,6 +67,8 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
                 id: resp.data 
             };
             window.$message.success('注册成功，你好' + (obj.nickname || 'saka'));
+            isLoading = false;
+            return true;
         }
         else if(resp.code === 410) {
             window.$message.warning(resp.msg);
@@ -73,6 +78,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             window.$message.warning(resp.msg);
         }
         isLoading = false;
+        return false;
     }
     // 退出登录
     const userLoginOut = () => {

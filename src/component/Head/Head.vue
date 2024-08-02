@@ -21,7 +21,6 @@ declare global {
 window.$message = useMessage();
 
 const avatarUrl = computed(() => {
-    console.log(normalImageUrl + userInfo.value?.avatar)
     return normalImageUrl + userInfo.value?.avatar;
 })
 
@@ -37,12 +36,11 @@ const avatarUrl = computed(() => {
         <div class="head-container__login-info">
             <n-popover trigger="hover" placement="bottom">
                 <template #trigger>
-                    <n-badge value="">
-                        <n-avatar @click="!userInfo?.id && (isModalShow = true)" :src="avatarUrl">
-                            <template v-if="!userInfo?.avatar">
-                                Ciallo
-                            </template>
-                        </n-avatar>
+                    <n-avatar v-if="!userInfo?.avatar" @click="!userInfo?.id && (isModalShow = true)">
+                        Ciallo
+                    </n-avatar>
+                    <n-badge value="" v-else>
+                        <n-avatar :src="avatarUrl"></n-avatar>
                     </n-badge>
                 </template>
                 <div v-if="userInfo?.id">
@@ -58,9 +56,9 @@ const avatarUrl = computed(() => {
         <n-modal v-model:show="isModalShow">
             <n-card style="width: 600px" :title="modalStatus === 'login' ? '登录' : '注册'" :bordered="false" size="huge" role="dialog" aria-modal="true">
                 <template v-if="modalStatus === 'login'">
-                    <Login />
+                    <Login @closeModal="isModalShow = false" />
                 </template>
-                <template v-else>
+                <template @closeModal="isModalShow = false" v-else>
                     <Enroll />
                 </template>
 
@@ -79,4 +77,17 @@ const avatarUrl = computed(() => {
     </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+@import "src/assets/style/common.scss";
+.head-container {
+    display: flex;
+    justify-content: space-between;
+    padding: px2vh(10) px2vw(20);
+    &__btn-controller {
+        display: flex;
+    }
+    &__login-info {
+
+    }
+}
+</style>
