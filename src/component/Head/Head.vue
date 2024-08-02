@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { NPopover, NBadge, NAvatar, NModal, NCard, NGradientText, useMessage } from 'naive-ui';
 import Login from './Login.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import Enroll from './Enroll.vue';
 import { useUserInfoStore } from '../../store/userInfo.pinia';
 import { storeToRefs } from 'pinia';
+import { normalImageUrl } from '../../constant/request';
 
 const { userInfo } = storeToRefs(useUserInfoStore());
 const { userLoginOut } = useUserInfoStore();
@@ -19,6 +20,11 @@ declare global {
 // 挂载全局消息提示，挂载一次即可
 window.$message = useMessage();
 
+const avatarUrl = computed(() => {
+    console.log(normalImageUrl + userInfo.value?.avatar)
+    return normalImageUrl + userInfo.value?.avatar;
+})
+
 </script>
 
 <template>
@@ -32,7 +38,11 @@ window.$message = useMessage();
             <n-popover trigger="hover" placement="bottom">
                 <template #trigger>
                     <n-badge value="">
-                        <n-avatar @click="!userInfo?.id && (isModalShow = true)">Saka</n-avatar>
+                        <n-avatar @click="!userInfo?.id && (isModalShow = true)" :src="avatarUrl">
+                            <template v-if="!userInfo?.avatar">
+                                Ciallo
+                            </template>
+                        </n-avatar>
                     </n-badge>
                 </template>
                 <div v-if="userInfo?.id">
