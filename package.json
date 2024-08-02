@@ -18,6 +18,7 @@
     ]
   },
   "dependencies": {
+    "Money16Regular": "link:@vicons/fluent/Money16Regular",
     "axios": "^1.7.2",
     "pinia": "^2.2.0",
     "vue": "^3.4.31",

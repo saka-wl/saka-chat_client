@@ -29,7 +29,7 @@ const avatarUrl = computed(() => {
 <template>
     <div class="head-container">
         <div class="head-container__btn-controller">
-            <div>1</div>
+            <span class="iconfont icon-right"></span>
             <div>2</div>
             <div>3</div>
         </div>
@@ -82,7 +82,7 @@ const avatarUrl = computed(() => {
 .head-container {
     display: flex;
     justify-content: space-between;
-    padding: px2vh(10) px2vw(20);
+    padding: px2vw(10) px2vw(20);
     &__btn-controller {
         display: flex;
     }

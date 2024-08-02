@@ -1,4 +1,3 @@
-
 @charset "utf-8";
 
 @use 'sass:math';
@@ -9,4 +8,21 @@
 
 @function px2vh($px, $base: 998) {
     @return math.div($px, $base) * 100vh;
+}
+
+@mixin w-h-vw($px, $base: 1720) {
+    width: px2vw($px, $base);
+    height: px2vw($px, $base);
+}
+
+@mixin absoluteTL($top: 0, $left: 0, $base: 1720) {
+    position: absolute;
+    top: px2vw($top, $base);
+    left: px2vw($left, $base);
+}
+
+@mixin absoluteTR($top: 0, $right: 0, $base: 1720) {
+    position: absolute;
+    top: px2vw($top, $base);
+    right: px2vw($right, $base);
 }

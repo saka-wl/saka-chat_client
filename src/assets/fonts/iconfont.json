@@ -1,0 +1,23 @@
+{
+  "id": "4641905",
+  "name": "saka-chat",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "248926",
+      "name": "right",
+      "font_class": "right",
+      "unicode": "e665",
+      "unicode_decimal": 58981
+    },
+    {
+      "icon_id": "248927",
+      "name": "left",
+      "font_class": "left",
+      "unicode": "e666",
+      "unicode_decimal": 58982
+    }
+  ]
+}
