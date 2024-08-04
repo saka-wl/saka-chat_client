@@ -18,7 +18,7 @@ export const sendFriendRequst = async ({
     })
 }
 
-interface IGetAllRequestFromMe {
+export interface IGetAllRequest {
     requestInfo: {
         id: number;
         fromUserId: string;
@@ -35,6 +35,34 @@ interface IGetAllRequestFromMe {
     };
 }
 
-export const getAllRequestFromMe = async ({ fromUserId } : { fromUserId: string }): Promise<ResponseData<IGetAllRequestFromMe[]>> => {
+export const getAllRequestFromMe = async ({ fromUserId } : { fromUserId: string }): Promise<ResponseData<IGetAllRequest[]>> => {
     return await axios.get('/api/c/friend/super/getAllRequestFromMe?' + 'fromUserId=' + fromUserId)
+}
+
+export const getAllRequestToMe = async ({ toUserId } : { toUserId: string }): Promise<ResponseData<IGetAllRequest[]>> => {
+    return await axios.get('/api/c/friend/super/getAllRequestToMe?' + 'toUserId=' + toUserId)
+}
+
+export const handleFriendRequestApi = async ({ requestId, isDispose, userId, friendId }: { requestId: number, isDispose: number, userId: string, friendId: string }) => {
+    return await axios.post("/api/c/friend/super/handleFriendRequest", {
+        requestId,
+        isDispose,
+        userId,
+        friendId
+    })
+}
+
+export interface IUserFriend {
+    id: string;
+    userId: string;
+    friendId: string;
+    chatRoomId: string;
+    friendAccount: string;
+    friendNickname: string;
+    friendAvatar: string;
+    friendEmail: string;
+}
+
+export const getAllMyFriendApi = async (userId: string): Promise<ResponseData<IUserFriend[]>> => {
+    return await axios.post('/api/c/friend/super/getAllMyFriend', { userId })
 }

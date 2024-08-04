@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import friendsList from './component/FriendsList.vue';
+import MineList from './component/MineList.vue';
 </script>
 
 <template>
     <div class="friend-container">
         <div class="left">
-            <friendsList />
+            <MineList />
         </div>
         <div class="right">
             <router-view></router-view>
@@ -17,8 +17,10 @@ import friendsList from './component/FriendsList.vue';
 @import "src/assets/style/common.scss";
 .friend-container {
     display: flex;
+    height: 100%;
     .left {
         width: px2vw(300);
+        height: 100%;
     }
     .right {
         flex: 1 1 auto;

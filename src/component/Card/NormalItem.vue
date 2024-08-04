@@ -26,6 +26,7 @@ const props = withDefaults(defineProps<IProps>(), {
     justify-content: space-around;
     align-items: center;
     cursor: pointer;
+    height: px2vw(40);
     &:hover {
         background-color: rgba(245, 245, 245);
     }

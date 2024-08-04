@@ -2,7 +2,7 @@
 import { NButton, NForm, NFormItem, NInput } from 'naive-ui';
 import { ref } from 'vue';
 import { Ilogin, searchUserApi } from '../../../api/user/user';
-import FriendCard from "../component/FriendCard.vue"
+import SearchFriendCard from "../component/SearchFriendCard.vue"
 
 const formRef = ref(null);
 
@@ -57,7 +57,7 @@ const searchFriend = async () => {
         <n-button attr-type="button" @click="searchFriend">
             Search Now!
         </n-button>
-        <FriendCard v-for="item in searchFriendsRes" :id="item.id" :avatar="item.avatar" :account="item.account" :nickname="item.nickname" />
+        <SearchFriendCard v-for="item in searchFriendsRes" :id="item.id" :avatar="item.avatar" :account="item.account" :nickname="item.nickname" />
     </div>
 </template>
 

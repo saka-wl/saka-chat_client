@@ -3,47 +3,52 @@ import { NAvatar, NButton } from "naive-ui";
 import { computed, ref } from "vue";
 import { useUserInfoStore } from '../../../store/userInfo.pinia.ts';
 import { normalImageUrl } from "../../../constant/request.ts"
-import { IFriendRequest } from "../view/RequestFromMe.vue";
-
-interface IFriendRequestWithType {
-    requestId: number;
-    toUserId: string;
-    requestMessage: string;
-    isDispose: number;
-    createdAt: string;
-    toUserAccount: string;
-    toUserNickname: string;
-    toUserAvatar: string;
-    type: 'requestToMe' | 'requestFromMe';
-}
-
-interface IProps {
-    props: IFriendRequestWithType;
-}
+import { IProps } from "../utils/handleFriendRequest.ts";
+import { handleFriendRequestApi } from "../../../api/friend/index.ts";
+import { storeToRefs } from "pinia";
 
 const { props } = defineProps<IProps>();
-
-// const props = withDefaults(defineProps<IFriendRequestWithType>(), {
-//     props: {
-//         requestId: 0,
-//         toUserId: '',
-//         requestMessage: '没有名字的小Saka',
-//         isDispose: 0,
-//         createdAt: '',
-//         toUserAccount: '',
-//         toUserNickname: '',
-//         toUserAvatar: '',
-//         type: 'requestToMe',
-//     }
-// });
-
-console.log(props)
-
-const { userInfo } = useUserInfoStore()
+const { userInfo } = storeToRefs(useUserInfoStore())
+const emit = defineEmits(['handleFriendRequest'])
 
 const imageUrl = computed(() => {
     return normalImageUrl + props.toUserAvatar
 });
+
+const handleFriendRequest = async (isDispose: number) => {
+    if (!userInfo.value?.id) {
+        window.$message.warning("您还未登录", { closable: true })
+        return
+    }
+    const fetch = async () => await handleFriendRequestApi({
+        isDispose,
+        userId: userInfo.value?.id || '',
+        friendId: (props.toUserId ? props.toUserId : props.fromUserId) || '',
+        requestId: props.requestId
+    })
+    if (isDispose === -1) {
+        window.$dialog.warning({
+            title: '不同意ta的好友请求',
+            content: '你确定拒绝ta的好友请求吗？',
+            positiveText: '确定',
+            negativeText: '不确定',
+            onPositiveClick: async () => {
+                const resp = await fetch()
+            }
+        })
+    } else if (isDispose === 1) {
+        window.$dialog.warning({
+            title: '同意ta的好友请求',
+            content: '你确定同意ta的好友请求吗？',
+            positiveText: '确定',
+            negativeText: '不确定',
+            onPositiveClick: async () => {
+                const resp = await fetch()
+            }
+        })
+    }
+    emit("handleFriendRequest", props.requestId, isDispose)
+}
 
 </script>
 
@@ -66,12 +71,17 @@ const imageUrl = computed(() => {
             </div>
         </div>
         <div class="hander-button" v-if="props.type === 'requestToMe'">
-            <n-button tertiary type="primary">
-                同意
-            </n-button>
-            <n-button tertiary type="error">
-                拒绝
-            </n-button>
+            <template v-if="props.isDispose === 0">
+                <n-button tertiary type="primary" @click="() => handleFriendRequest(1)">
+                    同意
+                </n-button>
+                <n-button tertiary type="error" @click="() => handleFriendRequest(-1)">
+                    拒绝
+                </n-button>
+            </template>
+            <template v-else>
+                {{ props.isDispose === -1 ? '您已拒绝' : '您已同意' }}
+            </template>
         </div>
         <div class="hander-status" v-else>
             {{

@@ -41,7 +41,6 @@ const login = async () => {
         return;
     }
     const resp = await userLogin(model.value.account, model.value.password, model.value.code, getCaptcha);
-    console.log(resp)
     if(resp) {
         emit('closeModal');
     }
@@ -60,7 +59,7 @@ const login = async () => {
             </n-form-item>
             <n-form-item path="code" label="验证码">
                 <n-input v-model:value="model.code" />
-                <div v-html="codeImageUrl"></div>
+                <div v-html="codeImageUrl" @click="getCaptcha()"></div>
             </n-form-item>
 
             <n-row :gutter="[0, 24]">

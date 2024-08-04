@@ -33,5 +33,6 @@ window.$dialog = dialog;
     justify-content: space-between;
     align-items: center;
     padding: px2vw(10) px2vw(20);
+    height: px2vw(50);
 }
 </style>

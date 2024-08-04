@@ -22,4 +22,12 @@ userAutoLogin();
 	</div>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import "src/assets/style/common.scss";
+.app-container {
+	height: 100vh;
+	.content {
+		height: calc(100% - px2vw(50));
+	}
+}
+</style>

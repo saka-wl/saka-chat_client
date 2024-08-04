@@ -5,17 +5,7 @@ import { getAllRequestFromMe } from '../../../api/friend';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import FriendRequestCard from '../component/FriendRequestCard.vue';
-
-export interface IFriendRequest {
-    requestId: number;
-    toUserId: string;
-    requestMessage: string;
-    isDispose: number;
-    createdAt: string;
-    toUserAccount: string;
-    toUserNickname: string;
-    toUserAvatar: string;
-}
+import { handleFriendRequestToProps, IFriendRequest } from '../utils/handleFriendRequest';
 
 const { userInfo } = storeToRefs(useUserInfoStore())
 const pendingRequest = ref<IFriendRequest[]>([])
@@ -31,45 +21,36 @@ const init = async () => {
         window.$message.warning('请重新获取！', { closable: true })
         return
     }
-    let pendingRequestTmp = []
-    let pendingRequestIndex = 0
-    let completedRequestTmp = []
-    let completedRequestIndex = 0
-    for (let i = 0; i < data.length; i++) {
-        const tmp = {
-            requestId: data[i].requestInfo.id,
-            toUserId: data[i].requestInfo.toUserId,
-            requestMessage: data[i].requestInfo.requestMessage,
-            isDispose: data[i].requestInfo.isDispose,
-            createdAt: data[i].requestInfo.createdAt,
-            toUserAccount: data[i].toUserInfo.account,
-            toUserNickname: data[i].toUserInfo.nickname,
-            toUserAvatar: data[i].toUserInfo.avatar
-        }
-        if (tmp.isDispose === 0)
-            pendingRequestTmp[pendingRequestIndex ++] = tmp;
-        else
-            completedRequestTmp[completedRequestIndex ++] = tmp;
-        pendingRequest.value = pendingRequestTmp;
-        completedRequest.value = completedRequestTmp;
-    }
+    const res = handleFriendRequestToProps(data)
+    pendingRequest.value = res.pendingRequest;
+    completedRequest.value = res.completedRequest;
 }
+
 init()
+
+const handleFriendRequest = (requestId: number, isDispose: number) => {
+    const tmp = pendingRequest.value.find(it => it.requestId == requestId) as unknown as IFriendRequest
+    tmp.isDispose = isDispose
+    pendingRequest.value = pendingRequest.value.filter(it => it.requestId !== requestId)
+    completedRequest.value.push(tmp)
+}
 </script>
 
 <template>
     <div class="request-from-me-container">
         <div class="pending-request">
             <n-gradient-text type="info">
-                您待处理的好友请求
+                ta待处理的好友请求
             </n-gradient-text>
-            <FriendRequestCard v-for="item in pendingRequest" :props="{ ... item, type: 'requestFromMe' }" :key="item.requestId" />
+            <FriendRequestCard @handleFriendRequest="handleFriendRequest" v-for="item in pendingRequest"
+                :props="{ ...item, type: 'requestFromMe' }" :key="item.requestId" />
         </div>
         <div class="complete-request">
             <n-gradient-text type="info">
-                您已完成的好友请求
+                ta已完成的好友请求
             </n-gradient-text>
-            <FriendRequestCard v-for="item in completedRequest" :props="{ ... item, type: 'requestToMe' }" :key="item.requestId" />
+            <FriendRequestCard @handleFriendRequest="handleFriendRequest" v-for="item in completedRequest"
+                :props="{ ...item, type: 'requestFromMe' }" :key="item.requestId" />
         </div>
     </div>
 </template>
