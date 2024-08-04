@@ -10,7 +10,17 @@ const routes: RouteRecordRaw[] = [
         meta: {
             title: '主页',
             needAuth: false,
-            KeepAlive: false
+            keepAlive: false
+        }
+    },
+    {
+        path: '/userInfo',
+        name: 'userInfo',
+        component: () => import("../view/UserInfo/index.vue"),
+        meta: {
+            title: '用户详情',
+            needAuth: true,
+            keepAlive: false
         }
     },
     {
@@ -20,7 +30,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
             title: '朋友',
             needAuth: true,
-            KeepAlive: false
+            keepAlive: false
         },
         children: [
             {
