@@ -26,3 +26,15 @@
     top: px2vw($top, $base);
     right: px2vw($right, $base);
 }
+
+@mixin flexCenter() {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin flexCenterHW($h, $w) {
+    @include flexCenter();
+    height: px2vw($h, 1720);
+    width: px2vw($w, 1720);
+}

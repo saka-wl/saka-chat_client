@@ -18,6 +18,8 @@ const model = ref({
 })
 const codeImageUrl = ref<string>("");
 
+const emit = defineEmits(['closeModal']);
+
 const getCaptcha = async () => {
     codeImageUrl.value = await getCaptchaApi();
 }
@@ -40,18 +42,20 @@ const enroll = async () => {
     console.log(model.value);
     const notAllow = [null, undefined, ""];
     if (notAllow.includes(model.value.account) || notAllow.includes(model.value.password) || notAllow.includes(model.value.code)) {
-        window.$message.warning("请填写完整信息!");
+        window.$message.warning("请填写完整信息!", { closable: true });
         return;
     }
     const resp = await userEnroll({
         ...model.value
     }, getCaptcha);
     if(resp) {
-        emit('closeMoal');
+        emit('closeModal');
     }
 }
 
+
 const handleImageUploadFinish = ({
+    // @ts-ignore
     file,
     event
 }: {
@@ -63,10 +67,10 @@ const handleImageUploadFinish = ({
         model.value.avatar = resp.data;
     }
     else if (resp?.msg === 'File too large') {
-        window.$message.warning("文件过大，请重新上传");
+        window.$message.warning("文件过大，请重新上传", { closable: true });
     }
     else {
-        window.$message.warning(resp?.msg || "上传失败，请重新上传");
+        window.$message.warning(resp?.msg || "上传失败，请重新上传", { closable: true });
     }
 }
 
@@ -76,15 +80,11 @@ const beforeImageUpload = (data: {
     fileList: UploadFileInfo[]
 }) => {
     if (!imageExt.includes(data.file.file?.type || "")) {
-        window.$message.warning('只能上传图片文件，请重新上传')
+        window.$message.warning('只能上传图片文件，请重新上传', { closable: true })
         return false
     }
     return true
 }
-
-const emit = defineEmits<{
-    closeMoal: []
-}>();
 
 </script>
 

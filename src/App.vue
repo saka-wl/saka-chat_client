@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { NMessageProvider } from 'naive-ui';
-import Head from './component/Head/Head.vue';
+import { NMessageProvider, NDialogProvider } from 'naive-ui';
+import Head from './component/Head/index.vue';
 import { useUserInfoStore } from './store/userInfo.pinia';
 
 const { userAutoLogin } = useUserInfoStore();
@@ -9,14 +9,16 @@ userAutoLogin();
 
 <template>
 	<div class="app-container">
-			<div class="top">
+		<div class="top">
+			<n-dialog-provider>
 				<n-message-provider>
-					<Head />
+					<Head></Head>
 				</n-message-provider>
-			</div>
-			<div class="content">
-				<router-view></router-view>
-			</div>
+			</n-dialog-provider>
+		</div>
+		<div class="content">
+			<router-view></router-view>
+		</div>
 	</div>
 </template>
 
