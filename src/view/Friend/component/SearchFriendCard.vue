@@ -11,18 +11,20 @@ interface IProps {
     avatar: string;
     nickname: string;
     account: string;
+    hasAddFriend: boolean;
 }
 const props = withDefaults(defineProps<IProps>(), {
     id: '',
     avatar: '',
     nickname: '没有名字的小Saka',
-    account: ''
+    account: '',
+    hasAddFriend: false
 });
+
+console.log(props)
 
 const makeFriendMessage = ref("")
 const { userInfo } = storeToRefs(useUserInfoStore())
-
-
 
 const handleSend = () => {
     window.$dialog.warning({
@@ -59,10 +61,11 @@ const handleSend = () => {
 <template>
     <div class="friend-detail-container">
         <FriendCard :avatar="props.avatar" :nickname="props.nickname" :account="props.account" />
-        <div class="make-friend">
+        <div class="make-friend" v-if="!props.hasAddFriend">
             <n-input v-model:value="makeFriendMessage" type="text" placeholder="写下好友之间的添加提示吧~" />
             <n-button strong secondary type="info" @click="handleSend">发送</n-button>
         </div>
+        <div v-else>你们已经是朋友啦</div>
     </div>
 </template>
 

@@ -19,7 +19,7 @@ interface IUserStore {
     userInfo: Ref<Ilogin | null>;
     userLogin: (account: string, password: string, code: string, reFreshCaptcha: Function) => Promise<boolean | undefined>;
     userEnroll: (obj: IUserEnrollParams, reFreshCaptcha: Function) => Promise<boolean | undefined>;
-    userLoginOut: () => void;
+    userLoginOut: (cb: () => void) => void;
     userAutoLogin: () => void;
 }
 
@@ -88,10 +88,11 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         return false;
     }
     // 退出登录
-    const userLoginOut = () => {
+    const userLoginOut = (cb: () => void) => {
         window.$message.success('再见啦，' + (userInfo.value?.nickname || 'saka') + '同学～', { closable: true });
         userInfo.value = null;
         localStorage.removeItem(AUTHORIZATION);
+        cb()
     }
 
     // 自动登录

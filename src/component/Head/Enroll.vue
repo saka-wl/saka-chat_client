@@ -39,7 +39,6 @@ const rules = {
 }
 
 const enroll = async () => {
-    console.log(model.value);
     const notAllow = [null, undefined, ""];
     if (notAllow.includes(model.value.account) || notAllow.includes(model.value.password) || notAllow.includes(model.value.code)) {
         window.$message.warning("请填写完整信息!", { closable: true });

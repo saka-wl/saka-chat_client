@@ -10,6 +10,7 @@ export interface Ilogin {
     phone: string;
     email: string;
     avatar: string;
+    password?: string;
 }
 
 export const loginApi = async (account: string, password: string, code: string): Promise<ResponseData<Ilogin | null>> => {
@@ -30,11 +31,15 @@ export const autoLoginApi = async (): Promise<ResponseData<Ilogin>> => {
     return await axios.get("/api/c/user/super/whoami")
 }
 
+export interface ISearchUser extends Ilogin {
+    hasAddFriend?: boolean;
+}
+
 export const searchUserApi = async (
-    { account = "", id = "", nickname = "" }: { account: string | null, id: string | null, nickname: string | null }
-): Promise<any> => {
-    return await axios.post("/api/c/user/searchUser", {
-        account, id, nickname
+    { account = "", id = "", nickname = "", userId = "" }: { account: string | null; id: string | null; nickname: string | null; userId: string | null }
+): Promise<ResponseData<ISearchUser[]>> => {
+    return await axios.post("/api/c/user/super/searchUser", {
+        account, id, nickname, userId
     })
 }
 
