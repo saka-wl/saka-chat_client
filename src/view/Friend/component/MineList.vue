@@ -5,11 +5,13 @@ import { getAllMyFriendApi, IUserFriend } from '../../../api/friend';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
 import { storeToRefs } from 'pinia';
 import FriendCard from './FriendCard.vue';
+import { useRouter } from 'vue-router';
 
 const isMyFriendListShow = ref(false)
 const isMyGroupFriendListShow = ref(false)
 const { userInfo } = storeToRefs(useUserInfoStore())
 const myFriendList = ref<IUserFriend[]>([])
+const router = useRouter();
 
 const init = async () => {
     if(!userInfo.value?.id) {
@@ -19,6 +21,10 @@ const init = async () => {
     if(code === 200) {
         myFriendList.value = data
     }
+}
+
+const goToFriendDetail = (item: IUserFriend) => {
+    router.push({ name: 'friendDetail', params: { ... item}})
 }
 
 init()
@@ -36,7 +42,8 @@ init()
                 v-for="item in myFriendList" 
                 :avatar="item.friendAvatar" 
                 :nickname="item.friendNickname" 
-                :account="item.friendAccount" 
+                :account="item.friendAccount"
+                @click="goToFriendDetail(item)"
             />
         </div>
         <NormalItem word="我的群聊" type="icon-left" v-memo="[]"

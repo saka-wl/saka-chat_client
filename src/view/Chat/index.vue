@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import MineList from './component/MineList.vue';
 import LayoutTwoColumn from "../../component/Layout/LayoutTwoColumn/index.vue";
+import LeftMessageList from './component/LeftMessageList.vue';
 </script>
 
 <template>
     <LayoutTwoColumn>
-        <MineList />
+        <LeftMessageList />
     </LayoutTwoColumn>
 </template>
 

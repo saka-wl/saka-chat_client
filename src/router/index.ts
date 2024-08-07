@@ -1,5 +1,5 @@
 
-import { createMemoryHistory, createRouter } from 'vue-router';
+import { createMemoryHistory, createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
@@ -22,6 +22,28 @@ const routes: RouteRecordRaw[] = [
             needAuth: true,
             keepAlive: false
         }
+    },
+    {
+        path: '/chat',
+        name: 'chat',
+        component: () => import("../view/Chat/index.vue"),
+        meta: {
+            title: '聊天',
+            needAuth: true,
+            keepAlive: true
+        },
+        children: [
+            {
+                path: 'friendchat',
+                name: 'friendchat',
+                component: () => import("../view/Chat/view/FriendChat.vue"),
+                meta: {
+                    title: '好友聊天',
+                    needAuth: true,
+                    keepAlive: true
+                }
+            }
+        ]
     },
     {
         path: '/friend',
@@ -63,7 +85,7 @@ const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-    history: createMemoryHistory(),
+    history: createWebHashHistory(),
     routes,
 })
 

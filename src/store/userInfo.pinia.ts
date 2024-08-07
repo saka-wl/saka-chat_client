@@ -4,6 +4,7 @@ import { Ref, ref } from 'vue';
 import { autoLoginApi, enrollApi, Ilogin, loginApi } from '../api/user/user';
 import { AUTHORIZATION } from '../constant/request';
 import { useMessage } from "naive-ui"
+import { getAllMyFriendApi, IUserFriend } from '../api/friend';
 
 export interface IUserEnrollParams {
     account: string;
@@ -21,6 +22,7 @@ interface IUserStore {
     userEnroll: (obj: IUserEnrollParams, reFreshCaptcha: Function) => Promise<boolean | undefined>;
     userLoginOut: (cb: () => void) => void;
     userAutoLogin: () => void;
+    getUserFriendList: () => Promise<boolean | undefined>;
 }
 
 declare global {
@@ -31,19 +33,38 @@ declare global {
 
 export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
     const userInfo = ref<Ilogin | null>(null)
-    let isLoading = false;
-    // 登录
-    const userLogin = async (account: string, password: string, code: string, reFreshCaptcha: Function) => {
-        if (isLoading) {
+    let isUserInfoLoading = false;
+    const userFriendList = ref<IUserFriend[] | null>(null);
+    let isUserFriendListLoading = false;
+
+    // 获取好友列表
+    const getUserFriendList = async () => {
+        if(isUserFriendListLoading) {
             window.$message.warning("请勿重复提交", { closable: true });
             return;
         }
-        isLoading = true;
+        isUserInfoLoading = true;
+        const { code, data } = await getAllMyFriendApi(userInfo.value?.id || '')
+        isUserInfoLoading = false;
+        if(code === 200) {
+            userFriendList.value = data
+            return true;
+        }
+        window.$message.warning("获取好友列表失败", { closable: true });
+        return false;
+    }
+    // 登录
+    const userLogin = async (account: string, password: string, code: string, reFreshCaptcha: Function) => {
+        if (isUserInfoLoading) {
+            window.$message.warning("请勿重复提交", { closable: true });
+            return;
+        }
+        isUserInfoLoading = true;
         const resp = await loginApi(account, password, code);
         if (resp.code === 200 && resp.data) {
             userInfo.value = resp.data;
             window.$message.success('登录成功，你好' + (resp.data?.nickname || 'saka'), { closable: true });
-            isLoading = false;
+            isUserInfoLoading = false;
             return true;
         }
         else if (resp.code === 410) {
@@ -53,16 +74,16 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         else {
             window.$message.warning(resp.msg, { closable: true });
         }
-        isLoading = false;
+        isUserInfoLoading = false;
         return false;
     }
     // 注册
     const userEnroll = async (obj: IUserEnrollParams, reFreshCaptcha: Function) => {
-        if (isLoading) {
+        if (isUserInfoLoading) {
             window.$message.warning("请勿重复提交", { closable: true });
             return;
         }
-        isLoading = true;
+        isUserInfoLoading = true;
         const resp = await enrollApi(obj);
         if (resp.code === 200 && resp.data) {
             userInfo.value = {
@@ -74,7 +95,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
                 id: resp.data
             };
             window.$message.success('注册成功，你好' + (obj.nickname || 'saka'), { closable: true });
-            isLoading = false;
+            isUserInfoLoading = false;
             return true;
         }
         else if (resp.code === 410) {
@@ -84,7 +105,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         else {
             window.$message.warning(resp.msg, { closable: true });
         }
-        isLoading = false;
+        isUserInfoLoading = false;
         return false;
     }
     // 退出登录
@@ -111,6 +132,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         userLogin,
         userEnroll,
         userLoginOut,
-        userAutoLogin
+        userAutoLogin,
+        getUserFriendList
     }
 })
