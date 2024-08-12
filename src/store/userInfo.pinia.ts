@@ -61,21 +61,18 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         }
         isUserInfoLoading = true;
         const resp = await loginApi(account, password, code);
-        if (resp.code === 200 && resp.data) {
-            userInfo.value = resp.data;
-            window.$message.success('登录成功，你好' + (resp.data?.nickname || 'saka'), { closable: true });
-            isUserInfoLoading = false;
-            return true;
-        }
-        else if (resp.code === 410) {
+        if (resp.code !== 200 || !resp.data) {
             window.$message.warning(resp.msg, { closable: true });
             reFreshCaptcha();
+            isUserInfoLoading = false;
+            return false;
         }
-        else {
-            window.$message.warning(resp.msg, { closable: true });
-        }
+        userInfo.value = resp.data;
+        window.$message.success('登录成功，你好' + (resp.data?.nickname || 'saka'), { closable: true });
         isUserInfoLoading = false;
-        return false;
+        // 无需等待
+        getUserFriendList();
+        return true;
     }
     // 注册
     const userEnroll = async (obj: IUserEnrollParams, reFreshCaptcha: Function) => {
@@ -95,6 +92,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
                 id: resp.data
             };
             window.$message.success('注册成功，你好' + (obj.nickname || 'saka'), { closable: true });
+            userFriendList.value = [];
             isUserInfoLoading = false;
             return true;
         }
@@ -113,6 +111,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         window.$message.success('再见啦，' + (userInfo.value?.nickname || 'saka') + '同学～', { closable: true });
         userInfo.value = null;
         localStorage.removeItem(AUTHORIZATION);
+        userFriendList.value = null;
         cb()
     }
 
@@ -122,6 +121,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         if (resp.code === 200 && resp.data) {
             userInfo.value = resp.data;
             window.$message.success('自动登录成功，你好' + (resp.data?.nickname || 'saka'), { closable: true });
+            getUserFriendList();
         } else {
             window.$message.warning(resp.msg, { closable: true });
         }
