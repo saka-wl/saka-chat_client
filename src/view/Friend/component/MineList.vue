@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import NormalItem from '../../../component/Card/NormalItem.vue';
-import { getAllMyFriendApi, IUserFriend } from '../../../api/friend';
+import { IUserFriend } from '../../../api/friend';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
 import { storeToRefs } from 'pinia';
 import FriendCard from './FriendCard.vue';
@@ -9,17 +9,16 @@ import { useRouter } from 'vue-router';
 
 const isMyFriendListShow = ref(false)
 const isMyGroupFriendListShow = ref(false)
-const { userInfo } = storeToRefs(useUserInfoStore())
-const myFriendList = ref<IUserFriend[]>([])
+const { userInfo, userFriendList } = storeToRefs(useUserInfoStore())
+const { getUserFriendList } = useUserInfoStore();
 const router = useRouter();
 
 const init = async () => {
     if(!userInfo.value?.id) {
         window.$message.warning("您还未登录！", { closable: true })
     }
-    const { code, data } = await getAllMyFriendApi(userInfo.value?.id || '')
-    if(code === 200) {
-        myFriendList.value = data
+    if(!userFriendList?.value) {
+        await getUserFriendList()
     }
 }
 
@@ -38,8 +37,8 @@ init()
         <NormalItem word="我的朋友" type="icon-left" v-memo="[]"
             @click="isMyFriendListShow = !isMyFriendListShow" />
         <div class="myfriend-list" :style="{ height: isMyFriendListShow ? '60%' : '0' }">
-            <FriendCard 
-                v-for="item in myFriendList" 
+            <FriendCard
+                v-for="item in userFriendList" 
                 :avatar="item.friendAvatar" 
                 :nickname="item.friendNickname" 
                 :account="item.friendAccount"

@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router';
-import { NInput } from 'naive-ui';
+import { NInput, NButton } from 'naive-ui';
 
 const route = useRoute();
-const emit = defineEmits<(e: 'update:inputMessage', value: string) => void>();
+const emit = defineEmits<{
+    (e: 'update:inputMessage', value: string) : void
+    (e: 'sendMessage') : void
+}>();
 const props = defineProps<{ inputMessage: string }>();
 
 </script>
@@ -11,6 +14,7 @@ const props = defineProps<{ inputMessage: string }>();
 <template>
     <div class="chatroom-input">
         <n-input class="input" @input="(e) => { emit('update:inputMessage', e) }" type="textarea" placeholder="" />
+        <n-button @click="emit('sendMessage')">send</n-button>
     </div>
 </template>
 

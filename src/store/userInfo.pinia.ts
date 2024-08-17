@@ -18,6 +18,7 @@ export interface IUserEnrollParams {
 
 interface IUserStore {
     userInfo: Ref<Ilogin | null>;
+    userFriendList: Ref<IUserFriend[] | null>;
     userLogin: (account: string, password: string, code: string, reFreshCaptcha: Function) => Promise<boolean | undefined>;
     userEnroll: (obj: IUserEnrollParams, reFreshCaptcha: Function) => Promise<boolean | undefined>;
     userLoginOut: (cb: () => void) => void;
@@ -129,6 +130,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
 
     return {
         userInfo,
+        userFriendList,
         userLogin,
         userEnroll,
         userLoginOut,

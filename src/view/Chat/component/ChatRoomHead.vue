@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 
 const props = defineProps<{ nickname: string }>();
-console.log(props);
+// console.log(props);
 
 </script>
 
