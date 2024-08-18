@@ -2,5 +2,9 @@
 ## husky and other modules
 当你将项目拉下来之后，请运行：
 > pnpm install
+
 > pnpm prepare
 由此，你的项目就可以跑起来并且正常得git提交了，注意git提交规范哦！
+
+TODOLIST
+1. 聊天页未实现url路由直接刷新，必须要通过跳转 -> client\src\view\Chat\view\FriendChat.vue

@@ -5,32 +5,46 @@ import ChatRoomHead from '../component/ChatRoomHead.vue';
 import ChatRoomInput from '../component/ChatRoomInput.vue';
 import { io } from "socket.io-client"
 import { ref } from 'vue';
-import { AUTHORIZATION } from '../../../constant/request';
+import { AUTHORIZATION, socketFriendChatUrl } from '../../../constant/request';
+import { storeToRefs } from 'pinia';
+import { useUserInfoStore } from '../../../store/userInfo.pinia';
 
 const route = useRoute();
-// console.log(route.params, route.query)
 const { friendNickname, userId, friendId } = route.params as { friendNickname: string; userId: string; friendId: string };
 const inputMessage = ref<string>('');
+const { userInfo } = storeToRefs(useUserInfoStore())
 
-const socket = io("http://localhost:3001");
+const socket = io(socketFriendChatUrl);
 socket.on("connect", () => {
+    let token = localStorage.getItem(AUTHORIZATION);
+    if(!token || !userInfo.value?.id) {
+        window.$message.warning("您还未登录，或者好友信息错误", { closable: true })
+        return
+    }
     socket.emit('userLogin', {
-        token: localStorage.getItem(AUTHORIZATION),
-        userId,
+        token,
+        userId: userInfo.value?.id,
         socketId: socket.id
     })
 
     socket.on('getMsgFromFriend', (message: any) => {
+        console.log(1214443)
         console.log(message)
     })
 });
 
 const handleSendMsg = () => {
+    if(!userId || !friendId) {
+        window.$message.warning("您还未登录，或者好友信息错误", { closable: true })
+        return
+    }
+
     socket.emit('sendMsgToFriend', {
-        userId,
-        friendId: userId,
+        userId: userInfo.value?.id,
+        friendId: friendId,
         token: localStorage.getItem(AUTHORIZATION),
-        message: inputMessage.value
+        message: inputMessage.value,
+        chatRoomId: route.query?.chatRoomId
     })
 }
 

@@ -45,9 +45,17 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             return;
         }
         isUserInfoLoading = true;
-        const { code, data } = await getAllMyFriendApi(userInfo.value?.id || '')
+        let { code, data } = await getAllMyFriendApi(userInfo.value?.id || '')
         isUserInfoLoading = false;
         if(code === 200) {
+            data = data.map(it => {
+                if(userInfo.value?.id != it.userId) {
+                    let t = it.userId
+                    it.userId = it.friendId
+                    it.friendId = t
+                }
+                return it
+            })
             userFriendList.value = data
             return true;
         }
