@@ -1,16 +1,23 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router';
 import ChatMessageInfoItem from './ChatMessageInfoItem.vue';
+import { IFriendHistoryMsg } from '../../../api/friendchatmsg';
+import { normalImageUrl } from '../../../constant/request';
 
 const route = useRoute();
-
-const { friendAvatar } = route.params as { friendAvatar: string };
+const props = defineProps<{ chatMessage: IFriendHistoryMsg[] }>();
 
 </script>
 
 <template>
     <div class="chatroom-content-container">
-        <ChatMessageInfoItem type="left" message="11111" :avatar="friendAvatar" color="" />
+        <ChatMessageInfoItem 
+            v-for="item in props.chatMessage" 
+            type="left"
+            :message="item.messageInfo" 
+            :avatar="normalImageUrl + item.avatar"
+            color="" 
+        />
     </div>
 </template>
 
