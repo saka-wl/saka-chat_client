@@ -9,6 +9,7 @@ import { storeToRefs } from "pinia";
 
 const { props } = defineProps<IProps>();
 const { userInfo } = storeToRefs(useUserInfoStore())
+const { getUserFriendList } = useUserInfoStore();
 const emit = defineEmits(['handleFriendRequest'])
 
 const imageUrl = computed(() => {
@@ -26,27 +27,18 @@ const handleFriendRequest = async (isDispose: number) => {
         friendId: (props.toUserId ? props.toUserId : props.fromUserId) || '',
         requestId: props.requestId
     })
-    if (isDispose === -1) {
-        window.$dialog.warning({
-            title: '不同意ta的好友请求',
-            content: '你确定拒绝ta的好友请求吗？',
-            positiveText: '确定',
-            negativeText: '不确定',
-            onPositiveClick: async () => {
-                const resp = await fetch()
-            }
-        })
-    } else if (isDispose === 1) {
-        window.$dialog.warning({
-            title: '同意ta的好友请求',
-            content: '你确定同意ta的好友请求吗？',
-            positiveText: '确定',
-            negativeText: '不确定',
-            onPositiveClick: async () => {
-                const resp = await fetch()
-            }
-        })
-    }
+    const title = (isDispose === -1 ? '不' : '') + "同意ta的好友请求";
+    const content = "你确定" + (isDispose === -1 ? '拒绝' : '同意') + "ta的好友请求吗？";
+    window.$dialog.warning({
+        title,
+        content,
+        positiveText: '确定',
+        negativeText: '不确定',
+        onPositiveClick: async () => {
+            await fetch();
+            await getUserFriendList();
+        }
+    })
     emit("handleFriendRequest", props.requestId, isDispose)
 }
 

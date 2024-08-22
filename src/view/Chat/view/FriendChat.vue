@@ -12,13 +12,35 @@ import { getFriendHistoryMsgApi, IFriendHistoryMsg } from '../../../api/friendch
 import formatTime from '../../../utils/formatTime';
 
 const route = useRoute();
-const { friendNickname, userId, friendId, friendAvatar } = route.params as { friendNickname: string; userId: string; friendId: string; friendAvatar: string };
+let { friendNickname, userId, friendId, friendAvatar } = route.params as { friendNickname: string; userId: string; friendId: string; friendAvatar: string };
 const inputMessage = ref<string>('');
 const chatMessage = ref<IFriendHistoryMsg[]>([]);
-const { userInfo } = storeToRefs(useUserInfoStore());
+const { userInfo, userFriendList } = storeToRefs(useUserInfoStore());
+const { getUserFriendList } = useUserInfoStore();
 const socket = io(socketFriendChatUrl);
 
 async function init() {
+    /**
+     * 如果链接直接跳转过来，可能会处于无friend信息状态
+     */
+    if(!userFriendList.value) {
+        await getUserFriendList();
+    }
+    if (!friendId && userFriendList.value) {
+        for (let item of userFriendList.value) {
+            if(item.chatRoomId === route.query.chatRoomId) {
+                friendId = item.friendId;
+                friendAvatar = item.friendAvatar;
+                friendNickname = item.friendNickname;
+                userId = userInfo.value?.id || '';
+            }
+            break;
+        }
+    }
+
+    /**
+     * 实时聊天
+     */
     socket.on("connect", () => {
         let token = localStorage.getItem(AUTHORIZATION);
         if(!token || !userInfo.value?.id) {
@@ -47,7 +69,7 @@ async function init() {
         }
         data = data.map(it => {
             if(it.createdAt) it.createdAt = formatTime(new Date(it.createdAt));
-            console.log(it.fromUserId, userInfo.value?.id)
+            // console.log(it.fromUserId, userInfo.value?.id)
             it.avatar = it.fromUserId == userInfo.value?.id ? userInfo.value.avatar : friendAvatar;
             return it
         })
@@ -58,6 +80,9 @@ async function init() {
 
 init()
 
+/**
+ * 发送消息
+ */
 const handleSendMsg = () => {
     if(!userId || !friendId) {
         window.$message.warning("您还未登录，或者好友信息错误", { closable: true })
