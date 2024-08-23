@@ -5,6 +5,9 @@ import { autoLoginApi, enrollApi, Ilogin, loginApi } from '../api/user/user';
 import { AUTHORIZATION } from '../constant/request';
 import { useMessage } from "naive-ui"
 import { getAllMyFriendApi, IUserFriend } from '../api/friend';
+import { IFriendHistoryMsg } from '../api/friendchatmsg';
+import { socket } from "../utils/socket.ts";
+import { $emit, $off } from '../utils/emit.ts';
 
 export interface IUserEnrollParams {
     account: string;
@@ -19,11 +22,13 @@ export interface IUserEnrollParams {
 interface IUserStore {
     userInfo: Ref<Ilogin | null>;
     userFriendList: Ref<IUserFriend[] | null>;
+    isSocketLogin: boolean;
     userLogin: (account: string, password: string, code: string, reFreshCaptcha: Function) => Promise<boolean | undefined>;
     userEnroll: (obj: IUserEnrollParams, reFreshCaptcha: Function) => Promise<boolean | undefined>;
     userLoginOut: (cb: () => void) => void;
     userAutoLogin: () => void;
     getUserFriendList: () => Promise<boolean | undefined>;
+    socketLogin: () => Promise<void>;
 }
 
 declare global {
@@ -33,10 +38,11 @@ declare global {
 }
 
 export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
-    const userInfo = ref<Ilogin | null>(null)
+    const userInfo = ref<Ilogin | null>(null);
     let isUserInfoLoading = false;
     const userFriendList = ref<IUserFriend[] | null>(null);
     let isUserFriendListLoading = false;
+    let isSocketLogin = false;
 
     // 获取好友列表
     const getUserFriendList = async () => {
@@ -77,10 +83,12 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             return false;
         }
         userInfo.value = resp.data;
+        
         window.$message.success('登录成功，你好' + (resp.data?.nickname || 'saka'), { closable: true });
         isUserInfoLoading = false;
         // 无需等待
         getUserFriendList();
+        socketLogin();
         return true;
     }
     // 注册
@@ -103,6 +111,8 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             window.$message.success('注册成功，你好' + (obj.nickname || 'saka'), { closable: true });
             userFriendList.value = [];
             isUserInfoLoading = false;
+            getUserFriendList();
+            socketLogin();
             return true;
         }
         else if (resp.code === 410) {
@@ -121,28 +131,64 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         userInfo.value = null;
         localStorage.removeItem(AUTHORIZATION);
         userFriendList.value = null;
+        isSocketLogin = false;
         cb()
     }
 
-    // 自动登录
+    // 自动登录 聊天断开
     const userAutoLogin = async () => {
         const resp = await autoLoginApi();
         if (resp.code === 200 && resp.data) {
             userInfo.value = resp.data;
             window.$message.success('自动登录成功，你好' + (resp.data?.nickname || 'saka'), { closable: true });
             getUserFriendList();
+            socketLogin();
         } else {
             window.$message.warning(resp.msg, { closable: true });
         }
     }
 
+    // 实时聊天 + 用户上线
+    const socketLogin = async () => {
+        if (isSocketLogin) {
+            window.$message.success("您的聊天已经处于链接状态", { closable: true });
+            return;
+        }
+        if (!userInfo.value) {
+            window.$message.warning("您还未登录，请先登录吧～", { closable: true });
+            return;
+        }
+        /**
+         * 实时聊天 + 用户上线
+         */
+        socket.on("connect", () => {
+            let token = localStorage.getItem(AUTHORIZATION);
+            if(!token || !userInfo.value?.id) {
+                window.$message.warning("您还未登录，或者好友信息错误", { closable: true })
+                return
+            }
+            isSocketLogin = true;
+            socket.emit('userLogin', {
+                token,
+                userId: userInfo.value?.id,
+                socketId: socket.id
+            })
+
+            socket.on('getMsgFromFriend', (data: IFriendHistoryMsg) => {
+                $emit('notifyNewMsg', data)
+            })
+        });
+    }
+
     return {
         userInfo,
         userFriendList,
+        isSocketLogin,
         userLogin,
         userEnroll,
         userLoginOut,
         userAutoLogin,
-        getUserFriendList
+        getUserFriendList,
+        socketLogin,
     }
 })
