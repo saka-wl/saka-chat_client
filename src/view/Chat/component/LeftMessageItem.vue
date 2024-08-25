@@ -10,7 +10,6 @@ const props = defineProps({
     newMsg: String,
 })
 const avatarUrl = computed(() => {
-    console.log(normalImageUrl + props.avatar)
     return normalImageUrl + props.avatar;
 })
 

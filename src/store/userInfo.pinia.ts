@@ -141,8 +141,8 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         if (resp.code === 200 && resp.data) {
             userInfo.value = resp.data;
             window.$message.success('自动登录成功，你好' + (resp.data?.nickname || 'saka'), { closable: true });
-            getUserFriendList();
-            socketLogin();
+            await socketLogin();
+            await getUserFriendList();
         } else {
             window.$message.warning(resp.msg, { closable: true });
         }
@@ -161,23 +161,48 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         /**
          * 实时聊天 + 用户上线
          */
-        socket.on("connect", () => {
-            let token = localStorage.getItem(AUTHORIZATION);
-            if(!token || !userInfo.value?.id) {
-                window.$message.warning("您还未登录，或者好友信息错误", { closable: true })
-                return
-            }
-            isSocketLogin = true;
-            socket.emit('userLogin', {
-                token,
-                userId: userInfo.value?.id,
-                socketId: socket.id
-            })
+        // socket.on("connect", () => {
+        //     let token = localStorage.getItem(AUTHORIZATION);
+        //     if(!token || !userInfo.value?.id) {
+        //         window.$message.warning("您还未登录，或者好友信息错误", { closable: true })
+        //         return
+        //     }
 
-            socket.on('getMsgFromFriend', (data: IFriendHistoryMsg) => {
-                $emit('notifyNewMsg', data)
-            })
-        });
+        //     isSocketLogin = true;
+        //     socket.emit('userLogin', {
+        //         token,
+        //         userId: userInfo.value?.id,
+        //         socketId: socket.id
+        //     })
+
+        //     socket.on('getMsgFromFriend', (data: IFriendHistoryMsg) => {
+        //         $emit('notifyNewMsg', data)
+        //     })
+
+        //     socket.on('getMsgFromMine', (data: IFriendHistoryMsg) => {
+        //         $emit('updateMineMsg', data)
+        //     })
+        // });
+        let token = localStorage.getItem(AUTHORIZATION);
+        if(!token || !userInfo.value?.id) {
+            window.$message.warning("您还未登录，或者好友信息错误", { closable: true })
+            return
+        }
+
+        isSocketLogin = true;
+        socket.emit('userLogin', {
+            token,
+            userId: userInfo.value?.id,
+            socketId: socket.id
+        })
+
+        socket.on('getMsgFromFriend', (data: IFriendHistoryMsg) => {
+            $emit('notifyNewMsg', data)
+        })
+
+        socket.on('getMsgFromMine', (data: IFriendHistoryMsg) => {
+            $emit('updateMineMsg', data)
+        })
     }
 
     return {

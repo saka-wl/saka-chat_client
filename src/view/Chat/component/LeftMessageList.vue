@@ -3,8 +3,11 @@ import { ref } from 'vue';
 import { getFriendNewMsgApi, IFriendNewMsg } from '../../../api/friendchatmsg';
 import LeftMessageItem from './LeftMessageItem.vue';
 import { useRoute, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useUserInfoStore } from '../../../store/userInfo.pinia';
 
 const leftMsgList = ref<IFriendNewMsg[]>([]);
+const { userFriendList } = storeToRefs(useUserInfoStore());
 const router = useRouter()
 const route = useRoute();
 
@@ -14,7 +17,8 @@ async function init() {
         window.$message.warning(msg || "服务器错误！", { closable: true });
         return;
     }
-    leftMsgList.value = Object.values(data);
+    let friendAvatar: string = userFriendList.value?.find(it => it.chatRoomId == route.query.chatRoomId)?.friendAvatar || '';
+    leftMsgList.value = Object.values(data).map(it => ({ ... it, friendAvatar }));
 }
 init();
 

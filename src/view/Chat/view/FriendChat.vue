@@ -33,8 +33,8 @@ async function init() {
                 friendAvatar = item.friendAvatar;
                 friendNickname = item.friendNickname;
                 userId = userInfo.value?.id || '';
+                break;
             }
-            break;
         }
     }
 
@@ -49,6 +49,7 @@ async function init() {
             it.avatar = it.fromUserId == userInfo.value?.id ? userInfo.value.avatar : friendAvatar;
             return it
         })
+        // console.log(data)
         chatMessage.value = data
         // 更新消息状态
         updateFriendChatMsgStatusApi(userId, route.query.chatRoomId as string);
@@ -57,12 +58,17 @@ async function init() {
     /**
      * 更新自己发的消息
      */
-    socket.on('getMsgFromMine', (resp) => {
-        chatMessage.value = [... chatMessage.value, { ... resp, avatar: userInfo.value?.avatar }]
-    })
+    // socket.on('getMsgFromMine', (resp) => {
+    //     chatMessage.value = [... chatMessage.value, { ... resp, avatar: userInfo.value?.avatar }]
+    // })
 }
 
 init();
+
+watch(() => route.query.chatRoomId, (newVal, oldVal) => {
+    console.log('1111')
+    if(oldVal && newVal !== oldVal) init();
+});
 
 /**
  * 发送消息
@@ -89,6 +95,10 @@ const handleSendMsg = () => {
  * 接收到消息就添加
  */
 $on('notifyNewMsg', (data: IFriendHistoryMsg) => {
+    chatMessage.value = [... chatMessage.value, { ... data, avatar: friendAvatar }]
+})
+
+$on('updateMineMsg', (data: IFriendHistoryMsg) => {
     chatMessage.value = [... chatMessage.value, { ... data, avatar: friendAvatar }]
 })
 
