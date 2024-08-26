@@ -54,19 +54,11 @@ async function init() {
         // 更新消息状态
         updateFriendChatMsgStatusApi(userId, route.query.chatRoomId as string);
     }
-
-    /**
-     * 更新自己发的消息
-     */
-    // socket.on('getMsgFromMine', (resp) => {
-    //     chatMessage.value = [... chatMessage.value, { ... resp, avatar: userInfo.value?.avatar }]
-    // })
 }
 
 init();
 
 watch(() => route.query.chatRoomId, (newVal, oldVal) => {
-    console.log('1111')
     if(oldVal && newVal !== oldVal) init();
 });
 
@@ -99,7 +91,7 @@ $on('notifyNewMsg', (data: IFriendHistoryMsg) => {
 })
 
 $on('updateMineMsg', (data: IFriendHistoryMsg) => {
-    chatMessage.value = [... chatMessage.value, { ... data, avatar: friendAvatar }]
+    chatMessage.value = [... chatMessage.value, { ... data, avatar: userInfo.value?.avatar }]
 })
 
 </script>

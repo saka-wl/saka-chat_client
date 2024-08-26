@@ -17,8 +17,11 @@ async function init() {
         window.$message.warning(msg || "服务器错误！", { closable: true });
         return;
     }
-    let friendAvatar: string = userFriendList.value?.find(it => it.chatRoomId == route.query.chatRoomId)?.friendAvatar || '';
-    leftMsgList.value = Object.values(data).map(it => ({ ... it, friendAvatar }));
+    let tmp = Object.values(data);
+    tmp.forEach(item => {
+        item.friendAvatar = userFriendList.value?.find(it => it.userId == item.fromUserId || it.friendId == item.fromUserId)?.friendAvatar || '';
+    });
+    leftMsgList.value = tmp;
 }
 init();
 
