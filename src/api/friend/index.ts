@@ -61,6 +61,7 @@ export interface IUserFriend {
     friendNickname: string;
     friendAvatar: string;
     friendEmail: string;
+    isOnline: boolean;
 }
 
 export const getAllMyFriendApi = async (userId: string): Promise<ResponseData<IUserFriend[]>> => {
