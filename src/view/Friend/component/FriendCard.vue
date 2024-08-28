@@ -7,11 +7,13 @@ interface IProps {
     avatar: string;
     nickname: string;
     account: string;
+    isOnline: boolean;
 }
 const props = withDefaults(defineProps<IProps>(), {
     avatar: '',
     nickname: '没有名字的小Saka',
-    account: ''
+    account: '',
+    isOnline: false,
 });
 
 const imageUrl = computed(() => {
@@ -29,6 +31,7 @@ const imageUrl = computed(() => {
         <div class="user-info__message">
             <div class="nickname">昵称：{{ props.nickname }}</div>
             <div class="account">账号：{{ props.account }}</div>
+            <div class="isOnline">{{ isOnline ? '在线' : '不在线' }}</div>
         </div>
     </div>
 </template>

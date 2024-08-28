@@ -128,10 +128,11 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
     // 退出登录
     const userLoginOut = (cb: () => void) => {
         window.$message.success('再见啦，' + (userInfo.value?.nickname || 'saka') + '同学～', { closable: true });
+        socket.emit('userLogout', userInfo.value?.id);
         userInfo.value = null;
-        localStorage.removeItem(AUTHORIZATION);
         userFriendList.value = null;
         isSocketLogin = false;
+        localStorage.removeItem(AUTHORIZATION);
         cb()
     }
 
@@ -180,6 +181,15 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
 
         socket.on('getMsgFromMine', (data: IFriendHistoryMsg) => {
             $emit('updateMineMsg', data)
+        })
+
+        socket.on('friendOnlineChange', (friendId: string, isOnline: boolean) => {
+            userFriendList.value?.forEach((it, index) => {
+                if(it.friendId == friendId || it.userId == friendId) {
+                    it.isOnline = isOnline;
+                }
+            })
+            $emit('updateFiendOnlineStatus', friendId, isOnline);
         })
     }
 
