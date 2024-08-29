@@ -184,8 +184,10 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         })
 
         socket.on('friendOnlineChange', (friendId: string, isOnline: boolean) => {
+            console.log(friendId);
             userFriendList.value?.forEach((it, index) => {
                 if(it.friendId == friendId || it.userId == friendId) {
+                    console.log(it);
                     it.isOnline = isOnline;
                 }
             })

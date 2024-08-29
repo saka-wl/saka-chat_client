@@ -2,32 +2,36 @@
 import { useRoute, useRouter } from 'vue-router';
 import { NButton } from 'naive-ui';
 import FriendCard from '../component/FriendCard.vue';
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
+import { IUserFriend } from '../../../api/friend';
+import { storeToRefs } from 'pinia';
+import { useUserInfoStore } from '../../../store/userInfo.pinia';
+
 const route = useRoute();
 const router = useRouter();
-let { friendAvatar, chatRoomId, friendNickname, userId, friendAccount, friendId } = 
-    route.params as { friendAvatar: string, chatRoomId: string, friendNickname: string, userId: string, friendEmail: string, friendAccount: string, friendId: string };
+const friendInfo = ref<IUserFriend>();
+const { userFriendList, userInfo } = storeToRefs(useUserInfoStore())
 
-watch(() => route.params, (newVal) => {
-    friendAvatar = newVal.friendAvatar as string
-    chatRoomId = newVal.chatRoomId as string
-    friendNickname = newVal.friendNickname as string
-    userId = newVal.userId as string
-    friendAccount = newVal.friendAccount as string
-    friendId = newVal.friendId as string
+watch(() => route.params.id, (newVal) => {
+    if (!newVal) {
+        return;
+    }
+    friendInfo.value = userFriendList.value?.find(it => it.chatRoomId == newVal)
+}, {
+    immediate: true
 })
 const goToChat = () => {
     router.push({
         name: 'friendchat',
         query: {
-            chatRoomId
+            chatRoomId: friendInfo.value?.chatRoomId
         },
         params: {
-            userId,
-            friendAccount,
-            friendId,
-            friendNickname,
-            friendAvatar
+            userId: userInfo.value?.id || '',
+            friendAccount: friendInfo.value?.friendAccount || '',
+            friendId: friendInfo.value?.friendId || '',
+            friendNickname: friendInfo.value?.friendNickname || '',
+            friendAvatar: friendInfo.value?.friendAvatar || '',
         }
     });
 }
@@ -35,7 +39,7 @@ const goToChat = () => {
 
 <template>
     <div class="friend-detail-container">
-        <FriendCard :avatar="friendAvatar" :nickname="friendNickname" :account="friendAccount" />
+        <FriendCard :avatar="friendInfo.friendAvatar" :nickname="friendInfo.friendNickname" :account="friendInfo.friendAccount" :isOnline="friendInfo.isOnline" />
         <n-button type="info" @click="goToChat">
             去聊天
         </n-button>

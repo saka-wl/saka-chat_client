@@ -6,7 +6,6 @@ import { useUserInfoStore } from '../../../store/userInfo.pinia';
 import { storeToRefs } from 'pinia';
 import FriendCard from './FriendCard.vue';
 import { useRouter } from 'vue-router';
-import { $on } from '../../../utils/emit';
 
 const isMyFriendListShow = ref(false)
 const isMyGroupFriendListShow = ref(false)
@@ -24,7 +23,7 @@ const init = async () => {
 }
 
 const goToFriendDetail = (item: IUserFriend) => {
-    router.push({ name: 'friendDetail', params: { ... item}})
+    router.push({ name: 'friendDetail', params: { id: item.id }})
 }
 
 init()
