@@ -16,7 +16,7 @@ watch(() => route.params.id, (newVal) => {
     if (!newVal) {
         return;
     }
-    friendInfo.value = userFriendList.value?.find(it => it.chatRoomId == newVal)
+    friendInfo.value = userFriendList.value?.find(it => it.id == newVal)
 }, {
     immediate: true
 })

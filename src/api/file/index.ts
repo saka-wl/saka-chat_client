@@ -1,6 +1,6 @@
 
+import { ResponseData } from "../common.ts";
 import axios from "../request.ts";
-import { Md5 } from 'ts-md5';
 
 export interface IFileInfo {
     fileId: string;
@@ -10,66 +10,44 @@ export interface IFileInfo {
     status: number;
     fileType: number;
 }
+// 1 -> 普通文件；2 -> 大文件；3 -> 视频小文件；4 -> 视频流大文件
 
-export function createMd5ChunkInfo(file: File, index: number, chunkSize: number) {
-    return new Promise((resolve) => {
-        const start = index * chunkSize;
-        const end = start + chunkSize;
-        const fileReader = new FileReader();
-        const md5 = new Md5();
-        /**
-         * onload 该事件在读取操作完成时触发
-         * @param {*} e 就是 -> file.slice(start, end)
-         */
-        fileReader.onload = (e: any) => {
-            md5.appendByteArray(e.target.result);
-            resolve({
-                start,
-                end,
-                index,
-                hash: md5.end(),
-                // 文件分片的内容
-                content: new Blob([e.target.result])
-            });
-        };
-        fileReader.readAsArrayBuffer(file.slice(start, end));
-    });
+// 普通文件 -》
+export const handleNormalFileApi = async (file: File, ownUserId: string, hash: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return await axios.post<any, ResponseData<string | undefined>>(
+        '/common/uploadNormalFile/single/normalfile?hash=' + hash + '&ownUserId=' + ownUserId,
+        formData
+    );
 }
 
-export function createMd5FileInfo(file: File) {
-    const md5 = new Md5();
-    return new Promise((resolve) => {
-        const fileReader = new FileReader();
-        fileReader.onload = (e) => {
-            md5.appendByteArray(e.target.result);
-            resolve({
-                hash: md5.end()
-            });
-        };
-        fileReader.readAsArrayBuffer(file);
-    })
+// 大文件 -》
+interface IEditNewFileInfo {
+    fileId: string;
+    pwd?: string;
+    fileName: string;
+    ownUserId?: string;
+    fileUploadInfo: IFileUploadInfo;
+}
+interface IFileUploadInfo {
+    fileId: string;
+    hasUploadedHash: Array<string>;
+    needUploadedHash: Array<string>;
+}
+export const editNewFileInfoApi = async (param: IEditNewFileInfo): Promise<{ id: string; needUploadedHash: string[] }> => {
+    const { code, data, msg } = await axios.post<IEditNewFileInfo, ResponseData<{ id: string; needUploadedHash: string[] }>>('/common/uploadLargeFile/editNewFileInfo', param);
+    msg && window.$message.success(msg, { closable: true });
+    return data;
 }
 
-/**
- * 1 -> 普通文件；2 -> 大文件；3 -> 视频流小文件；4 -> 视频流大文件
- * @param file 
- * @param type 
- */
-export const uploadFile = (file: File, type = 1) => {
-    if(type === 1 || type === 3) {
-        handleNormalFile(file);
-    }else if(type === 2 || type === 4) {
-        handleLargeFile(file);
-    }
-}
-
-const handleNormalFile = async (file: File) => {
-    console.log(await createMd5FileInfo(file));
-    // const formData = new FormData();
-    // formData.append('file', file);
-    // return await axios.post('/common/uploadNormalFile/single/normalfile');
-}
-
-const handleLargeFile = async (file: File) => {
-
+export const addFileChunkApi = async (file: File, id: string, hash: string, fileId: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { code, data, msg } =  await axios.post<any, ResponseData<string | string[]>>(
+        `/common/uploadLargeFile/uploadFileChunk?id=${id}&chunkHash=${hash}&fileId=${fileId}`,
+        formData
+    );
+    msg && window.$message.success(msg, { closable: true });
+    return data;
 }
