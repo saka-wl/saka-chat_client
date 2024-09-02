@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
-import { NButton } from 'naive-ui';
+import { NButton, NProgress } from 'naive-ui';
 import { IFileSlice, useLargeUploadFile } from '../../utils/file';
 import { addFileChunkApi, editNewFileInfoApi } from '../../api/file';
 import { storeToRefs } from 'pinia';
@@ -80,13 +80,15 @@ const fileUpload = async () => {
         if(resp && typeof resp === 'string') {
             fileUploadProcess.value = 100;
             window.$message.success("文件上传完成！", { closable: true });
-            await nextTick();
-            fileInit();
+            const timer = setTimeout(() => {
+                fileInit();
+                clearTimeout(timer);
+            }, 1000)
             return;
         }else if(resp && resp.length > 0) {
             fileInfo.needUploadedHash = fileInfo.needUploadedHash.filter(it => it !== chunkHash);
             fileInfo.hasUploadedHash.push(chunkHash);
-            fileUploadProcess.value = fileUploadProcess.value + Math.floor(1 / (fileInfo.needUploadedHash.length + fileInfo.hasUploadedHash.length));
+            fileUploadProcess.value = fileUploadProcess.value + Math.floor(100 / (fileInfo.needUploadedHash.length + fileInfo.hasUploadedHash.length));
         }
     }
     
@@ -105,7 +107,7 @@ const fileDeleteUpload = () => {
     <div class="file-upload-container">
         <input type="file" @change="handleUploadFile" />
         <div class="file-process">
-            {{ fileUploadProcess }}
+            <n-progress type="line" :percentage="fileUploadProcess" indicator-placement="inside" style="width: 170px;" />
         </div>
         <n-button type="info" @click="fileUpload">
             开始/继续上传

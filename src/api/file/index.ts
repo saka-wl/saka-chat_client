@@ -30,7 +30,7 @@ interface IEditNewFileInfo {
     ownUserId?: string;
     fileUploadInfo: IFileUploadInfo;
 }
-interface IFileUploadInfo {
+export interface IFileUploadInfo {
     fileId: string;
     hasUploadedHash: Array<string>;
     needUploadedHash: Array<string>;

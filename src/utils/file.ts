@@ -1,6 +1,6 @@
 
-import { FILE_SLICE_SINGLE_SIZE, WEB_WORKER_NUMBER } from "../constant/file";
-import { handleNormalFileApi } from "../api/file";
+import { FILE_SLICE_SINGLE_SIZE, FILE_TOTAL_SLICE, WEB_WORKER_NUMBER } from "../constant/file";
+import { handleNormalFileApi, IFileUploadInfo } from "../api/file";
 import sparkmd5 from "../utils/sparkMd5";
 
 export interface IFileSlice {
@@ -46,7 +46,8 @@ export function createMd5FileInfo(file: File): Promise<{ hash: string }> {
                 hash: spark.end(),
             });
         };
-        fileReader.readAsArrayBuffer(file);
+        const fileEndIndex = Math.min(FILE_TOTAL_SLICE, file.size - 1);
+        fileReader.readAsArrayBuffer(file.slice(0, fileEndIndex));
     })
 }
 
@@ -56,16 +57,17 @@ export const getLargeFileSliceInfo = async (file: File): Promise<IFileSlice[]> =
     // 需要处理的文件切片总个数
     const fileHandleLength = Math.ceil(fileToalSize / FILE_SLICE_SINGLE_SIZE);
     // 可以处理文件的线程数
-    const handleWebWorkerNumber = Math.min(fileHandleLength, WEB_WORKER_NUMBER);
+    let handleWebWorkerNumber = Math.min(fileHandleLength, WEB_WORKER_NUMBER);
+    if (fileHandleLength > 25) handleWebWorkerNumber += 2;
     // 每个线程需要处理多少文件
     const singleWebWorkerHandleFileSliceNum = Math.ceil(fileHandleLength / handleWebWorkerNumber);
     let finishedNumber = 0;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
         for (let i = 0; i < handleWebWorkerNumber; i++) {
             // 创建一个新的 Worker 线程
             const worker = new Worker(
                 new URL(
-                    './worker.js',
+                    './worker_chunk.js',
                     import.meta.url
                 ),
                 {
@@ -96,6 +98,30 @@ export const getLargeFileSliceInfo = async (file: File): Promise<IFileSlice[]> =
     })
 }
 
+export const getLargeFileInfo = async (file: File): Promise<string> => {
+    return new Promise((res, rej) => {
+        // 整体文件的hash
+        const workerFile = new Worker(
+            new URL(
+                './worker_file.js',
+                import.meta.url
+            ),
+            {
+                type: 'module'
+            }
+        );
+        workerFile.postMessage(file);
+        workerFile.onmessage = (e) => {
+            res(e.data.hash)
+        }
+    })
+}
+
+const getLargeFileHash = (fileChunks: string[]): string => {
+    const fileHash = sparkmd5.hash(JSON.stringify(fileChunks));
+    return fileHash;
+}
+
 /**
  * 普通文件处理hook
  * @param file 
@@ -111,20 +137,25 @@ export const useUploadFile = async (file: File, ownUserId: string) => {
     return data;
 }
 
+interface IUseLargeUploadFile {
+    fileName: string;
+    fileId: string;
+    fileSliceInfo: IFileSlice[],
+    fileUploadInfo: IFileUploadInfo
+}
 /**
  * 大文件分片处理hook
  * @param file 
  * @returns 
  */
-export const useLargeUploadFile = async (file: File) => {
-    // 整体文件的hash
-    const { hash } = await createMd5FileInfo(file);
+export const useLargeUploadFile = async (file: File): Promise<IUseLargeUploadFile> => {
     const fileSliceInfo = await getLargeFileSliceInfo(file);
-    const fileUploadInfo = { fileId: hash, hasUploadedHash: [], needUploadedHash: fileSliceInfo.map(it => it.hash) };
+    const fileHash = getLargeFileHash(fileSliceInfo.map(it => it.hash));
+    const fileUploadInfo = { fileId: fileHash, hasUploadedHash: [], needUploadedHash: fileSliceInfo.map(it => it.hash) };
     return {
         fileName: file.name,
         fileSliceInfo,
         fileUploadInfo,
-        fileId: hash,
-    }
+        fileId: fileHash,
+    };
 }

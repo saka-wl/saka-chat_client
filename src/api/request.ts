@@ -3,7 +3,7 @@ import axios from "axios";
 import { AUTHORIZATION, REQUEST_URL } from "../constant/request";
 
 const instance = axios.create();
-instance.defaults.timeout = 2500;
+instance.defaults.timeout = 25000;
 instance.defaults.baseURL = REQUEST_URL;
 instance.defaults.withCredentials = true;
 
