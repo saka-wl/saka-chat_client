@@ -1,6 +1,6 @@
 
 import { FILE_SLICE_SINGLE_SIZE, FILE_TOTAL_SLICE, WEB_WORKER_NUMBER } from "../constant/file";
-import { handleNormalFileApi, IFileUploadInfo } from "../api/file";
+import { addFileChunkApi, handleNormalFileApi, IFileUploadInfo } from "../api/file";
 import sparkmd5 from "../utils/sparkMd5";
 
 export interface IFileSlice {
@@ -159,4 +159,31 @@ export const useLargeUploadFile = async (file: File): Promise<IUseLargeUploadFil
         fileUploadInfo,
         fileId: fileHash,
     };
+}
+
+export interface IFileInfo {
+    id: string;
+    fileId: string;
+    fileName: string;
+    fileSliceInfo: IFileSlice[];  // 文件分片信息
+    hasUploadedHash: string[];
+    needUploadedHash: string[];
+}
+export const handleFileChunkUpload = async (fileInfo: IFileInfo, chunkHash: string, updateFileUploadProcess: Function, fileInit: Function): Promise<IFileInfo | string> => {
+    let item = fileInfo.fileSliceInfo.find(it => it.hash === chunkHash);
+    const resp = await addFileChunkApi(item?.content as File, fileInfo.id, chunkHash, fileInfo.fileId);
+    if (resp && typeof resp === 'string') {
+        updateFileUploadProcess(100);
+        window.$message.success("文件上传完成！", { closable: true });
+        const timer = setTimeout(() => {
+            fileInit();
+            clearTimeout(timer);
+        }, 1000)
+        return resp;
+    } else if (resp && resp.length > 0) {
+        fileInfo.needUploadedHash = fileInfo.needUploadedHash.filter(it => it !== chunkHash);
+        fileInfo.hasUploadedHash.push(chunkHash);
+        updateFileUploadProcess(Math.floor(100 / (fileInfo.needUploadedHash.length + fileInfo.hasUploadedHash.length)));
+    }
+    return fileInfo;
 }
