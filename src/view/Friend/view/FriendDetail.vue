@@ -23,15 +23,16 @@ watch(() => route.params.id, (newVal) => {
 const goToChat = () => {
     router.push({
         name: 'friendchat',
-        query: {
-            chatRoomId: friendInfo.value?.chatRoomId
-        },
+        // query: {
+        //     chatRoomId: friendInfo.value?.chatRoomId
+        // },
         params: {
             userId: userInfo.value?.id || '',
             friendAccount: friendInfo.value?.friendAccount || '',
             friendId: friendInfo.value?.friendId || '',
             friendNickname: friendInfo.value?.friendNickname || '',
             friendAvatar: friendInfo.value?.friendAvatar || '',
+            chatRoomId: friendInfo.value?.chatRoomId as string,
         }
     });
 }

@@ -125,6 +125,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         isUserInfoLoading = false;
         return false;
     }
+
     // 退出登录
     const userLoginOut = (cb: () => void) => {
         window.$message.success('再见啦，' + (userInfo.value?.nickname || 'saka') + '同学～', { closable: true });
@@ -184,7 +185,6 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         })
 
         socket.on('friendOnlineChange', (friendId: string, isOnline: boolean) => {
-            console.log(friendId);
             userFriendList.value?.forEach((it, index) => {
                 if(it.friendId == friendId || it.userId == friendId) {
                     console.log(it);

@@ -12,7 +12,7 @@ const router = useRouter()
 const route = useRoute();
 
 async function init() {
-    const { code, data, msg } = await getFriendNewMsgApi(route.query.chatRoomId as string);
+    const { code, data, msg } = await getFriendNewMsgApi(route.params.chatRoomId as string);
     if(code !== 200) {
         window.$message.warning(msg || "服务器错误！", { closable: true });
         return;
@@ -28,14 +28,15 @@ init();
 const handleFriendChatClick = (item: IFriendNewMsg) => {
     router.push({
         name: 'friendchat',
-        query: {
-            chatRoomId: item.chatRoomId
-        },
+        // query: {
+        //     chatRoomId: item.chatRoomId
+        // },
         params: {
             userId: item.toUsereId,
             friendId: item.fromUserId,
             friendNickname: item.friendNickname,
-            friendAvatar: item.friendAvatar
+            friendAvatar: item.friendAvatar,
+            chatRoomId: item.chatRoomId
         }
     });
 }

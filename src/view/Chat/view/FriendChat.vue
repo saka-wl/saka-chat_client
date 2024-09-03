@@ -28,7 +28,7 @@ async function init() {
     }
     if (!friendId && userFriendList.value) {
         for (let item of userFriendList.value) {
-            if(item.chatRoomId == route.query.chatRoomId) {
+            if(item.chatRoomId == route.params.chatRoomId) {
                 friendId = item.friendId;
                 friendAvatar = item.friendAvatar;
                 friendNickname = item.friendNickname;
@@ -38,8 +38,8 @@ async function init() {
         }
     }
 
-    if(route.query?.chatRoomId) {
-        let { code, data } = await getFriendHistoryMsgApi({ chatRoomId: route.query?.chatRoomId as string })
+    if(route.params?.chatRoomId) {
+        let { code, data } = await getFriendHistoryMsgApi({ chatRoomId: route.params?.chatRoomId as string })
         if(code !== 200 || typeof data !== 'object') {
             window.$message.warning("获取聊天数据失败！", { closable: true })
             return
@@ -52,13 +52,13 @@ async function init() {
         // console.log(data)
         chatMessage.value = data
         // 更新消息状态
-        updateFriendChatMsgStatusApi(userId, route.query.chatRoomId as string);
+        updateFriendChatMsgStatusApi(userId, route.params.chatRoomId as string);
     }
 }
 
 init();
 
-watch(() => route.query.chatRoomId, (newVal, oldVal) => {
+watch(() => route.params.chatRoomId, (newVal, oldVal) => {
     if(oldVal && newVal !== oldVal) init();
 });
 
@@ -79,8 +79,8 @@ const handleSendMsg = () => {
         friendId: friendId,
         token: localStorage.getItem(AUTHORIZATION),
         message: inputMessage.value,
-        chatRoomId: route.query?.chatRoomId
-    })
+        chatRoomId: route.params?.chatRoomId
+    });
 }
 
 /**
