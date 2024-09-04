@@ -11,7 +11,7 @@ const props = defineProps<{ chatMessage: IFriendHistoryMsg[] }>();
 
 <template>
     <div class="chatroom-content-container">
-        <ChatMessageInfoItem 
+        <ChatMessageInfoItem
             v-for="item in props.chatMessage" 
             type="left"
             :message="item.messageInfo" 

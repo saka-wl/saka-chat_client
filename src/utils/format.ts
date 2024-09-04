@@ -4,3 +4,11 @@ export const getFileExtName = (fileName: string) => {
     if(lastFlagIndex === -1) return false;
     return fileName.substring(lastFlagIndex);
 }
+
+export const jsonToObj = (json: string) => {
+    try {
+        return JSON.parse(json);
+    }catch(err) {
+        return false;
+    }
+}

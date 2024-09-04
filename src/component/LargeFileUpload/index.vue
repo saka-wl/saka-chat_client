@@ -44,6 +44,10 @@ const fileUploadFinished = (fileId: string) => {
 const handleUploadFile = async (e: Event) => {
     fileInit();
     fileInputStaus.value = 1;
+    if(!e.target?.files || !e.target?.files[0]) {
+        fileInputStaus.value = 0;
+        return;
+    }
     // 处理文件分片
     const { fileSliceInfo, ...params } = await useLargeUploadFile(e.target?.files[0]);
     const { id, needUploadedHash } = await editNewFileInfoApi({ ...params, ownUserId: userInfo.value?.id || '0' });

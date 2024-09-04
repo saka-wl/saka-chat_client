@@ -41,8 +41,11 @@ init();
 </template>
 
 <style lang="scss" scoped>
+@import "src/assets/style/common.scss";
 .chat-message-info-item-container {
     display: flex;
+    padding: px2vw(5);
+    margin-bottom: px2vw(20);
     .avatar {
         height: px2vw(30);
         width: px2vw(30);

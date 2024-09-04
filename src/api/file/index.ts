@@ -54,7 +54,7 @@ export interface IFileInfoApi {
     ownUserId: string;
     status: number;
     fileType: number;
-    fileUploadInfo: string | {
+    fileUploadInfo: {
         fileId: string;
         hasUploadedHash: string[];
         needUploadedHash: string[];
@@ -73,14 +73,14 @@ export const getFileInfoApi = async (param: Partial<IFileInfoApi>): Promise<IFil
     if(code !== 200) return null;
     if(data && data.length > 0) {
         data = data.map(it => {
-            it.fileUploadInfo = JSON.parse(it.fileUploadInfo as string);
+            it.fileUploadInfo = JSON.parse(it.fileUploadInfo as unknown as string);
             return it;
         })
     }
     return data;
 }
 
-export const getFileChunkApi = async (chunkHash: string) => {
+export const getFileChunkApi = async (chunkHash: string): Promise<Blob> => {
     return await axios.get('/common/uploadLargeFile/getfilechunk?chunkHash=' + chunkHash, {
         responseType: 'blob'
     });

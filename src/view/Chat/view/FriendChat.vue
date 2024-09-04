@@ -49,7 +49,6 @@ async function init() {
             it.avatar = it.fromUserId == userInfo.value?.id ? userInfo.value.avatar : friendAvatar;
             return it
         })
-        // console.log(data)
         chatMessage.value = data
         // 更新消息状态
         updateFriendChatMsgStatusApi(userId, route.params.chatRoomId as string);
