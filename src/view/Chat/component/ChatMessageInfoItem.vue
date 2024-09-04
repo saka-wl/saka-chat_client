@@ -34,8 +34,12 @@ init();
             {{ props.message }}
         </div>
         <!-- 文件类型 -->
-        <div class="file-tag" v-if="fileInfo && props.messageType === 'file'">
+        <div class="file-tag" v-else-if="fileInfo && props.messageType === 'file'">
             <LargeFileDownload :fileInfo="fileInfo" />
+        </div>
+        <!-- 视频流类型 -->
+        <div class="video-tag" v-else-if="fileInfo && props.messageType === 'video'">
+            
         </div>
     </div>
 </template>

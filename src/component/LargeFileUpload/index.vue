@@ -21,6 +21,7 @@ const props = defineProps<{
 }>();
 let fileInfo: IFileInfo | null = null;
 const fileUploadProcess = ref<number>(0);
+let fileType = 'file';
 
 const fileInit = () => {
     fileInputStaus.value = 0;
@@ -36,7 +37,7 @@ const fileUploadFinished = (fileId: string) => {
         token: localStorage.getItem(AUTHORIZATION),
         message: fileId.toString(),
         chatRoomId: props.chatRoomId,
-        messageType: 'file',
+        messageType: fileType,
     });
     fileInit();
 }
@@ -47,6 +48,9 @@ const handleUploadFile = async (e: Event) => {
     if(!e.target?.files || !e.target?.files[0]) {
         fileInputStaus.value = 0;
         return;
+    }
+    if(e.target.files[0].name.endsWith('.mp4')) {
+        fileType = 'video';
     }
     // 处理文件分片
     const { fileSliceInfo, ...params } = await useLargeUploadFile(e.target?.files[0]);

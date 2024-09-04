@@ -85,3 +85,14 @@ export const getFileChunkApi = async (chunkHash: string): Promise<Blob> => {
         responseType: 'blob'
     });
 }
+
+export const videoPreview = async (filename: string, start: number, end: number) => {
+    return await axios({
+        method: "GET",
+        url: "/common/download/video/" + filename,
+        headers: {
+            Range: `bytes=${start}-${end}`,
+        },
+        responseType: 'arraybuffer'
+    })
+}

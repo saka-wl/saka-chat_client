@@ -141,8 +141,8 @@ export const useUploadFile = async (file: File, ownUserId: string) => {
 interface IUseLargeUploadFile {
     fileName: string;
     fileId: string;
-    fileSliceInfo: IFileSlice[],
-    fileUploadInfo: IFileUploadInfo
+    fileSliceInfo: IFileSlice[];
+    fileUploadInfo: IFileUploadInfo;
 }
 /**
  * 大文件分片处理hook
@@ -153,8 +153,9 @@ export const useLargeUploadFile = async (file: File): Promise<IUseLargeUploadFil
     const fileSliceInfo = await getLargeFileSliceInfo(file);
     const fileHash = getLargeFileHash(fileSliceInfo.map(it => it.hash));
     const fileUploadInfo = { fileId: fileHash, hasUploadedHash: [], needUploadedHash: fileSliceInfo.map(it => it.hash) };
+    const fileName = file.name;
     return {
-        fileName: file.name,
+        fileName: fileName,
         fileSliceInfo,
         fileUploadInfo,
         fileId: fileHash,
