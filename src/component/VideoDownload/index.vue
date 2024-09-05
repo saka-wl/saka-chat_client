@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref } from 'vue';
 import { largeFileUrl, REQUEST_URL } from '../../constant/request';
-// @ts-ignore
-import { handleVideoMediaSource } from "./mediaSourceHelp.ts";
 import { VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC, VIDEO_CHUNK_SIZE, VIDEO_STREAM_START_SIZE } from "../../constant/file";
 import { videoPreviewApi, getFileSizeApi, IFileInfoApi } from "../../api/file/index"
 import { delay } from "../../utils/format"
@@ -24,11 +22,11 @@ var mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
 async function init() {
     const { code, data, msg } = await getFileSizeApi(videoUrl);
     videoSize = data;
-    if(code !== 200 || !videoSize) {
+    if (code !== 200 || !videoSize) {
         window.$message.warning(msg || '该文件已经不存在！', { closable: true });
         return;
     }
-    
+
     // 初始化视频
     // if(videoSize < VIDEO_USE_STREAM_DOWNLOAD_SIZE) {
     //     // 普通的播放方式
@@ -55,46 +53,52 @@ const handleVideoMediaSource = () => {
 const isTimeEnough = () => {
     // 当前缓冲数据是否足够播放
     for (let i = 0; i < videoRef.value.buffered.length; i++) {
-        const bufferend = videoRef.value.buffered.end(i);
-        if (videoRef.value.currentTime < bufferend && bufferend - videoRef.value.currentTime >= VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC) // 提前n s下载视频
+        if(!videoRef.value.buffered) return true;
+        const bufferend = videoRef.value.buffered?.end(i);
+        // videoRef.value.currentTime < bufferend && 
+        if (bufferend - videoRef.value.currentTime >= VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC) // 提前n s下载视频
             return true;
     }
     return false;
 }
 
-function sourceOpen(e: Event) {
+async function sourceOpen(e: Event) {
     let index = 0;
     const mediaSource = e.target as MediaSource;
     const sourceBuffer: SourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
     const videoChunks = Math.ceil((videoSize as number) / VIDEO_CHUNK_SIZE);
+    let isFetchingVideoStream = false;
 
-    const getVideoStream = (start: number, end: number) => {
+    const addVideoStream = () => {
+        if(index >= videoChunks) return;
+        const start = index * VIDEO_CHUNK_SIZE;
+        const end = Math.min(start + VIDEO_CHUNK_SIZE - 1, (videoSize as number) - 1);
+        console.log(start, end);
+        isFetchingVideoStream = true;
         return new Promise(async (res, rej) => {
             const respBlob = await videoPreviewApi(videoUrl, start, end);
+            // (index - 5 >= 0) && mediaSource.removeSourceBuffer(mediaSource.sourceBuffers[index - 10]);
             try {
                 sourceBuffer.appendBuffer(respBlob);
                 sourceBuffer.onupdateend = () => {
+                    isFetchingVideoStream = false;
                     res(true);
+                    index ++;
                 }
             }catch(err) {
+                console.log(err);
                 res(false);
             }
         })
     }
 
-    const startLoad = async () => {
-        while(index < videoChunks) {
-            const start = index * VIDEO_CHUNK_SIZE;
-            const end = Math.min(start + VIDEO_CHUNK_SIZE - 1, (videoSize as number) - 1);
-            const resp = await getVideoStream(start, end);
-            if(!resp) {
-                videoRef.value.src = videoNormalUrl;
-                break;
-            }
-        }
-    }
+    await addVideoStream();
 
-    startLoad();
+    let timer = setInterval(() => {
+        if(!isFetchingVideoStream && !isTimeEnough()) {
+            addVideoStream()
+        }
+    }, 500);
 }
 
 init();
