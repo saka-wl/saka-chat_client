@@ -5,6 +5,7 @@ import { NButton, NProgress } from 'naive-ui';
 import { largeFileUrl } from '../../constant/request';
 import { getFileExtName, jsonToObj } from '../../utils/format';
 import { FILE_CHUNK_DOWNLOAD_AUTHORIZATION } from '../../constant/file';
+import VideoDownload from "../VideoDownload/index.vue";
 
 const props = defineProps<{
     fileInfo: Partial<IFileInfoApi>
@@ -116,6 +117,7 @@ init();
     <div class="large-file-download">
         文件名：{{ props.fileInfo.fileName }}
         <n-button @click="() => fileDownloadType === 0 ? (fileDownloadType = 1) : (fileDownloadType = 0)">切换下载模式</n-button>
+        <VideoDownload :fileInfo="props.fileInfo" v-if="props.fileInfo.fileType === 4" />
         <div class="normal-download" v-if="fileDownloadType === 0">
             <n-button @click="handleFileDownloadNormal(largeFileUrl + (props.fileInfo.fileId || '') + getFileExtName(props.fileInfo.fileName || ''))">普通下载文件</n-button>
         </div>
