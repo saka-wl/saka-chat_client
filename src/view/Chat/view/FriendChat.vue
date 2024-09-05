@@ -47,6 +47,7 @@ async function init() {
         data = data.map(it => {
             if(it.createdAt) it.createdAt = formatTime(new Date(it.createdAt));
             it.avatar = it.fromUserId == userInfo.value?.id ? userInfo.value.avatar : friendAvatar;
+            it.userId = userFriendList.value[0]?.userId 
             return it
         })
         chatMessage.value = data

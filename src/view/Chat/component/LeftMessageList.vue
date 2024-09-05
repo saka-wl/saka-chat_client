@@ -21,6 +21,7 @@ async function init() {
     tmp.forEach(item => {
         item.friendAvatar = userFriendList.value?.find(it => it.userId == item.fromUserId || it.friendId == item.fromUserId)?.friendAvatar || '';
     });
+    // console.log(tmp);
     leftMsgList.value = tmp;
 }
 init();
@@ -32,7 +33,7 @@ const handleFriendChatClick = (item: IFriendNewMsg) => {
         //     chatRoomId: item.chatRoomId
         // },
         params: {
-            userId: item.toUsereId,
+            userId: item.toUserId,
             friendId: item.fromUserId,
             friendNickname: item.friendNickname,
             friendAvatar: item.friendAvatar,
