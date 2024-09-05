@@ -12,7 +12,13 @@ export const FILE_TOTAL_SLICE = 1024 * 1024 * 200;
 export const FILE_CHUNK_DOWNLOAD_AUTHORIZATION = 'Saka-Chat-File-Chunk';
 
 // 视频的第一段下载的大小
-export const VIDEO_STREAM_START_SIZE = 5 * 1024 * 1024;
+export const VIDEO_STREAM_START_SIZE = 30 * 1024 * 1024;
 
-// 视频使用206下载分界线
+// 视频流下载每段的大小
+export const VIDEO_CHUNK_SIZE = 15 * 1024 * 1024;
+
+// 视频使用206下载分界线,30MB
 export const VIDEO_USE_STREAM_DOWNLOAD_SIZE = 30 * 1024 * 1024;
+
+// 提前n秒下载视频流
+export const VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC = 5;

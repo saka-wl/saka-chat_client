@@ -86,13 +86,29 @@ export const getFileChunkApi = async (chunkHash: string): Promise<Blob> => {
     });
 }
 
-export const videoPreview = async (filename: string, start: number, end: number) => {
-    return await axios({
-        method: "GET",
-        url: "/common/download/video/" + filename,
+/**
+ * 流式获取视频（预览）
+ * @param filename 
+ * @param start 
+ * @param end 
+ * @returns 
+ */
+export const videoPreviewApi = async (filename: string, start: number, end: number) => {
+    return await axios.get<null, BufferSource>('/common/download/video/' + filename, {
         headers: {
             Range: `bytes=${start}-${end}`,
         },
         responseType: 'arraybuffer'
     })
+}
+
+/**
+ * 
+ * @param filename 获取文件的大小
+ * @returns 
+ */
+export const getFileSizeApi = async (filename: string) => {
+    return await axios.post<string, ResponseData<number | null>>('/common/download/getfilesize', {
+        filename
+    });
 }
