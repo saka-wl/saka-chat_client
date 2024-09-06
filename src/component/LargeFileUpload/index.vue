@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { NButton, NProgress } from 'naive-ui';
+import { NButton, NProgress, NCheckbox } from 'naive-ui';
 import { handleFileChunkUpload, IFileInfo, useLargeUploadFile } from '../../utils/file';
-import { editNewFileInfoApi } from '../../api/file';
+import { editNewFileInfoApi, IVideoPreviewPic, videoPreviewPicApi } from '../../api/file';
 import { storeToRefs } from 'pinia';
 import { socket } from '../../utils/socket';
 import { AUTHORIZATION } from '../../constant/request';
 import { useUserInfoStore } from '../../store/userInfo.pinia';
+import { getVideoFrame } from '../../utils/video';
 
 /**
  * 0 -> 刚开始状态；1 -> 文件正在分片；
@@ -21,6 +22,7 @@ const props = defineProps<{
 }>();
 let fileInfo: IFileInfo | null = null;
 const fileUploadProcess = ref<number>(0);
+const isNeedPreviewPic = ref<boolean>(false);
 let fileType = 'file';
 
 const fileInit = () => {
@@ -29,7 +31,10 @@ const fileInit = () => {
     fileInfo = null;
 }
 
-const fileUploadFinished = (fileId: string) => {
+const fileUploadFinished = (fileId = fileInfo?.id) => {
+    if(!fileId) {
+        return;
+    }
     window.$message.success("文件上传完成!", { closable: true });
     socket.emit('sendMsgToFriend', {
         userId: userInfo.value?.id,
@@ -42,7 +47,7 @@ const fileUploadFinished = (fileId: string) => {
     fileInit();
 }
 
-const handleUploadFile = async (e: Event) => {
+const handleUploadFile = async (e: any) => {
     fileInit();
     fileInputStaus.value = 1;
     if(!e.target?.files || !e.target?.files[0]) {
@@ -54,11 +59,17 @@ const handleUploadFile = async (e: Event) => {
     }
     // 处理文件分片
     const { fileSliceInfo, ...params } = await useLargeUploadFile(e.target?.files[0]);
-    const { id, needUploadedHash } = await editNewFileInfoApi({ ...params, ownUserId: userInfo.value?.id || '0' });
-    if (needUploadedHash && needUploadedHash.length === 0) {
-        fileUploadFinished(id);
-        return;
+    // 生成视频的图片帧
+    let videoFrame: string | IVideoPreviewPic[] = await getVideoFrame(e.target?.files[0], 10);
+    if(typeof videoFrame === 'string') {
+        window.$message.warning(videoFrame, { closable: true });
+        videoFrame = []
+    } else {
+        // 无需等待
+        videoPreviewPicApi(videoFrame);
     }
+
+    const { id, needUploadedHash } = await editNewFileInfoApi({ ...params, ownUserId: userInfo.value?.id || '0', videoPreview: JSON.stringify(videoFrame.map(it => it.hash)) });
     if (needUploadedHash) fileUploadProcess.value = Math.floor((fileSliceInfo.length - needUploadedHash.length) * 100 / fileSliceInfo.length);
     fileInfo = {
         id,
@@ -67,6 +78,7 @@ const handleUploadFile = async (e: Event) => {
         fileSliceInfo,
         needUploadedHash: needUploadedHash || fileSliceInfo.map(it => it.hash),
         hasUploadedHash: [],
+        videoPreview: videoFrame.map(it => it.hash),
     }
     // 文件前后端分片信息处理完成
     fileInputStaus.value = 2;
@@ -88,6 +100,11 @@ const fileUpload = async () => {
         window.$message.warning("文件恢复上传成功！", { closable: true });
     }
     fileInputStaus.value = 3;
+    if(fileInfo.needUploadedHash.length === 0) {
+        window.$message.success('点击 <send> 将文件发送给用户吧～', { closable: true });
+        // fileUploadFinished(fileInfo.id);
+        return;
+    }
     for (let chunkHash of fileInfo.needUploadedHash) {
         if (fileInputStaus.value === 4) {
             // 文件上传暂停
@@ -102,8 +119,9 @@ const fileUpload = async () => {
             fileInit
         );
         if(typeof resp === 'string') {
+            window.$message.success('点击 <send> 将文件发送给用户吧～', { closable: true });
             // 文件上传完成！发送消息
-            fileUploadFinished(fileInfo.id);
+            // fileUploadFinished(fileInfo.id);
             break;
         }
         fileInfo = resp;
@@ -117,11 +135,19 @@ const fileStopUpload = () => {
 const fileDeleteUpload = () => {
     fileInit();
 }
+
+defineExpose({
+    fileUploadFinished
+})
+
 </script>
 
 <template>
     <div class="file-upload-container">
         <input class="file-input" type="file" @change="handleUploadFile" />
+        <n-checkbox v-model:checked="isNeedPreviewPic">
+            生成预览图片
+        </n-checkbox>
         <div v-if="fileInputStaus === 2 || fileInputStaus === 3 || fileInputStaus === 4">
             <div class="file-process">
             <n-progress type="line" :percentage="fileUploadProcess" indicator-placement="inside"

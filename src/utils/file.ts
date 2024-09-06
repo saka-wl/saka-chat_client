@@ -1,6 +1,7 @@
 
 import { FILE_SLICE_SINGLE_SIZE, FILE_TOTAL_SLICE, WEB_WORKER_NUMBER } from "../constant/file";
 import { addFileChunkApi, handleNormalFileApi, IFileUploadInfo } from "../api/file";
+// @ts-ignore
 import sparkmd5 from "../utils/sparkMd5";
 
 export interface IFileSlice {
@@ -51,6 +52,27 @@ export function createMd5FileInfo(file: File): Promise<{ hash: string }> {
         fileReader.readAsArrayBuffer(file.slice(0, fileEndIndex));
     })
 }
+
+export function getArrMd5Info(imgsBlobArr: Array<Blob>) {
+    return new Promise((resolve) => {
+        let finishedIndex = 0
+        let res = []
+        const spark = new sparkmd5.ArrayBuffer();
+        for (let i = 0; i < imgsBlobArr.length; i++) {
+            const fileReader = new FileReader();
+            fileReader.onload = (e: any) => {
+                spark.append(e.target.result);
+                res[i] = spark.end()
+                finishedIndex++
+                if (finishedIndex === imgsBlobArr.length) {
+                    resolve(res)
+                }
+            };
+            fileReader.readAsArrayBuffer(imgsBlobArr[i]);
+        }
+    })
+}
+
 
 export const getLargeFileSliceInfo = async (file: File): Promise<IFileSlice[]> => {
     const fileToalSize = file.size;
@@ -169,6 +191,7 @@ export interface IFileInfo {
     fileSliceInfo: IFileSlice[];  // 文件分片信息
     hasUploadedHash: string[];
     needUploadedHash: string[];
+    videoPreview: string[];
 }
 export const handleFileChunkUpload = async (fileInfo: IFileInfo, chunkHash: string, updateFileUploadProcess: Function, fileInit: Function): Promise<IFileInfo | string> => {
     let item = fileInfo.fileSliceInfo.find(it => it.hash === chunkHash);

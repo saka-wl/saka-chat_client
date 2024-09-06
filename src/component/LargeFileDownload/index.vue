@@ -116,7 +116,10 @@ init();
 <template>
     <div class="large-file-download">
         文件名：{{ props.fileInfo.fileName }}
-        <n-button @click="() => fileDownloadType === 0 ? (fileDownloadType = 1) : (fileDownloadType = 0)">切换下载模式</n-button>
+        <n-button @click="() => {
+            fileDownloadType === 0 ? (fileDownloadType = 1) : (fileDownloadType = 0);
+            init();
+        }">切换下载模式</n-button>
         <VideoDownload :fileInfo="props.fileInfo" v-if="props.fileInfo.fileType === 4" />
         <div class="normal-download" v-if="fileDownloadType === 0">
             <n-button @click="handleFileDownloadNormal(largeFileUrl + (props.fileInfo.fileId || '') + getFileExtName(props.fileInfo.fileName || ''))">普通下载文件</n-button>

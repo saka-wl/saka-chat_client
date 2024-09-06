@@ -41,10 +41,6 @@ init();
         <div class="file-tag" v-else-if="fileInfo && (props.messageType === 'file' || props.messageType === 'video')">
             <LargeFileDownload :fileInfo="fileInfo" />
         </div>
-        <!-- 视频流类型 -->
-        <!-- <div class="video-tag" v-else-if="fileInfo && props.messageType === 'video'">
-            <VideoDownload :fileInfo="fileInfo" />
-        </div> -->
     </div>
 </template>
 
