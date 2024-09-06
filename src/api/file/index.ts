@@ -22,6 +22,7 @@ interface IEditNewFileInfo {
     fileName: string;
     ownUserId?: string;
     fileUploadInfo: IFileUploadInfo;
+    videoPreview: string;
 }
 export interface IFileUploadInfo {
     fileId: string;
@@ -54,6 +55,7 @@ export interface IFileInfoApi {
     ownUserId: string;
     status: number;
     fileType: number;
+    videoPreview: string[];
     fileUploadInfo: {
         fileId: string;
         hasUploadedHash: string[];
@@ -111,4 +113,30 @@ export const getFileSizeApi = async (filename: string) => {
     return await axios.post<string, ResponseData<number | null>>('/common/download/getfilesize', {
         filename
     });
+}
+
+export interface IVideoPreviewPic {
+    blob: Blob;
+    hash: string;
+    url?: string;
+}
+
+/**
+ * 上传视频帧
+ * @param imgsBlobArr 
+ * @returns 
+ */
+export async function videoPreviewPicApi(imgsBlobArr: IVideoPreviewPic[]) {
+    const form = new FormData()
+    for (let i = 0; i < imgsBlobArr.length; i++) {
+        form.append('files', new File([imgsBlobArr[i].blob], imgsBlobArr[i].hash + '.png', { type: 'image/png' }))
+    }
+    return await axios({
+        url: '/common/uploadNormalFile/many/images',
+        method: 'POST',
+        data: form,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
 }

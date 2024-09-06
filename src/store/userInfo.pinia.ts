@@ -177,10 +177,11 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         })
 
         socket.on('getMsgFromFriend', (data: IFriendHistoryMsg) => {
-            $emit('notifyNewMsg', data)
+            $emit('notifyNewMsg', { ...data, mySocketId: socket.id });
         })
 
         socket.on('getMsgFromMine', (data: IFriendHistoryMsg) => {
+            console.log(data);
             $emit('updateMineMsg', data)
         })
 

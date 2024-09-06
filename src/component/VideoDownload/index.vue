@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { onMounted, ref, Ref } from 'vue';
-import { largeFileUrl, REQUEST_URL } from '../../constant/request';
+import { ref } from 'vue';
+import { largeFileUrl } from '../../constant/request';
 import { VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC, VIDEO_CHUNK_SIZE, VIDEO_STREAM_START_SIZE } from "../../constant/file";
 import { videoPreviewApi, getFileSizeApi, IFileInfoApi } from "../../api/file/index"
-import { delay } from "../../utils/format"
 
 
 const props = defineProps<{
@@ -17,7 +16,7 @@ let videoSize: number | null = 0;
 
 // 'video/mp4; codecs="avc1.64001F, mp4a.40.2"'
 // 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
-var mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+var mimeCodec = 'video/mp4; codecs="avc1.64001F, mp4a.40.2"';
 
 async function init() {
     const { code, data, msg } = await getFileSizeApi(videoUrl);
@@ -28,11 +27,11 @@ async function init() {
     }
 
     // 初始化视频
-    // if(videoSize < VIDEO_USE_STREAM_DOWNLOAD_SIZE) {
-    //     // 普通的播放方式
-    //     videoRef.value.src = videoNormalUrl;
-    //     return;
-    // }
+    if(videoSize <= VIDEO_CHUNK_SIZE) {
+        // 普通的播放方式
+        videoRef.value.src = videoNormalUrl;
+        return;
+    }
     console.log("info: video use stream.")
     // 流播放
     handleVideoMediaSource();
@@ -44,7 +43,6 @@ const handleVideoMediaSource = () => {
         var mediaSource = new MediaSource();
         videoRef.value.src = URL.createObjectURL(mediaSource);
         mediaSource.addEventListener('sourceopen', sourceOpen);
-        // videoRef.value.height = 300;
     } else {
         console.error('Unsupported MIME type or codec: ', mimeCodec)
     }
@@ -52,10 +50,12 @@ const handleVideoMediaSource = () => {
 
 const isTimeEnough = () => {
     // 当前缓冲数据是否足够播放
+    if(!videoRef.value?.buffered || !videoRef.value.buffered.length) {
+        return true;
+    }
     for (let i = 0; i < videoRef.value.buffered.length; i++) {
         if(!videoRef.value.buffered) return true;
         const bufferend = videoRef.value.buffered?.end(i);
-        // videoRef.value.currentTime < bufferend && 
         if (bufferend - videoRef.value.currentTime >= VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC) // 提前n s下载视频
             return true;
     }
@@ -70,14 +70,16 @@ async function sourceOpen(e: Event) {
     let isFetchingVideoStream = false;
 
     const addVideoStream = () => {
-        if(index >= videoChunks) return;
+        if(index >= videoChunks) {
+            timer && clearInterval(timer);
+            return;
+        };
         const start = index * VIDEO_CHUNK_SIZE;
         const end = Math.min(start + VIDEO_CHUNK_SIZE - 1, (videoSize as number) - 1);
         console.log(start, end);
         isFetchingVideoStream = true;
         return new Promise(async (res, rej) => {
             const respBlob = await videoPreviewApi(videoUrl, start, end);
-            // (index - 5 >= 0) && mediaSource.removeSourceBuffer(mediaSource.sourceBuffers[index - 10]);
             try {
                 sourceBuffer.appendBuffer(respBlob);
                 sourceBuffer.onupdateend = () => {
@@ -96,7 +98,7 @@ async function sourceOpen(e: Event) {
 
     let timer = setInterval(() => {
         if(!isFetchingVideoStream && !isTimeEnough()) {
-            addVideoStream()
+            addVideoStream();
         }
     }, 500);
 }
@@ -107,8 +109,10 @@ init();
 
 <template>
     <div class="video-download-container">
-        视频
         <video class="video" ref="videoRef" controls preload="auto"></video>
+        <div class="preview-image">
+            <img v-for="item in props.fileInfo.videoPreview" :src="" alt="">
+        </div>
     </div>
 </template>
 
@@ -116,9 +120,13 @@ init();
 @import "src/assets/style/common.scss";
 
 .video-download-container {
+    display: flex;
     .video {
         height: px2vw(400);
         border-radius: px2vw(10);
+    }
+    .preview-image {
+        display: flex;
     }
 }
 </style>

@@ -124,7 +124,7 @@ $on('updateMineMsg', (data: IFriendHistoryMsg) => {
     }
 
     .chatroom-input {
-        height: px2vw(240);
+        height: px2vw(350);
         border-top: 0.8px solid rgb(206, 206, 206);
     }
 }
