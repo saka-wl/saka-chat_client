@@ -111,7 +111,7 @@ init();
     <div class="video-download-container">
         <video class="video" ref="videoRef" controls preload="auto"></video>
         <div class="preview-image">
-            <img v-for="item in props.fileInfo.videoPreview" :src="" alt="">
+            <img v-for="item in props.fileInfo.videoPreview" alt="">
         </div>
     </div>
 </template>

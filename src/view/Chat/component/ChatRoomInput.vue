@@ -32,14 +32,15 @@ const handleMsgSend = () => {
 <style lang="scss" scoped>
 @import "src/assets/style/common.scss";
 .chatroom-input {
-    height: 100%;
-    .input {
-        background: transparent;
-    }
+
     .input-container {
         display: flex;
+        .input {
+            background: transparent;
+            height: px2vw(300);
+        }
         .large-file-upload {
-            width: 300px;
+            width: px2vw(900);
         }
     }
 }

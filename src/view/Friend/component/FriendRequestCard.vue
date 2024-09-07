@@ -26,7 +26,7 @@ const handleFriendRequest = async (isDispose: number) => {
         userId: userInfo.value?.id || '',
         friendId: (props.toUserId ? props.toUserId : props.fromUserId) || '',
         requestId: props.requestId
-    })
+    });
     const title = (isDispose === -1 ? '不' : '') + "同意ta的好友请求";
     const content = "你确定" + (isDispose === -1 ? '拒绝' : '同意') + "ta的好友请求吗？";
     window.$dialog.warning({
@@ -35,11 +35,11 @@ const handleFriendRequest = async (isDispose: number) => {
         positiveText: '确定',
         negativeText: '不确定',
         onPositiveClick: async () => {
+            emit("handleFriendRequest", props.requestId, isDispose)
             await fetch();
             await getUserFriendList();
         }
-    })
-    emit("handleFriendRequest", props.requestId, isDispose)
+    });
 }
 
 </script>
