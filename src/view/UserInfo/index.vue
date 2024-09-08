@@ -2,13 +2,29 @@
 import { storeToRefs } from 'pinia';
 import { useUserInfoStore } from '../../store/userInfo.pinia';
 import { normalImageUrl } from '../../constant/request';
-import { Ref, ref } from 'vue';
-import { NModal, NCard, NUpload, UploadFileInfo, tabPaneProps } from 'naive-ui';
+import { ref } from 'vue';
+import { NModal, NCard, NUpload } from 'naive-ui';
 import CanvasScreenShot from '../../component/Canvas/CanvasScreenShot.vue';
 
 const { userInfo } = storeToRefs(useUserInfoStore());
 const isAvatarModalShow = ref(false);
+const account = ref('');
+const nickname = ref('');
+const email = ref('');
+const phone = ref('');
+const avatar = ref('');
+
 const avatarUrl = ref<string | null>(null);
+
+function init() {
+    account.value = userInfo.value?.account || '';
+    nickname.value = userInfo.value?.nickname || '';
+    email.value = userInfo.value?.email || '';
+    phone.value = userInfo.value?.phone || '';
+    avatar.value = userInfo.value?.avatar || '';
+}
+
+init();
 
 const handleAvatarChoose = (e: any) => {
     if(e.fileList.length !== 1) {
@@ -23,17 +39,21 @@ const handleAvatarChoose = (e: any) => {
     fileReader.readAsArrayBuffer(e.fileList[0].file);
 }
 
+const handleAvatarUpdate = (data: { originUrl: string; localUrl: string; }) => {
+    avatar.value = data.originUrl;
+}
+
 </script>
 
 <template>
     <div class="user-info-container">
-        <p>name: {{ userInfo?.nickname }}</p>
-        <p>account: {{ userInfo?.account }}</p>
-        <p>email: {{ userInfo?.email }}</p>
-        <p>phone: {{ userInfo?.phone }}</p>
+        <p>name: {{ nickname }}</p>
+        <p>account: {{ account }}</p>
+        <p>email: {{ email }}</p>
+        <p>phone: {{ phone }}</p>
         <p>
             <span>avatar</span>
-            <img :src="normalImageUrl + userInfo?.avatar" alt="" @click="isAvatarModalShow = true">
+            <img :src="normalImageUrl + avatar" alt="" @click="isAvatarModalShow = true">
         </p>
 
         <n-modal v-model:show="isAvatarModalShow">
@@ -53,7 +73,7 @@ const handleAvatarChoose = (e: any) => {
             >
                 点击上传
             </n-upload>
-            <CanvasScreenShot v-if="avatarUrl" :avatarUrl="avatarUrl" />
+            <CanvasScreenShot v-if="avatarUrl" :avatarUrl="avatarUrl" @updateAvatar="handleAvatarUpdate" />
             </n-card>
         </n-modal>
     </div>

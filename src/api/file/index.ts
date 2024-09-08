@@ -141,3 +141,16 @@ export async function videoPreviewPicApi(imgsBlobArr: IVideoPreviewPic[]) {
         }
     })
 }
+
+export async function uploadImageApi(imageBlob: Blob): Promise<ResponseData<string>> {
+    const form = new FormData()
+    form.append('file', new File([imageBlob], 'tmp.png', { type: 'image/png' }))
+    return await axios<any, ResponseData<string>>({
+        url: '/common/uploadNormalFile/single/image',
+        method: 'POST',
+        data: form,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}

@@ -1,6 +1,8 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch } from 'vue';
+import { NButton } from 'naive-ui';
+import { uploadImageApi, videoPreviewPicApi } from '../../api/file';
 
 const props = defineProps<{ avatarUrl: string; }>();
 const avatarImageUrl = ref<string | null>(null);
@@ -25,6 +27,9 @@ let WIDTH = 800;
 let curRangle: Array<Array<number>> = [];
 
 function init() {
+    if(avatarImageUrl.value) {
+        window.URL.revokeObjectURL(avatarImageUrl.value);
+    }
     curRangle = [];
     HEIGHT = 600;
     isCanvasShow.value = false;
@@ -167,6 +172,21 @@ function getImageData() {
     })
 }
 
+const emit = defineEmits(['updateAvatar']);
+
+const updateAvatar = async () => {
+    if(!avatarImageBlob || !avatarImageUrl) {
+        window.$message.warning('您还未选择图片！');
+        return;
+    }
+    const { code, data } = await uploadImageApi(avatarImageBlob);
+    if(code !== 200) return;
+    emit('updateAvatar', {
+        originUrl: data,
+        localUrl: avatarImageUrl.value
+    });
+}
+
 </script>
 
 <template>
@@ -175,6 +195,7 @@ function getImageData() {
         <canvas id="touch-canvas" ref="touchCanvasEl" v-if="isCanvasShow"></canvas>
         <img :src="props.avatarUrl" alt="" id="bg-image" ref="imageEl">
         <img :src="avatarImageUrl" alt="" id="avatar-image" v-if="avatarImageUrl">
+        <n-button @click="updateAvatar">确认修改</n-button>
     </div>
 </template>
 
