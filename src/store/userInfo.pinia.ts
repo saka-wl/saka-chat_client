@@ -8,6 +8,9 @@ import { getAllMyFriendApi, IUserFriend } from '../api/friend';
 import { IFriendHistoryMsg } from '../api/friendchatmsg';
 import { socket } from "../utils/socket.ts";
 import { $emit, $off } from '../utils/emit.ts';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 export interface IUserEnrollParams {
     account: string;
@@ -129,13 +132,14 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
     // 退出登录
     const userLoginOut = (cb: () => void) => {
         window.$message.success('再见啦，' + (userInfo.value?.nickname || 'saka') + '同学～', { closable: true });
-        socket.emit('userLogout', userInfo.value?.id);
         userInfo.value = null;
         userFriendList.value = null;
         isSocketLogin = false;
         localStorage.removeItem(AUTHORIZATION);
         $off('notifyNewMsg');
-        cb()
+        cb();
+        router.push('/');
+        socket.emit('userLogout', userInfo.value?.id);
     }
 
     // 自动登录 聊天断开
@@ -188,6 +192,10 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             })
         })
 
+        socket.on('userForceLogout', () => {
+            userLoginOut(() => window.$message.warning('您在别处登录啦~', { closable: true }));
+        })
+
         socket.on('friendOnlineChange', (friendId: string, isOnline: boolean) => {
             userFriendList.value?.forEach((it, index) => {
                 if(it.friendId == friendId || it.userId == friendId) {
@@ -197,6 +205,15 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             })
             $emit('updateFiendOnlineStatus', friendId, isOnline);
         })
+
+        socket.on("connect_error", () => {
+            userLoginOut(() => { window.$message.warning('服务器错误', { closable: true }); });
+        });
+
+        socket.on("disconnect", (reason) => {
+            // userLoginOut(() => { window.$message.warning('服务器错误', { closable: true }); });
+        });
+
     }
 
     return {

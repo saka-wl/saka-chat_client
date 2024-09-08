@@ -55,7 +55,7 @@ export interface IFileInfoApi {
     ownUserId: string;
     status: number;
     fileType: number;
-    videoPreview: string[];
+    videoPreview: string;
     fileUploadInfo: {
         fileId: string;
         hasUploadedHash: string[];
@@ -75,6 +75,7 @@ export const getFileInfoApi = async (param: Partial<IFileInfoApi>): Promise<IFil
     if(code !== 200) return null;
     if(data && data.length > 0) {
         data = data.map(it => {
+            it.videoPreview = JSON.parse(it.videoPreview);
             it.fileUploadInfo = JSON.parse(it.fileUploadInfo as unknown as string);
             return it;
         })

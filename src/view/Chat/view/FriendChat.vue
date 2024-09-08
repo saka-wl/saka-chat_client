@@ -83,6 +83,7 @@ const handleSendMsg = () => {
  * 接收到消息就添加
  */
 $on('notifyNewMsg', (data: IFriendHistoryMsg) => {
+    if(chatMessage.value.find(it => it.id === data.id)) return;
     chatMessage.value = [... chatMessage.value, { ... data, avatar: chatRoomInfo?.friendAvatar }]
 })
 

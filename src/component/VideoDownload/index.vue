@@ -10,6 +10,7 @@ const props = defineProps<{
 }>();
 
 const videoRef = ref();
+const isVideoShow = ref(false);
 const videoUrl = props.fileInfo.fileId + '.mp4';
 const videoNormalUrl = largeFileUrl + props.fileInfo.fileId + '.mp4';
 let videoSize: number | null = 0;
@@ -18,7 +19,7 @@ let videoSize: number | null = 0;
 // 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
 var mimeCodec = 'video/mp4; codecs="avc1.64001F, mp4a.40.2"';
 
-async function init() {
+async function videoInit() {
     const { code, data, msg } = await getFileSizeApi(videoUrl);
     videoSize = data;
     if (code !== 200 || !videoSize) {
@@ -102,30 +103,32 @@ async function sourceOpen(e: Event) {
     }, 500);
 }
 
-init();
-
 const getImageUrl = (url: string) => {
     return normalImageUrl + url + '.png';
 }
 
 const handleVideoTime = (index: number) => {
     videoRef.value.currentTime = index * VIDEO_FRAME_SLICE_TIME;
-} 
+}
 
 </script>
 
 <template>
     <div class="video-download-container">
-        <video class="video-container" ref="videoRef" controls preload="auto" loading="lazy"></video>
-        <div class="image-container">
-            <img :src="getImageUrl(props.fileInfo.videoPreview[0])" alt="">
+        <video class="video-container" ref="videoRef" controls preload="auto" loading="lazy" v-if="isVideoShow"></video>
+        <div class="image-container" v-else>
+            <img :src="getImageUrl(props.fileInfo.videoPreview[0])" alt="" class="image-item">
+            <span class="iconfont icon-player" @click="() => {
+                isVideoShow = true;
+                videoInit();
+            }">&#xe635;</span>
         </div>
         <div class="preview-image">
             <img 
-                v-for="(item, index) in JSON.parse(props.fileInfo.videoPreview)"
+                v-for="(item, index) in props.fileInfo.videoPreview"
                 loading="lazy"
                 :src="getImageUrl(item)"
-                @click="handleVideoTime(index)"
+                @click="isVideoShow && handleVideoTime(index)"
                 alt=""
             >
         </div>
@@ -138,15 +141,36 @@ const handleVideoTime = (index: number) => {
 .video-download-container {
     display: flex;
     .video-container {
-        height: px2vw(400);
+        width: px2vw(600);
         border-radius: px2vw(10);
     }
     .image-container {
-        height: px2vw(400);
+        width: px2vw(600);
         border-radius: px2vw(10);
+        position: relative;
+        min-height: px2vw(400);
+        .icon-player {
+            color: rgb(177, 177, 177);
+        }
+        .image-item {
+            width: px2vw(600);
+            border-radius: px2vw(10);
+            position: absolute;
+            left: 0;
+            right: 0;
+        }
+        .icon-player {
+            font-size: px2vw(80);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -60%);
+        }
     }
+
     .preview-image {
         width: px2vw(850);
+        min-height: px2vw(400);
         display: flex;
         flex-wrap: wrap;
         img {

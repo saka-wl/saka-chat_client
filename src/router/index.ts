@@ -1,6 +1,7 @@
 
 import { createMemoryHistory, createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
+import { AUTHORIZATION } from '../constant/request';
 
 const routes: RouteRecordRaw[] = [
     {
@@ -10,16 +11,6 @@ const routes: RouteRecordRaw[] = [
         meta: {
             title: '主页',
             needAuth: false,
-            keepAlive: false
-        }
-    },
-    {
-        path: '/userInfo',
-        name: 'userInfo',
-        component: () => import("../view/UserInfo/index.vue"),
-        meta: {
-            title: '用户详情',
-            needAuth: true,
             keepAlive: false
         }
     },
@@ -81,12 +72,30 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("../view/Friend/view/GroupDetail.vue")
             }
         ]
+    },
+    {
+        path: '/user',
+        name: 'user',
+        component: () => import('../view/UserInfo/index.vue')
     }
 ]
 
 const router = createRouter({
     history: createWebHashHistory(),
     routes,
+})
+
+const needAuthRouteNames = ['/user', '/friend', '/chat']
+
+router.beforeEach(async (to, from) => {
+    const isAuthenticated = localStorage.getItem(AUTHORIZATION);
+    const isNeedAuth = needAuthRouteNames.find(it => to.fullPath.indexOf(it));
+    if (isNeedAuth && !isAuthenticated && to.name !== 'home') {
+        window.$message.warning('您还未登录！', { closable: true });
+        // 将用户重定向到登录页面
+        return { name: 'home' };
+    }
+    return true;
 })
 
 export default router;
