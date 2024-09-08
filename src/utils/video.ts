@@ -30,7 +30,7 @@ export function getVideoFrame(file: File, duration: number): Promise<IVideoPrevi
                     cvs.width = vdo.videoWidth
                     cvs.height = vdo.videoHeight
                     const ctx: CanvasRenderingContext2D = cvs.getContext('2d') as CanvasRenderingContext2D;
-                    ctx.drawImage(vdo, 0, 0, cvs.width, cvs.height)
+                    ctx.drawImage(vdo, 0, 0, cvs.width, cvs.height);
                     cvs.toBlob((blob) => {
                         const url = URL.createObjectURL(blob as Blob);
                         r({

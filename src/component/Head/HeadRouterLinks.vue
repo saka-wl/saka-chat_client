@@ -8,6 +8,7 @@ import { RouterLink } from 'vue-router';
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/friend">Friends</RouterLink>
         <RouterLink to="/chat">Chat</RouterLink>
+        <RouterLink to="/user">Mine</RouterLink>
     </div>
 </template>
 
