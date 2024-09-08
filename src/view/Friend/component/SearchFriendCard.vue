@@ -21,8 +21,6 @@ const props = withDefaults(defineProps<IProps>(), {
     hasAddFriend: false
 });
 
-console.log(props)
-
 const makeFriendMessage = ref("")
 const { userInfo } = storeToRefs(useUserInfoStore())
 

@@ -200,7 +200,7 @@ export const handleFileChunkUpload = async (fileInfo: IFileInfo, chunkHash: stri
         updateFileUploadProcess(100);
         window.$message.success("文件上传完成！", { closable: true });
         const timer = setTimeout(() => {
-            fileInit();
+            // fileInit();
             clearTimeout(timer);
         }, 1000)
         return resp;

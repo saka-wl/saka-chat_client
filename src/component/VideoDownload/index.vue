@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { largeFileUrl } from '../../constant/request';
-import { VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC, VIDEO_CHUNK_SIZE, VIDEO_STREAM_START_SIZE } from "../../constant/file";
+import { computed, ref } from 'vue';
+import { largeFileUrl, normalImageUrl } from '../../constant/request';
+import { VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC, VIDEO_CHUNK_SIZE, VIDEO_FRAME_SLICE_TIME, VIDEO_STREAM_START_SIZE } from "../../constant/file";
 import { videoPreviewApi, getFileSizeApi, IFileInfoApi } from "../../api/file/index"
 
 
@@ -76,7 +76,6 @@ async function sourceOpen(e: Event) {
         };
         const start = index * VIDEO_CHUNK_SIZE;
         const end = Math.min(start + VIDEO_CHUNK_SIZE - 1, (videoSize as number) - 1);
-        console.log(start, end);
         isFetchingVideoStream = true;
         return new Promise(async (res, rej) => {
             const respBlob = await videoPreviewApi(videoUrl, start, end);
@@ -105,13 +104,30 @@ async function sourceOpen(e: Event) {
 
 init();
 
+const getImageUrl = (url: string) => {
+    return normalImageUrl + url + '.png';
+}
+
+const handleVideoTime = (index: number) => {
+    videoRef.value.currentTime = index * VIDEO_FRAME_SLICE_TIME;
+} 
+
 </script>
 
 <template>
     <div class="video-download-container">
-        <video class="video" ref="videoRef" controls preload="auto"></video>
+        <video class="video-container" ref="videoRef" controls preload="auto" loading="lazy"></video>
+        <div class="image-container">
+            <img :src="getImageUrl(props.fileInfo.videoPreview[0])" alt="">
+        </div>
         <div class="preview-image">
-            <img v-for="item in props.fileInfo.videoPreview" alt="">
+            <img 
+                v-for="(item, index) in JSON.parse(props.fileInfo.videoPreview)"
+                loading="lazy"
+                :src="getImageUrl(item)"
+                @click="handleVideoTime(index)"
+                alt=""
+            >
         </div>
     </div>
 </template>
@@ -121,12 +137,23 @@ init();
 
 .video-download-container {
     display: flex;
-    .video {
+    .video-container {
+        height: px2vw(400);
+        border-radius: px2vw(10);
+    }
+    .image-container {
         height: px2vw(400);
         border-radius: px2vw(10);
     }
     .preview-image {
+        width: px2vw(850);
         display: flex;
+        flex-wrap: wrap;
+        img {
+            height: px2vw(100);
+            max-width: px2vw(200);
+            margin: px2vw(10);
+        }
     }
 }
 </style>

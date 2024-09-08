@@ -12,7 +12,7 @@ const props = defineProps<{ chatMessage: IFriendHistoryMsg[] }>();
 <template>
     <div class="chatroom-content-container">
         <ChatMessageInfoItem
-            v-for="item in props.chatMessage" 
+            v-for="item in props.chatMessage"
             :type="item.userId == item.fromUserId ? 'right': 'left'"
             :message="item.messageInfo" 
             :avatar="normalImageUrl + item.avatar"

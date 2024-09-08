@@ -22,3 +22,6 @@ export const VIDEO_USE_STREAM_DOWNLOAD_SIZE = 30 * 1024 * 1024;
 
 // 提前n秒下载视频流
 export const VIDEO_CHUNK_DOWNLOAD_BEFORE_SEC = 5;
+
+// 视频帧的获取间隔时间
+export const VIDEO_FRAME_SLICE_TIME = 10;

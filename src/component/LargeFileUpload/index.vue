@@ -8,6 +8,7 @@ import { socket } from '../../utils/socket';
 import { AUTHORIZATION } from '../../constant/request';
 import { useUserInfoStore } from '../../store/userInfo.pinia';
 import { getVideoFrame } from '../../utils/video';
+import { VIDEO_FRAME_SLICE_TIME } from '../../constant/file';
 
 /**
  * 0 -> 刚开始状态；1 -> 文件正在分片；
@@ -60,7 +61,7 @@ const handleUploadFile = async (e: any) => {
     // 处理文件分片
     const { fileSliceInfo, ...params } = await useLargeUploadFile(e.target?.files[0]);
     // 生成视频的图片帧
-    let videoFrame: string | IVideoPreviewPic[] = await getVideoFrame(e.target?.files[0], 10);
+    let videoFrame: string | IVideoPreviewPic[] = await getVideoFrame(e.target?.files[0], VIDEO_FRAME_SLICE_TIME);
     if(typeof videoFrame === 'string') {
         window.$message.warning(videoFrame, { closable: true });
         videoFrame = []
@@ -102,7 +103,6 @@ const fileUpload = async () => {
     fileInputStaus.value = 3;
     if(fileInfo.needUploadedHash.length === 0) {
         window.$message.success('点击 <send> 将文件发送给用户吧～', { closable: true });
-        // fileUploadFinished(fileInfo.id);
         return;
     }
     for (let chunkHash of fileInfo.needUploadedHash) {
@@ -121,7 +121,6 @@ const fileUpload = async () => {
         if(typeof resp === 'string') {
             window.$message.success('点击 <send> 将文件发送给用户吧～', { closable: true });
             // 文件上传完成！发送消息
-            // fileUploadFinished(fileInfo.id);
             break;
         }
         fileInfo = resp;
@@ -145,30 +144,50 @@ defineExpose({
 <template>
     <div class="file-upload-container">
         <input class="file-input" type="file" @change="handleUploadFile" />
-        <n-checkbox v-model:checked="isNeedPreviewPic">
+        <n-checkbox v-model:checked="isNeedPreviewPic" class="input-checkbox">
             生成预览图片
         </n-checkbox>
-        <div v-if="fileInputStaus === 2 || fileInputStaus === 3 || fileInputStaus === 4">
+        <div>
             <div class="file-process">
-            <n-progress type="line" :percentage="fileUploadProcess" indicator-placement="inside"
-                style="width: 200px;" />
+            <n-progress 
+                type="line" 
+                :percentage="fileUploadProcess" 
+                indicator-placement="inside" 
+                v-if="fileInputStaus !== 0 && fileInputStaus !== 1"
+                style="width: 200px;" 
+            />
             </div>
-            <n-button type="info" @click="fileUpload" size="small" v-if="fileInputStaus === 4 || fileInputStaus === 2">
+            <n-button 
+                type="info" 
+                @click="fileUpload" 
+                size="small" 
+                v-if="fileInputStaus === 4 || fileInputStaus === 2"
+            >
                 开始/继续上传
             </n-button>
-            <n-button type="warning" @click="fileStopUpload" size="small" v-if="fileInputStaus === 3">
+            <n-button
+                type="warning" 
+                @click="fileStopUpload" 
+                size="small" 
+                v-if="fileInputStaus === 3"
+            >
                 暂停上传
             </n-button>
-            <n-button type="error" @click="fileDeleteUpload" size="small">
+            <n-button type="error" @click="fileDeleteUpload" size="small" v-if="fileInputStaus !== 0">
                 重新上传
             </n-button>
         </div>
+
     </div>
 </template>
 
 <style scoped lang="scss">
 @import "src/assets/style/common.scss";
 .file-upload-container {
+    margin: px2vw(15);
+    .input-checkbox {
+        margin-left: px2vw(20);
+    }
     .file-input {
         outline: none;
         background-color: #0a0a23;

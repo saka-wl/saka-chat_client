@@ -8,6 +8,7 @@ interface IGetFriendHistoryMsgApiParams {
 export interface IFriendHistoryMsg {
     id: number;
     chatRoomId: string;
+    userId?: string;
     createdAt?: string;
     fromUserId: string;
     toUsereId: string;
@@ -20,13 +21,11 @@ export const getFriendHistoryMsgApi = async (obj: IGetFriendHistoryMsgApiParams)
     return await axios.post("/api/c/friendchat/super/getFriendHistoryMsg", obj);
 }
 
-export interface IFriendNewMsg extends IFriendHistoryMsg {
-    friendAccount: string;
-    friendNickname: string;
-    friendAvatar: string;
-    newMsgCount: number;
+export interface IFriendNewMsg {
+    newChatMsgRes: any;
+    historyChatMsgRes: string[];
 }
-export const getFriendNewMsgApi = async (chatRoomId: string): Promise<ResponseData<IFriendNewMsg[]>> => {
+export const getFriendNewMsgApi = async (chatRoomId: string): Promise<ResponseData<IFriendNewMsg>> => {
     return await axios.get('/api/c/friendchat/super/getUserAllNewMessageList?chatRoomId=' + chatRoomId)
 }
 

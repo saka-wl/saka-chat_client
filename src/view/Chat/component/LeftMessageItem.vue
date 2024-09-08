@@ -1,13 +1,12 @@
 
 <script lang="ts" setup>
-import { NAvatar } from 'naive-ui';
+import { NAvatar, NBadge } from 'naive-ui';
 import { normalImageUrl } from '../../../constant/request';
 import { computed } from 'vue';
 
 const props = defineProps({
     avatar: String,
     newMsgCount: Number,
-    newMsg: String,
 })
 const avatarUrl = computed(() => {
     return normalImageUrl + props.avatar;
@@ -18,10 +17,9 @@ const avatarUrl = computed(() => {
 <template>
     <div class="left-message-item-container">
         <div class="avatar">
-            <n-avatar :src="avatarUrl" object-fit="cover"></n-avatar>
-        </div>
-        <div class="msg">
-            {{ props.newMsg }} - {{ props.newMsgCount }}
+            <n-badge :value="props.newMsgCount">
+                <n-avatar :src="avatarUrl" object-fit="cover"></n-avatar>
+            </n-badge>
         </div>
     </div>
 </template>

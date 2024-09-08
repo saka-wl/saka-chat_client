@@ -134,6 +134,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         userFriendList.value = null;
         isSocketLogin = false;
         localStorage.removeItem(AUTHORIZATION);
+        $off('notifyNewMsg');
         cb()
     }
 
@@ -181,8 +182,10 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         })
 
         socket.on('getMsgFromMine', (data: IFriendHistoryMsg) => {
-            console.log(data);
-            $emit('updateMineMsg', data)
+            $emit('updateMineMsg', {
+                ... data,
+                userId: userInfo.value?.id
+            })
         })
 
         socket.on('friendOnlineChange', (friendId: string, isOnline: boolean) => {

@@ -1,13 +1,22 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { getFriendNewMsgApi, IFriendNewMsg } from '../../../api/friendchatmsg';
+import { getFriendNewMsgApi } from '../../../api/friendchatmsg';
 import LeftMessageItem from './LeftMessageItem.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
 
-const leftMsgList = ref<IFriendNewMsg[]>([]);
-const { userFriendList } = storeToRefs(useUserInfoStore());
+interface ILeftMsg {
+    userId: string;
+    friendId: string;
+    friendNickname: string;
+    friendAvatar: string;
+    chatRoomId: string;
+    newMsgCount: number;
+}
+
+const leftMsgList = ref<ILeftMsg[]>([]);
+const { userFriendList, userInfo } = storeToRefs(useUserInfoStore());
 const router = useRouter()
 const route = useRoute();
 
@@ -17,24 +26,29 @@ async function init() {
         window.$message.warning(msg || "服务器错误！", { closable: true });
         return;
     }
-    let tmp = Object.values(data);
-    tmp.forEach(item => {
-        item.friendAvatar = userFriendList.value?.find(it => it.userId == item.fromUserId || it.friendId == item.fromUserId)?.friendAvatar || '';
-    });
-    // console.log(tmp);
-    leftMsgList.value = tmp;
+    let vals: ILeftMsg[] = []
+    for(let key in data.newChatMsgRes) {
+        let tmp = userFriendList.value?.find(it => it.friendId == key);
+        if(!tmp) continue;
+        vals.push({
+            userId: userInfo.value?.id as string,
+            friendId: key,
+            newMsgCount: data.newChatMsgRes[key],
+            friendNickname: tmp.friendNickname,
+            friendAvatar: tmp.friendAvatar,
+            chatRoomId: tmp.chatRoomId
+        })
+    }
+    leftMsgList.value = vals;
 }
 init();
 
-const handleFriendChatClick = (item: IFriendNewMsg) => {
+const handleFriendChatClick = (item: ILeftMsg) => {
     router.push({
         name: 'friendchat',
-        // query: {
-        //     chatRoomId: item.chatRoomId
-        // },
         params: {
-            userId: item.toUserId,
-            friendId: item.fromUserId,
+            userId: item.userId,
+            friendId: item.friendId,
             friendNickname: item.friendNickname,
             friendAvatar: item.friendAvatar,
             chatRoomId: item.chatRoomId
@@ -50,7 +64,6 @@ const handleFriendChatClick = (item: IFriendNewMsg) => {
             v-for="item in leftMsgList" 
             :avatar="item.friendAvatar" 
             :newMsgCount="item.newMsgCount" 
-            :newMsg="item.messageInfo" 
             @click="handleFriendChatClick(item)" 
         />
     </div>
