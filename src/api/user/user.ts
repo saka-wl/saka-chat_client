@@ -1,5 +1,6 @@
 
 import { IUserEnrollParams } from "../../store/userInfo.pinia.ts";
+import { IUserInfo } from "../../view/UserInfo/index.vue";
 import { ResponseData } from "../common.ts";
 import axios from "../request.ts";
 
@@ -43,3 +44,6 @@ export const searchUserApi = async (
     })
 }
 
+export const changeUserInfoApi = async (data: IUserInfo) => {
+    return await axios.post<IUserInfo, ResponseData<null>>("/api/c/user/super/changeUserInfo", data);
+}

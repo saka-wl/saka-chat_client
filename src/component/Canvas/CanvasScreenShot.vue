@@ -13,6 +13,7 @@ const imageEl = ref();
 const touchCanvasEl = ref();
 // 内容显示的画布（蓝色区域）
 const contentCanvasEl = ref();
+const newImageEl = ref();
 const isCanvasShow = ref(false);
 
 const GRID_COLOR = '#000000';
@@ -25,11 +26,13 @@ let isDrawing = false;
 let HEIGHT = 600;
 let WIDTH = 800;
 let curRangle: Array<Array<number>> = [];
+let bindEventCb: Function | null = null;
 
 function init() {
     if(avatarImageUrl.value) {
         window.URL.revokeObjectURL(avatarImageUrl.value);
     }
+    bindEventCb && bindEventCb();
     curRangle = [];
     HEIGHT = 600;
     isCanvasShow.value = false;
@@ -39,6 +42,17 @@ function init() {
         WIDTH = imageEl.value.width;
         initCanvas();
     }
+}
+
+function close() {
+    if(avatarImageUrl.value) {
+        window.URL.revokeObjectURL(avatarImageUrl.value);
+    }
+    bindEventCb && bindEventCb();
+    curRangle = [];
+    isCanvasShow.value = false;
+    avatarImageBlob = null;
+    avatarImageUrl.value = null;
 }
 
 onMounted(() => {
@@ -120,32 +134,40 @@ const clearCanvas = () => {
 }
 
 function bindEvent() {
-    touchCanvasEl.value.addEventListener('mousedown', (e) => {
+    const mousedownFn = (e) => {
         isDrawing = true;
         curRangle = [];
         const { x, y } = getClickPage(e);
         curRangle[0] = [x, y];
-    })
-    touchCanvasEl.value.addEventListener('mousemove', (e) => {
+    };
+    const mousemoveFn = (e) => {
         if(!isDrawing) return;
         const { x, y } = getClickPage(e);
         if(curRangle[1]) clearCanvas();
         curRangle[1] = [x, y];
         drawCanvas();
-    })
-    touchCanvasEl.value.addEventListener('mouseup', (e) => {
+    };
+    const mouseupFn = (e) => {
         isDrawing = false;
         const { x, y } = getClickPage(e);
         curRangle[1] = [x, y];
         drawCanvas();
         getImageData();
-    })
+    }
+    touchCanvasEl.value.addEventListener('mousedown', mousedownFn);
+    touchCanvasEl.value.addEventListener('mousemove', mousemoveFn);
+    touchCanvasEl.value.addEventListener('mouseup', mouseupFn);
+    bindEventCb = () => {
+        touchCanvasEl.value.removeEventListener('mousedown', mousedownFn);
+        touchCanvasEl.value.removeEventListener('mousemove', mousemoveFn);
+        touchCanvasEl.value.removeEventListener('mouseup', mouseupFn);
+    }
 }
 
 function getImageData() {
     const cvs = document.createElement('canvas')
-    cvs.width = WIDTH
-    cvs.height = HEIGHT
+    cvs.width = Math.abs(curRangle[1][0] - curRangle[0][0])
+    cvs.height = Math.abs(curRangle[1][1] - curRangle[0][1])
     const ctx: CanvasRenderingContext2D = cvs.getContext('2d') as CanvasRenderingContext2D;
     const originWidth = imageEl.value.naturalWidth;
     const originHeight = imageEl.value.naturalHeight;
@@ -165,7 +187,7 @@ function getImageData() {
         Math.abs(curRangle[1][0] - curRangle[0][0]), 
         Math.abs(curRangle[1][1] - curRangle[0][1]),
     );
-    cvs.toBlob((blob) => {
+    cvs.toBlob(async (blob) => {
         const url = URL.createObjectURL(blob as Blob);
         avatarImageUrl.value = url;
         avatarImageBlob = blob;
@@ -185,6 +207,7 @@ const updateAvatar = async () => {
         originUrl: data,
         localUrl: avatarImageUrl.value
     });
+    close();
 }
 
 </script>
@@ -194,7 +217,7 @@ const updateAvatar = async () => {
         <canvas id="content-canvas" ref="contentCanvasEl" v-if="isCanvasShow"></canvas>
         <canvas id="touch-canvas" ref="touchCanvasEl" v-if="isCanvasShow"></canvas>
         <img :src="props.avatarUrl" alt="" id="bg-image" ref="imageEl">
-        <img :src="avatarImageUrl" alt="" id="avatar-image" v-if="avatarImageUrl">
+        <img :src="avatarImageUrl" alt="" id="avatar-image" ref="newImageEl" v-if="avatarImageUrl">
         <n-button @click="updateAvatar">确认修改</n-button>
     </div>
 </template>
