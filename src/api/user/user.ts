@@ -45,5 +45,5 @@ export const searchUserApi = async (
 }
 
 export const changeUserInfoApi = async (data: IUserInfo) => {
-    return await axios.post<IUserInfo, ResponseData<null>>("/api/c/user/super/changeUserInfo", data);
+    return await axios.post<IUserInfo, ResponseData<Ilogin | null>>("/api/c/user/super/changeUserInfo", data);
 }

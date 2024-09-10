@@ -32,6 +32,7 @@ interface IUserStore {
     userAutoLogin: () => void;
     getUserFriendList: () => Promise<boolean | undefined>;
     socketLogin: () => Promise<void>;
+    changeUserInfo: (data: Ilogin) => void;
 }
 
 declare global {
@@ -132,6 +133,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
     // 退出登录
     const userLoginOut = (cb: () => void) => {
         window.$message.success('再见啦，' + (userInfo.value?.nickname || 'saka') + '同学～', { closable: true });
+        socket.emit('userLogout', userInfo.value?.id);
         userInfo.value = null;
         userFriendList.value = null;
         isSocketLogin = false;
@@ -139,7 +141,6 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         $off('notifyNewMsg');
         cb();
         router.push('/');
-        socket.emit('userLogout', userInfo.value?.id);
     }
 
     // 自动登录 聊天断开
@@ -152,6 +153,17 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             await getUserFriendList();
         } else {
             window.$message.warning(resp.msg, { closable: true });
+        }
+    }
+
+    // 登录信息修改
+    const changeUserInfo = (data: Ilogin) => {
+        console.log(userInfo.value, data);
+        if(userInfo.value) {
+            userInfo.value.avatar = data.avatar;
+            userInfo.value.email = data.email;
+            userInfo.value.nickname = data.nickname;
+            userInfo.value.phone = data.phone;
         }
     }
 
@@ -226,5 +238,6 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         userAutoLogin,
         getUserFriendList,
         socketLogin,
+        changeUserInfo
     }
 })

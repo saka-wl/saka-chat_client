@@ -8,11 +8,8 @@ import CanvasScreenShot from '../../component/Canvas/CanvasScreenShot.vue';
 import { changeUserInfoApi } from '../../api/user/user';
 
 const { userInfo } = storeToRefs(useUserInfoStore());
+const { changeUserInfo } = useUserInfoStore()
 const isAvatarModalShow = ref(false);
-// const account = ref('');
-// const nickname = ref('');
-// const email = ref('');
-// const phone = ref('');
 const avatar = ref('');
 
 const avatarUrl = ref<string | null>(null);
@@ -20,6 +17,7 @@ const formRef = ref<FormInst | null>(null)
 const rPasswordFormItemRef = ref<FormItemInst | null>(null)
 
 export interface IUserInfo {
+    id: string | null
     account: string | null
     nickname: string | null
     email: string | null
@@ -29,6 +27,7 @@ export interface IUserInfo {
     avatar: string | null
 }
 const modelRef = ref<IUserInfo>({
+    id: null,
     account: null,
     nickname: null,
     email: null,
@@ -85,8 +84,17 @@ const handleChangeUserInfo = (e: MouseEvent) => {
             window.$message.warning('请填写修改信息！', { closable: true });
             return;
         }
-        const { code, data, msg } = await changeUserInfoApi(modelRef.value);
-        window.$message.success('修改成功！', { closable: true });
+        if(!userInfo.value?.id) {
+            window.$message.warning('你还未登录！', { closable: true });
+            return;
+        }
+        const { code, data, msg } = await changeUserInfoApi({ ...modelRef.value , id: userInfo.value?.id});
+        if(code !== 200 || !data) {
+            window.$message.warning(msg || '修改失败！', { closable: true });
+            return;
+        }
+        window.$message.success(msg || '修改失败！', { closable: true });
+        changeUserInfo(data);
     })
 }
 
