@@ -60,12 +60,12 @@ init()
     height: 100%;
     overflow-y: scroll;
     .myfriend-list {
-        background-color: aqua;
+        background-color: rgb(228, 255, 255);
         transition: all .3s;
         overflow-y: scroll;
     }
     .mygroup-list {
-        background-color: aqua;
+        background-color: rgb(228, 255, 255);
         transition: all .3s;
         overflow-y: scroll;
     }

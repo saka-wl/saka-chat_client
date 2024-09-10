@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { defineProps } from 'vue';
 import LargeFileDownload from "../LargeFileDownload/index.vue";
+import { NPopover, NButton } from 'naive-ui';
 
 const props = defineProps<{
     messageType: String;
@@ -8,15 +9,34 @@ const props = defineProps<{
     type: "right" | "left";
     fileInfo: Object | null;
 }>();
+
+const withDrawMsg = () => {
+    console.log(props.fileInfo);
+}
+
 </script>
 
 
 <template>
     <div :class="['chat-message-bubble', 'message', props.type]" v-if="props.messageType === 'string'">
-        <p>{{ message }}</p>
+        <n-popover trigger="hover">
+            <template #trigger>
+                <p>{{ message }}</p>
+            </template>
+            <n-button quaternary type="error" @click="withDrawMsg">
+                撤回这条消息
+            </n-button>
+        </n-popover>
     </div>
     <div :class="['chat-video-' + props.type]" v-else-if="props.fileInfo && (props.messageType === 'file' || props.messageType === 'video')">
-        <LargeFileDownload :fileInfo="props.fileInfo" />
+        <n-popover trigger="hover">
+            <template #trigger>
+                <LargeFileDownload :fileInfo="props.fileInfo" />
+            </template>
+            <n-button quaternary type="error" @click="withDrawMsg">
+                撤回这条消息
+            </n-button>
+        </n-popover>
     </div>
 </template>
 

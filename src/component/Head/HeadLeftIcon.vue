@@ -5,10 +5,10 @@
 <template>
     <div class="icon-container">
         <div class="icon">
-            <span class="iconfont icon-left icon__left"></span>
+            <span class="iconfont icon-left icon__left" @click="$router.go(-1)"></span>
         </div>
         <div class="icon">
-            <span class="iconfont icon-right icon__right"></span>
+            <span class="iconfont icon-right icon__right" @click="$router.go(1)"></span>
         </div>
     </div>
 </template>

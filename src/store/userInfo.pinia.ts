@@ -219,7 +219,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         })
 
         socket.on("connect_error", () => {
-            userLoginOut(() => { window.$message.warning('服务器错误', { closable: true }); });
+            // userLoginOut(() => { window.$message.warning('服务器错误', { closable: true }); });
         });
 
         socket.on("disconnect", (reason) => {

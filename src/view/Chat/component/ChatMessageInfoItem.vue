@@ -18,7 +18,6 @@ async function init() {
 }
 
 init();
-
 </script>
 
 <template>

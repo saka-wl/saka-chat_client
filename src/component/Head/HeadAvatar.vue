@@ -29,7 +29,7 @@ const avatarUrl = computed(() => {
             </template>
             <div v-if="userInfo?.id">
                 <div>你好，{{ userInfo?.nickname || 'saka' }}</div>
-                <div>去信息详情页</div>
+                <div @click="$router.push('/user')">去信息详情页</div>
                 <div @click="userLoginOut(() => { $router.push('/') })">退出登陆</div>
             </div>
             <div v-else>
