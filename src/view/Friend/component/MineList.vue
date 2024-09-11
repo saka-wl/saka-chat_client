@@ -23,7 +23,7 @@ const init = async () => {
 }
 
 const goToFriendDetail = (item: IUserFriend) => {
-    router.push({ name: 'friendDetail', params: { id: item.id }})
+    router.push({ name: 'friendDetail', params: { id: item.id, chatRoomId: item.chatRoomId }});
 }
 
 init()

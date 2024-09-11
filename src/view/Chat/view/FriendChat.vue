@@ -31,12 +31,12 @@ async function init() {
     chatRoomInfo = route.params as unknown as IChatRoomInfo;
 
     if(!chatRoomInfo || !chatRoomInfo.chatRoomId) {
-        window.$message.warning("请选择用户", { closable: true });
-        router.push('/friend');
+        window.$message.warning("请选择一个用户聊天吧～", { closable: true });
+        // router.push('/friend');
         return;
     }
 
-    let { code, data } = await getFriendHistoryMsgApi({ chatRoomId: chatRoomInfo.chatRoomId })
+    let { code, data } = await getFriendHistoryMsgApi({ chatRoomId: chatRoomInfo.chatRoomId });
     if(code !== 200 || typeof data !== 'object') {
         window.$message.warning("获取聊天数据失败！", { closable: true })
         return
@@ -55,7 +55,7 @@ async function init() {
 init();
 
 watch(() => route.params.chatRoomId, (newVal, oldVal) => {
-    if(oldVal && newVal !== oldVal) init();
+    if(newVal && newVal !== oldVal) init();
 });
 
 /**

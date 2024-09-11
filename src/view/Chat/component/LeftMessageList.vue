@@ -26,9 +26,10 @@ async function init() {
         window.$message.warning(msg || "服务器错误！", { closable: true });
         return;
     }
-    let vals: ILeftMsg[] = []
+    let vals: ILeftMsg[] = [];
     for(let key in data.newChatMsgRes) {
         let tmp = userFriendList.value?.find(it => it.friendId == key);
+        if(vals.find(it => it.chatRoomId == tmp?.chatRoomId)) continue;
         if(!tmp) continue;
         vals.push({
             userId: userInfo.value?.id as string,
@@ -37,7 +38,24 @@ async function init() {
             friendNickname: tmp.friendNickname,
             friendAvatar: tmp.friendAvatar,
             chatRoomId: tmp.chatRoomId
-        })
+        });
+    }
+    if(route.params.friendId) {
+        data.historyChatMsgRes.push(route.params.friendId as string);
+    }
+    data.historyChatMsgRes = data.historyChatMsgRes.filter(it => it != userInfo.value?.id);
+    for(let item of data.historyChatMsgRes) {
+        let tmp = userFriendList.value?.find(it => it.friendId == item);
+        if(vals.find(it => it.chatRoomId == tmp?.chatRoomId)) continue;
+        if(!tmp) continue;
+        vals.push({
+            userId: userInfo.value?.id as string,
+            friendId: item,
+            newMsgCount: 0,
+            friendNickname: tmp.friendNickname,
+            friendAvatar: tmp.friendAvatar,
+            chatRoomId: tmp.chatRoomId
+        });
     }
     leftMsgList.value = vals;
 }

@@ -16,7 +16,7 @@ const jumpTo = (path: string) => {
         <n-button quaternary type="info" @click="jumpTo('/friend')">
             Friends
         </n-button>
-        <n-button quaternary type="info" @click="jumpTo('/chat')">
+        <n-button quaternary type="info" @click="jumpTo('/chat/friendchat')">
             Chat
         </n-button>
         <n-button quaternary type="info" @click="jumpTo('/user')">
