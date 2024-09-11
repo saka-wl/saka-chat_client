@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { NButton } from 'naive-ui';
 import { uploadImageApi } from '../../api/file';
 import { FabricController } from './FabricController';
@@ -39,7 +39,12 @@ onMounted(() => {
     init();
 })
 
+onUnmounted(() => {
+    canvasController.destroy();
+})
+
 watch(() => props.avatarUrl, (newVal) => {
+    canvasController.destroy();
     newVal && init();
 })
 
