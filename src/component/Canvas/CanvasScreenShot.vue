@@ -2,196 +2,80 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch } from 'vue';
 import { NButton } from 'naive-ui';
-import { uploadImageApi, videoPreviewPicApi } from '../../api/file';
+import { uploadImageApi } from '../../api/file';
+import { FabricController } from './FabricController';
 
 const props = defineProps<{ avatarUrl: string; }>();
 const avatarImageUrl = ref<string | null>(null);
 let avatarImageBlob: Blob | null = null;
 
-const imageEl = ref();
-// 方格的画布
-const touchCanvasEl = ref();
 // 内容显示的画布（蓝色区域）
 const contentCanvasEl = ref();
 const newImageEl = ref();
-const isCanvasShow = ref(false);
 
-const GRID_COLOR = '#000000';
-const GROUP_COLOR = 'rgb(197, 255, 255, 0.4)';
-// 方格的边框大小
-const GRID_LINE_WIDTH = 0.5;
-// 每个方格大小
-const GRID_WIDTH = 15;
-let isDrawing = false;
 let HEIGHT = 600;
-let WIDTH = 800;
-let curRangle: Array<Array<number>> = [];
-let bindEventCb: Function | null = null;
+let WIDTH = ref<number | null>(null);
+let scale = 1;
+
+let canvasController: any = null;
 
 function init() {
-    if(avatarImageUrl.value) {
-        window.URL.revokeObjectURL(avatarImageUrl.value);
+    const image = new Image();
+    image.height = 600;
+    image.src = props.avatarUrl;
+    image.onload = async (e: any) => {
+        scale = e.target.naturalHeight / HEIGHT;
+        WIDTH.value = image.width / scale;
+        await nextTick();
+        contentCanvasEl.value.height = HEIGHT;
+        contentCanvasEl.value.width = WIDTH.value;
+        canvasController = new FabricController(contentCanvasEl.value);
+        canvasController.clear();
+        canvasController.add();
     }
-    bindEventCb && bindEventCb();
-    curRangle = [];
-    HEIGHT = 600;
-    isCanvasShow.value = false;
-    avatarImageBlob = null;
-    avatarImageUrl.value = null;
-    imageEl.value.onload = () => {
-        WIDTH = imageEl.value.width;
-        initCanvas();
-    }
-}
-
-function close() {
-    if(avatarImageUrl.value) {
-        window.URL.revokeObjectURL(avatarImageUrl.value);
-    }
-    bindEventCb && bindEventCb();
-    curRangle = [];
-    isCanvasShow.value = false;
-    avatarImageBlob = null;
-    avatarImageUrl.value = null;
 }
 
 onMounted(() => {
     init();
 })
 
-watch(() => props.avatarUrl, () => {
-    init();
+watch(() => props.avatarUrl, (newVal) => {
+    newVal && init();
 })
 
-// 初始化画布
-async function initCanvas() {
-    isCanvasShow.value = true;
-    await nextTick();
-    touchCanvasEl.value.height = HEIGHT;
-    touchCanvasEl.value.width = WIDTH;
-    contentCanvasEl.value.height = HEIGHT;
-    contentCanvasEl.value.width = WIDTH;
-    drawBlockLayer();
-    bindEvent();
-}
+const getScreenShotImage = () => {
+    let curRangle = canvasController.getScreenShotImage();
+    if(!curRangle || !WIDTH.value) return;
+    console.log(curRangle);
+    const image = new Image();
+    image.height = 600;
+    image.width = WIDTH.value || 800;
+    image.src = props.avatarUrl;
+    image.onload = async (e: any) => {
+        const cvs = document.createElement('canvas');
+        cvs.width = curRangle[1][0];
+        cvs.height = curRangle[1][1];
+        const ctx: CanvasRenderingContext2D = cvs.getContext('2d') as CanvasRenderingContext2D;
+        const originWidth = image.naturalWidth;
+        const originHeight = image.naturalHeight;
 
-function drawBlockLayer() {
-    const ctx = touchCanvasEl.value.getContext('2d');
-    if(!ctx) return;
-    // 设置透明背景
-    ctx.clearRect(0, 0, touchCanvasEl.value.width, touchCanvasEl.value.height);
-    // 设置线条样式
-    ctx.strokeStyle = GRID_COLOR; // 线条颜色
-    ctx.lineWidth = GRID_LINE_WIDTH; // 线条宽度
-    /**
-     * 横竖每隔 GRID_WIDTH 画一条线,构成一个网格
-     */
-    for (let i = 0; i < touchCanvasEl.value.width; i += GRID_WIDTH) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, touchCanvasEl.value.height);
-        ctx.stroke();
+        ctx.drawImage(
+            image,
+            curRangle[0][0] * (originWidth / (WIDTH.value as number)), 
+            curRangle[0][1] * (originHeight / HEIGHT), 
+            curRangle[1][0] * (originWidth / (WIDTH.value as number)), 
+            curRangle[1][1] * (originHeight / HEIGHT),
+            0, 
+            0, 
+            curRangle[1][0], 
+            curRangle[1][1],
+        );
+        cvs.toBlob(async (blob) => {
+            const url = URL.createObjectURL(blob as Blob);
+            avatarImageUrl.value = url;
+            avatarImageBlob = blob;
+        })
     }
-    for (let i = 0; i < touchCanvasEl.value.height; i += GRID_WIDTH) {
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(touchCanvasEl.value.width, i);
-        ctx.stroke();
-    }
-}
-
-function getClickPage(e: any) {
-    const { left, top } = touchCanvasEl.value.getBoundingClientRect();
-    const { clientX, clientY } = e;
-    const x = parseFloat(clientX - left);
-    const y = parseFloat(clientY - top);
-    return { x, y };
-}
-
-// 将区域在画布中画出来
-const drawCanvas = (style = GROUP_COLOR) => {
-    const ctx = contentCanvasEl.value?.getContext('2d');
-    if (!ctx) {
-        return;
-    }
-    ctx.fillStyle = style;
-    ctx.fillRect(
-        curRangle[0][0], 
-        curRangle[0][1], 
-        curRangle[1][0] - curRangle[0][0], 
-        curRangle[1][1] - curRangle[0][1]
-    );
-};
-
-// 清空画布
-const clearCanvas = () => {
-    const ctx = contentCanvasEl.value?.getContext('2d');
-    if (!ctx) {
-        return;
-    }
-    ctx.clearRect(0, 0, contentCanvasEl.value.width, contentCanvasEl.value.height);
-    drawCanvas();
-}
-
-function bindEvent() {
-    const mousedownFn = (e) => {
-        isDrawing = true;
-        curRangle = [];
-        const { x, y } = getClickPage(e);
-        curRangle[0] = [x, y];
-    };
-    const mousemoveFn = (e) => {
-        if(!isDrawing) return;
-        const { x, y } = getClickPage(e);
-        if(curRangle[1]) clearCanvas();
-        curRangle[1] = [x, y];
-        drawCanvas();
-    };
-    const mouseupFn = (e) => {
-        isDrawing = false;
-        const { x, y } = getClickPage(e);
-        curRangle[1] = [x, y];
-        drawCanvas();
-        getImageData();
-    }
-    touchCanvasEl.value.addEventListener('mousedown', mousedownFn);
-    touchCanvasEl.value.addEventListener('mousemove', mousemoveFn);
-    touchCanvasEl.value.addEventListener('mouseup', mouseupFn);
-    bindEventCb = () => {
-        touchCanvasEl.value.removeEventListener('mousedown', mousedownFn);
-        touchCanvasEl.value.removeEventListener('mousemove', mousemoveFn);
-        touchCanvasEl.value.removeEventListener('mouseup', mouseupFn);
-    }
-}
-
-function getImageData() {
-    const cvs = document.createElement('canvas')
-    cvs.width = Math.abs(curRangle[1][0] - curRangle[0][0])
-    cvs.height = Math.abs(curRangle[1][1] - curRangle[0][1])
-    const ctx: CanvasRenderingContext2D = cvs.getContext('2d') as CanvasRenderingContext2D;
-    const originWidth = imageEl.value.naturalWidth;
-    const originHeight = imageEl.value.naturalHeight;
-    console.log(        
-        curRangle[0][0] * (originWidth / WIDTH), 
-        curRangle[0][1] * (originHeight / HEIGHT), 
-        (curRangle[1][0] - curRangle[0][0]) * (originWidth / WIDTH), 
-        (curRangle[1][1] - curRangle[0][1]) * (originHeight / HEIGHT))
-    ctx.drawImage(
-        imageEl.value,
-        curRangle[0][0] * (originWidth / WIDTH), 
-        curRangle[0][1] * (originHeight / HEIGHT), 
-        (curRangle[1][0] - curRangle[0][0]) * (originWidth / WIDTH), 
-        (curRangle[1][1] - curRangle[0][1]) * (originHeight / HEIGHT),
-        0, 
-        0, 
-        Math.abs(curRangle[1][0] - curRangle[0][0]), 
-        Math.abs(curRangle[1][1] - curRangle[0][1]),
-    );
-    cvs.toBlob(async (blob) => {
-        const url = URL.createObjectURL(blob as Blob);
-        avatarImageUrl.value = url;
-        avatarImageBlob = blob;
-    })
 }
 
 const emit = defineEmits(['updateAvatar']);
@@ -213,11 +97,21 @@ const updateAvatar = async () => {
 </script>
 
 <template>
-    <div class="canvas-screen-shot-container">
-        <canvas id="content-canvas" ref="contentCanvasEl" v-if="isCanvasShow"></canvas>
-        <canvas id="touch-canvas" ref="touchCanvasEl" v-if="isCanvasShow"></canvas>
-        <img :src="props.avatarUrl" alt="" id="bg-image" ref="imageEl">
+    <div 
+        class="canvas-screen-shot-container"
+        v-if="WIDTH"
+        :style="{
+            width: WIDTH + 'px',
+            height: HEIGHT + 'px',
+            backgroundImage: `url(${props.avatarUrl})`,
+            backgroundSize: '100% 100%'
+        }"
+    >
+        <canvas id="content-canvas" ref="contentCanvasEl"></canvas>
+    </div>
+    <div class="canvas-btn">
         <img :src="avatarImageUrl" alt="" id="avatar-image" ref="newImageEl" v-if="avatarImageUrl">
+        <n-button @click="getScreenShotImage">生成图片</n-button>
         <n-button @click="updateAvatar">确认修改</n-button>
     </div>
 </template>
@@ -226,13 +120,13 @@ const updateAvatar = async () => {
 @import "src/assets/style/common.scss";
 .canvas-screen-shot-container {
     position: relative;
-    height: 600px;
     margin: 50px auto;
     #bg-image {
         height: 600px;
     }
     #touch-canvas, #content-canvas {
         position: absolute;
+        height: 600px;
         left: 0;
         right: 0;
     }
