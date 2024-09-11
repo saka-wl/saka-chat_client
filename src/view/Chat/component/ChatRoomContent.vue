@@ -18,7 +18,7 @@ const props = defineProps<{ chatMessage: IFriendHistoryMsg[] }>();
             :avatar="normalImageUrl + item.avatar"
             color=""
             :messageType="item.messageType"
-            :toUserId="item.toUsereId"
+            :toUserId="item.toUserId"
             :chatMsgId="item.id"
         />
     </div>

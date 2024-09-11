@@ -2,16 +2,24 @@
 import { defineProps } from 'vue';
 import LargeFileDownload from "../LargeFileDownload/index.vue";
 import { NPopover, NButton } from 'naive-ui';
+import { socket } from '../../utils/socket';
+import { $emit } from '../../utils/emit';
 
 const props = defineProps<{
     messageType: String;
     message: String;
     type: "right" | "left";
     fileInfo: Object | null;
+    chatMsgId: Number | null;
+    toUserId: String | null;
 }>();
 
 const withDrawMsg = () => {
-    console.log(props.fileInfo);
+    socket.emit('userFriendWithDrawMsg', {
+        id: props.chatMsgId,
+        toUserId: props.toUserId,
+    })
+    $emit('withDrawMsgFromMine', props.chatMsgId);
 }
 
 </script>
@@ -19,7 +27,7 @@ const withDrawMsg = () => {
 
 <template>
     <div :class="['chat-message-bubble', 'message', props.type]" v-if="props.messageType === 'string'">
-        <n-popover trigger="hover">
+        <n-popover trigger="hover" v-if="props.type === 'right'">
             <template #trigger>
                 <p>{{ message }}</p>
             </template>
@@ -27,9 +35,10 @@ const withDrawMsg = () => {
                 撤回这条消息
             </n-button>
         </n-popover>
+        <p v-else>{{ message }}</p>
     </div>
-    <div :class="['chat-video-' + props.type]" v-else-if="props.fileInfo && (props.messageType === 'file' || props.messageType === 'video')">
-        <n-popover trigger="hover">
+    <div :class="['chat-video-' + props.type]" v-if="props.fileInfo && (props.messageType === 'file' || props.messageType === 'video')">
+        <n-popover trigger="hover" v-if="props.type === 'right'">
             <template #trigger>
                 <LargeFileDownload :fileInfo="props.fileInfo" />
             </template>
@@ -37,6 +46,7 @@ const withDrawMsg = () => {
                 撤回这条消息
             </n-button>
         </n-popover>
+        <LargeFileDownload v-else :fileInfo="props.fileInfo" />
     </div>
 </template>
 

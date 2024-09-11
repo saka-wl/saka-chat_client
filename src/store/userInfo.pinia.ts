@@ -204,6 +204,13 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             })
         })
 
+        /**
+         * 接收消息方监听消息撤回
+         */
+        socket.on('friendWithDrawMsg', (id: string) => {
+            $emit('friendWithDrawMsg', id);
+        })
+
         socket.on('userForceLogout', () => {
             userLoginOut(() => window.$message.warning('您在别处登录啦~', { closable: true }));
         })
@@ -211,7 +218,6 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         socket.on('friendOnlineChange', (friendId: string, isOnline: boolean) => {
             userFriendList.value?.forEach((it, index) => {
                 if(it.friendId == friendId || it.userId == friendId) {
-                    console.log(it);
                     it.isOnline = isOnline;
                 }
             })

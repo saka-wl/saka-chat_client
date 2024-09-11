@@ -77,7 +77,7 @@ const handleSendMsg = () => {
         message: inputMessage.value,
         chatRoomId: route.params?.chatRoomId
     });
-}
+};
 
 /**
  * 接收到消息就添加
@@ -85,13 +85,26 @@ const handleSendMsg = () => {
 $on('notifyNewMsg', (data: IFriendHistoryMsg) => {
     if(chatMessage.value.find(it => it.id === data.id)) return;
     chatMessage.value = [... chatMessage.value, { ... data, avatar: chatRoomInfo?.friendAvatar }]
-})
+});
 
+/**
+ * 更新自己的消息
+ */
 $on('updateMineMsg', (data: IFriendHistoryMsg) => {
     if(chatMessage.value.find(it => it.id === data.id)) return;
-    chatMessage.value = [... chatMessage.value, { ... data, avatar: userInfo.value?.avatar }]
-})
+    chatMessage.value = [... chatMessage.value, { ... data, avatar: userInfo.value?.avatar }];
+});
 
+/**
+ * 接收方接收撤回消息的信号
+ */
+$on('friendWithDrawMsg', (id: string) => {
+    chatMessage.value = chatMessage.value.filter(it => ~~it.id !== ~~id);
+});
+
+$on('withDrawMsgFromMine', (id: string) => {
+    chatMessage.value = chatMessage.value.filter(it => ~~it.id !== ~~id);
+});
 </script>
 
 <template>

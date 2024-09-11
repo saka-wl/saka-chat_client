@@ -4,7 +4,7 @@ import { getFileInfoApi, IFileInfoApi } from '../../../api/file';
 import { ref } from 'vue';
 import Message from '../../../component/Message/index.vue';
 
-const props = defineProps<{ type: 'left' | 'right', message: string, color: string, avatar: string, messageType: string }>();
+const props = defineProps<{ type: 'left' | 'right', message: string, color: string, avatar: string, messageType: string, chatMsgId: Number, toUserId: String }>();
 let fileInfo = ref<IFileInfoApi | null>(null)
 
 async function init() {
@@ -23,7 +23,7 @@ init();
 <template>
     <div class="chat-message-info-item-container">
         <n-avatar :class="['avatar', props.type]" round size="small" :src="props.avatar" />
-        <Message :message="props.message" :type="props.type" :messageType="props.messageType" :fileInfo="fileInfo" />
+        <Message :message="props.message" :type="props.type" :messageType="props.messageType" :fileInfo="fileInfo" :chatMsgId="props.chatMsgId" :toUserId="props.toUserId" />
     </div>
 </template>
 

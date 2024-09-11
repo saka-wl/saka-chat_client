@@ -11,7 +11,7 @@ export interface IFriendHistoryMsg {
     userId?: string;
     createdAt?: string;
     fromUserId: string;
-    toUsereId: string;
+    toUserId: string;
     messageInfo: string;
     messageType: string;
     status: number;
