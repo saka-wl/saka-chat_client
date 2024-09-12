@@ -33,7 +33,9 @@ const largeFileDownloadProcess = ref<number>(0);
 const handleFileDownloadNormal = (url: string) => {
     const link = document.createElement('a');
     link.href = url;
-    link.download = props.fileInfo.fileName as string;
+    console.log(props.fileInfo.fileName);
+    link.setAttribute('download', props.fileInfo.fileName as string);
+    // link.download = props.fileInfo.fileName as string;
     link.target = "_blank"; // 可选，如果希望在新窗口中下载文件，请取消注释此行
     link.click();
     window.URL.revokeObjectURL(url)
@@ -76,7 +78,7 @@ const handleFileDownloadChunk = async () => {
     }
 }
 
-const handleFileChunkCombine = (e: any) => {
+const handleFileChunkCombine = async (e: any) => {
     if (typeof props.fileInfo.fileUploadInfo === 'string') return;
     const fileChunks = [].slice.call(e.target.files);
     const fileTmp: Array<File> = [];
@@ -135,7 +137,7 @@ init();
             </div>
 
             <span>文件合并：</span>
-            <input type="file" placeholder="合成你的文件切片" multiple @change="handleFileChunkCombine">
+            <input type="file" placeholder="合成你的文件切片" webkitdirectory @change="handleFileChunkCombine">
         </div>
     </div>
 </template>

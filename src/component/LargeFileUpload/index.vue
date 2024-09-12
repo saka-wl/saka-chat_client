@@ -23,12 +23,14 @@ const props = defineProps<{
 }>();
 let fileInfo: IFileInfo | null = null;
 const fileUploadProcess = ref<number>(0);
-const isNeedPreviewPic = ref<boolean>(false);
 let fileType = 'file';
+const inputRef = ref();
 
 const fileInit = () => {
     fileInputStaus.value = 0;
     fileUploadProcess.value = 0;
+    inputRef.value.value = '';
+    fileType = 'file';
     fileInfo = null;
 }
 
@@ -48,8 +50,20 @@ const fileUploadFinished = (fileId = fileInfo?.id) => {
     fileInit();
 }
 
+const getVideoFrameImages = async (e: any) => {
+    // 生成视频的图片帧
+    let videoFrame: string | IVideoPreviewPic[] = await getVideoFrame(e.target?.files[0], VIDEO_FRAME_SLICE_TIME);
+    if(typeof videoFrame === 'string') {
+        window.$message.warning(videoFrame, { closable: true });
+        videoFrame = [];
+    } else {
+        // 无需等待
+        videoPreviewPicApi(videoFrame);
+    }
+    return videoFrame;
+}
+
 const handleUploadFile = async (e: any) => {
-    fileInit();
     fileInputStaus.value = 1;
     if(!e.target?.files || !e.target?.files[0]) {
         fileInputStaus.value = 0;
@@ -60,15 +74,7 @@ const handleUploadFile = async (e: any) => {
     }
     // 处理文件分片
     const { fileSliceInfo, ...params } = await useLargeUploadFile(e.target?.files[0]);
-    // 生成视频的图片帧
-    let videoFrame: string | IVideoPreviewPic[] = await getVideoFrame(e.target?.files[0], VIDEO_FRAME_SLICE_TIME);
-    if(typeof videoFrame === 'string') {
-        window.$message.warning(videoFrame, { closable: true });
-        videoFrame = []
-    } else {
-        // 无需等待
-        videoPreviewPicApi(videoFrame);
-    }
+    const videoFrame = await getVideoFrameImages(e);
 
     const { id, needUploadedHash } = await editNewFileInfoApi({ ...params, ownUserId: userInfo.value?.id || '0', videoPreview: JSON.stringify(videoFrame.map(it => it.hash)) });
     if (needUploadedHash) fileUploadProcess.value = Math.floor((fileSliceInfo.length - needUploadedHash.length) * 100 / fileSliceInfo.length);
@@ -143,10 +149,10 @@ defineExpose({
 
 <template>
     <div class="file-upload-container">
-        <input class="file-input" type="file" @change="handleUploadFile" />
-        <n-checkbox v-model:checked="isNeedPreviewPic" class="input-checkbox">
+        <input class="file-input" type="file" @change="handleUploadFile" ref="inputRef" />
+        <!-- <n-checkbox v-model:checked="isNeedPreviewPic" class="input-checkbox">
             生成预览图片
-        </n-checkbox>
+        </n-checkbox> -->
         <div>
             <div class="file-process">
             <n-progress 
@@ -173,7 +179,7 @@ defineExpose({
             >
                 暂停上传
             </n-button>
-            <n-button type="error" @click="fileDeleteUpload" size="small" v-if="fileInputStaus !== 0">
+            <n-button type="error" @click="fileDeleteUpload" size="small">
                 重新上传
             </n-button>
         </div>

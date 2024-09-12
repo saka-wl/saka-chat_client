@@ -8,6 +8,8 @@ declare global {
     interface Window {
         $message: ReturnType<typeof useMessage>;
         $dialog: ReturnType<typeof useDialog>;
+        showDirectoryPicker: Function;
+        showOpenFilePicker: Function;
     }
 }
 const dialog = useDialog()

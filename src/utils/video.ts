@@ -6,20 +6,18 @@ import { IVideoPreviewPic } from "../api/file";
  * @param {*} duration 
  * @returns 
  */
-export function getVideoFrame(file: File, duration: number): Promise<IVideoPreviewPic[] | string> {
+export function getVideoFrame(file: File, duration: number): Promise<IVideoPreviewPic[]> | string {
     if(!file.name.endsWith('.mp4')) {
-        Promise.reject('请放入一个mp4视频');
+        return '请放入一个mp4视频';
     }
     duration = ~~duration
     return new Promise((resolve, reject) => {
         if (typeof duration !== 'number') {
-            reject("输入的时间应是一个数字！")
-            return
+            return "输入的时间应是一个数字！";
         };
         duration = Math.ceil(duration)
         if (duration < 1) {
-            reject("时间间隔太小啦！应该在2s以上！");
-            return;
+            return "时间间隔太小啦！应该在2s以上！";
         }
         let task = (time = 1): Promise<{ url: string, blob: Blob }> => {
             return new Promise((r, j) => {
