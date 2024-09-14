@@ -154,3 +154,25 @@ export async function uploadImageApi(imageBlob: Blob): Promise<ResponseData<stri
         }
     })
 }
+
+export async function getFilesByCondition(
+    data: {
+        id: number | null;
+        ownUserId: string | null;
+        fileName: string | null;
+        status: string | null;
+    }, 
+    page: {
+        page: number;
+        limit: number;
+    } | undefined
+): Promise<ResponseData<any>> {
+    return axios({
+        url: '/api/c/file/super/getFilesByCondition',
+        method: 'POST',
+        data: {
+            data,
+            page
+        }
+    })
+}

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { getFileChunkApi, IFileInfoApi } from '../../api/file';
-import { NButton, NProgress } from 'naive-ui';
+import { NButton, NProgress, NDivider } from 'naive-ui';
 import { largeFileUrl } from '../../constant/request';
 import { getFileExtName, jsonToObj } from '../../utils/format';
 import { FILE_CHUNK_DOWNLOAD_AUTHORIZATION } from '../../constant/file';
@@ -142,11 +142,13 @@ init();
             <input type="file" placeholder="合成你的文件切片" webkitdirectory @change="handleFileChunkCombine">
         </div>
     </div>
+    <n-divider title-placement="left"></n-divider>
 </template>
 
 <style lang="scss" scoped>
 @import "src/assets/style/common.scss";
 .large-file-download {
+    padding: px2vw(40);
     .normal-download {
 
     }

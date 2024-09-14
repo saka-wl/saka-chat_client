@@ -44,9 +44,9 @@ const onMouseEnter = async (event: MouseEvent) => {
     if (img) {
         const rgb: [number, number, number] | null = ColorThief.getColor(img, 1);
         if (rgb) {
-        const [red, green, blue] = rgb;
-        // 设置主色
-        bgColor.value = `rgb(${red}, ${green}, ${blue})`;
+            const [red, green, blue] = rgb;
+            // 设置主色
+            bgColor.value = `rgb(${red}, ${green}, ${blue})`;
         }
     }
 }
@@ -69,27 +69,32 @@ const onMouseLeave = () => {
                 crossOrigin="anonymous"
             >
         </div>
-        <p>
-            <span>nickname: {{ friendInfo?.friendNickname || 'None~~' }}</span>
-            <n-tag type="success" style="margin-left: 10px;" v-if="friendInfo?.isOnline">
-                Online
-            </n-tag>
-            <n-tag type="error" style="margin-left: 10px;" v-else>
-                不在线
-            </n-tag>
-        </p>
-        <p>
-            account: {{ friendInfo?.friendAccount || 'None~~' }}
-        </p>
-        <n-button type="info" @click="goToChat">
-            去聊天
-        </n-button>
+        <div class="user-info">
+            <p>
+                <span>nickname: {{ friendInfo?.friendNickname || 'None~~' }}</span>
+                <n-tag type="success" style="margin-left: 10px;" v-if="friendInfo?.isOnline">
+                    Online
+                </n-tag>
+                <n-tag type="error" style="margin-left: 10px;" v-else>
+                    不在线
+                </n-tag>
+            </p>
+            <p>
+                account: {{ friendInfo?.friendAccount || 'None~~' }}
+            </p>
+            <div style="display: flex; justify-content: center;">
+                <n-button type="info" @click="goToChat">
+                    去聊天
+                </n-button>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped lang="scss">
 @import "src/assets/style/common.scss";
 .friend-detail-container {
+    padding: px2vw(40);
     .avatar {
         .avatar-image {
             height: px2vw(400);
@@ -97,6 +102,11 @@ const onMouseLeave = () => {
             margin: px2vw(40) auto;
             position: relative;
             border-radius: px2vw(20);
+        }
+    }
+    .user-info {
+        p {
+            text-align: center;
         }
     }
 }

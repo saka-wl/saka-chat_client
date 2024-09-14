@@ -84,7 +84,8 @@ const handleSendMsg = () => {
  */
 $on('notifyNewMsg', (data: IFriendHistoryMsg) => {
     if(chatMessage.value.find(it => it.id === data.id)) return;
-    chatMessage.value = [... chatMessage.value, { ... data, avatar: chatRoomInfo?.friendAvatar }]
+    if(data.chatRoomId !== chatRoomInfo?.chatRoomId) return;
+    chatMessage.value = [... chatMessage.value, { ... data, avatar: chatRoomInfo?.friendAvatar }];
 });
 
 /**

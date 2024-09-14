@@ -77,6 +77,28 @@ const routes: RouteRecordRaw[] = [
         path: '/user',
         name: 'user',
         component: () => import('../view/UserInfo/index.vue')
+    },
+    {
+        path: '/file',
+        name: 'file',
+        component: () => import('../view/File/index.vue'),
+        children: [
+            {
+                path: 'search-file',
+                name: 'search-file',
+                component: () => import('../view/File/view/SearchFile.vue')
+            },
+            {
+                path: 'upload-file',
+                name: 'upload-file',
+                component: () => import('../view/File/view/UploadFile.vue')
+            },
+            {
+                path: 'mine-file',
+                name: 'mine-file',
+                component: () => import('../view/File/view/MineFile.vue')
+            },
+        ]
     }
 ]
 

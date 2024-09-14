@@ -22,6 +22,9 @@ const jumpTo = (path: string) => {
         <n-button quaternary type="info" @click="jumpTo('/user')">
             Mine
         </n-button>
+        <n-button quaternary type="info" @click="jumpTo('/file')">
+            MFile
+        </n-button>
     </div>
 </template>
 

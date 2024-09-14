@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { getFriendNewMsgApi } from '../../../api/friendchatmsg';
+import { getFriendNewMsgApi, IFriendHistoryMsg } from '../../../api/friendchatmsg';
 import LeftMessageItem from './LeftMessageItem.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
+import { $on } from '../../../utils/emit';
 
 interface ILeftMsg {
     userId: string;
@@ -62,6 +63,12 @@ async function init() {
 init();
 
 const handleFriendChatClick = (item: ILeftMsg) => {
+    leftMsgList.value = leftMsgList.value.map(it => {
+        if(it.chatRoomId === item.chatRoomId) {
+            it.newMsgCount = 0;
+        }
+        return it;
+    })
     router.push({
         name: 'friendchat',
         params: {
@@ -73,6 +80,15 @@ const handleFriendChatClick = (item: ILeftMsg) => {
         }
     });
 }
+
+$on('notifyNewMsg', (data: IFriendHistoryMsg) => {
+    leftMsgList.value = leftMsgList.value.map(it => {
+        if(it.chatRoomId === data.chatRoomId) {
+            it.newMsgCount = (it.newMsgCount || 0) + 1;
+        }
+        return it;
+    })
+});
 
 </script>
 

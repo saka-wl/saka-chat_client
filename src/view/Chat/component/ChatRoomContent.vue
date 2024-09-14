@@ -20,6 +20,7 @@ const props = defineProps<{ chatMessage: IFriendHistoryMsg[] }>();
             :messageType="item.messageType"
             :toUserId="item.toUserId"
             :chatMsgId="item.id"
+            :key="item.id"
         />
     </div>
 </template>
