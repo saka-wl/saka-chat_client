@@ -157,14 +157,14 @@ export async function uploadImageApi(imageBlob: Blob): Promise<ResponseData<stri
 
 export async function getFilesByCondition(
     data: {
-        id: number | null;
-        ownUserId: string | null;
-        fileName: string | null;
-        status: string | null;
+        id?: number | null;
+        ownUserId?: string | null;
+        fileName?: string | null;
+        status?: number | null;
     }, 
     page: {
-        page: number;
-        limit: number;
+        page?: number;
+        limit?: number;
     } | undefined
 ): Promise<ResponseData<any>> {
     return axios({
@@ -173,6 +173,26 @@ export async function getFilesByCondition(
         data: {
             data,
             page
+        }
+    })
+}
+
+export async function changeFileInfo(
+    data: {
+        status?: number;
+        pwd?: string;
+    }, 
+    where: {
+        id: number;
+        ownUserId: string;
+    }
+) {
+    return axios({
+        url: '/api/c/file/super/changeFileInfo',
+        method: 'POST',
+        data: {
+            data,
+            where
         }
     })
 }

@@ -1,11 +1,12 @@
 
 <script lang="ts" setup>
+import LargeFileUpload from "../../../component/LargeFileUpload/index.vue";
 
 </script>
 
 <template>
     <div class="upload-file-container">
-        upload-file
+        <LargeFileUpload />
     </div>
 </template>
 

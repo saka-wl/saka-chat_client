@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { NButton, NProgress, NCheckbox } from 'naive-ui';
+import { NButton, NProgress } from 'naive-ui';
 import { handleFileChunkUpload, IFileInfo, useLargeUploadFile } from '../../utils/file';
 import { editNewFileInfoApi, IVideoPreviewPic, videoPreviewPicApi } from '../../api/file';
 import { storeToRefs } from 'pinia';
@@ -18,8 +18,8 @@ import { VIDEO_FRAME_SLICE_TIME } from '../../constant/file';
 const fileInputStaus = ref<number>(0);
 const { userInfo } = storeToRefs(useUserInfoStore());
 const props = defineProps<{
-    friendId: String;
-    chatRoomId: String;
+    friendId?: String;
+    chatRoomId?: String;
 }>();
 let fileInfo: IFileInfo | null = null;
 const fileUploadProcess = ref<number>(0);
@@ -35,10 +35,11 @@ const fileInit = () => {
 }
 
 const fileUploadFinished = (fileId = fileInfo?.id) => {
-    if(!fileId) {
+    if (!fileId) {
         return;
     }
     window.$message.success("文件上传完成!", { closable: true });
+    if (!props.friendId || !props.chatRoomId) return;
     socket.emit('sendMsgToFriend', {
         userId: userInfo.value?.id,
         friendId: props.friendId,
@@ -53,7 +54,7 @@ const fileUploadFinished = (fileId = fileInfo?.id) => {
 const getVideoFrameImages = async (e: any) => {
     // 生成视频的图片帧
     let videoFrame: string | IVideoPreviewPic[] = await getVideoFrame(e.target?.files[0], VIDEO_FRAME_SLICE_TIME);
-    if(typeof videoFrame === 'string') {
+    if (typeof videoFrame === 'string') {
         window.$message.warning(videoFrame, { closable: true });
         videoFrame = [];
     } else {
@@ -65,11 +66,11 @@ const getVideoFrameImages = async (e: any) => {
 
 const handleUploadFile = async (e: any) => {
     fileInputStaus.value = 1;
-    if(!e.target?.files || !e.target?.files[0]) {
+    if (!e.target?.files || !e.target?.files[0]) {
         fileInputStaus.value = 0;
         return;
     }
-    if(e.target.files[0].name.endsWith('.mp4')) {
+    if (e.target.files[0].name.endsWith('.mp4')) {
         fileType = 'video';
     }
     // 处理文件分片
@@ -107,7 +108,7 @@ const fileUpload = async () => {
         window.$message.warning("文件恢复上传成功！", { closable: true });
     }
     fileInputStaus.value = 3;
-    if(fileInfo.needUploadedHash.length === 0) {
+    if (fileInfo.needUploadedHash.length === 0 && props.friendId && props.chatRoomId) {
         window.$message.success('点击 <send> 将文件发送给用户吧～', { closable: true });
         return;
     }
@@ -117,15 +118,16 @@ const fileUpload = async () => {
             return;
         }
         const resp = await handleFileChunkUpload(
-            fileInfo as IFileInfo, 
-            chunkHash, 
+            fileInfo as IFileInfo,
+            chunkHash,
             (value: number) => {
                 fileUploadProcess.value = Math.min(100, fileUploadProcess.value + value)
             },
             fileInit
         );
-        if(typeof resp === 'string') {
-            window.$message.success('点击 <send> 将文件发送给用户吧～', { closable: true });
+        if (typeof resp === 'string') {
+            if (props.friendId && props.chatRoomId) window.$message.success('点击 <send> 将文件发送给用户吧～', { closable: true });
+            else window.$message.success('文件上传完成', { closable: true });
             // 文件上传完成！发送消息
             break;
         }
@@ -155,28 +157,13 @@ defineExpose({
         </n-checkbox> -->
         <div>
             <div class="file-process">
-            <n-progress 
-                type="line" 
-                :percentage="fileUploadProcess" 
-                indicator-placement="inside" 
-                v-if="fileInputStaus !== 0 && fileInputStaus !== 1"
-                style="width: 200px;" 
-            />
+                <n-progress type="line" :percentage="fileUploadProcess" indicator-placement="inside"
+                    v-if="fileInputStaus !== 0 && fileInputStaus !== 1" style="width: 200px;" />
             </div>
-            <n-button 
-                type="info" 
-                @click="fileUpload" 
-                size="small" 
-                v-if="fileInputStaus === 4 || fileInputStaus === 2"
-            >
+            <n-button type="info" @click="fileUpload" size="small" v-if="fileInputStaus === 4 || fileInputStaus === 2">
                 开始/继续上传
             </n-button>
-            <n-button
-                type="warning" 
-                @click="fileStopUpload" 
-                size="small" 
-                v-if="fileInputStaus === 3"
-            >
+            <n-button type="warning" @click="fileStopUpload" size="small" v-if="fileInputStaus === 3">
                 暂停上传
             </n-button>
             <n-button type="error" @click="fileDeleteUpload" size="small">
@@ -189,11 +176,14 @@ defineExpose({
 
 <style scoped lang="scss">
 @import "src/assets/style/common.scss";
+
 .file-upload-container {
     margin: px2vw(15);
+
     .input-checkbox {
         margin-left: px2vw(20);
     }
+
     .file-input {
         outline: none;
         background-color: #0a0a23;
@@ -205,6 +195,7 @@ defineExpose({
         width: px2vw(180);
         font-size: px2vw(12);
     }
+
     .file-process {
         font-size: 12px;
     }

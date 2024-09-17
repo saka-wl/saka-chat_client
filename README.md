@@ -11,6 +11,7 @@ TODOLIST
 2. bug，退出登录再次登录之后，用户自己接收消息存在问题 DONE
 3. 不允许单个账号多次登录问题 DONE
 4. 打开登录状态保持一致, 在store中 DONE
+5. 文件合并兼容，Mac与Win，Chorem与Edge
 
 NOTICE
 1. node is 18.12.1

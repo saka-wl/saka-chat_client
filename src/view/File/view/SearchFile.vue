@@ -10,7 +10,7 @@ const formValue = ref({
     id: null,
     fileName: null,
     ownUserId: null,
-    status: null,
+    status: 1,
 });
 const resultFiles = ref<Object[]>([]);
 
