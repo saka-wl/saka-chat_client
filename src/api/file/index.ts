@@ -177,6 +177,16 @@ export async function getFilesByCondition(
     })
 }
 
+export async function getFilesFromMine(ownUserId: string): Promise<ResponseData<any>> {
+    return axios({
+        url: '/api/c/file/super/getFilesFromMine',
+        method: 'POST',
+        data: {
+            ownUserId
+        }
+    })
+}
+
 export async function changeFileInfo(
     data: {
         status?: number;

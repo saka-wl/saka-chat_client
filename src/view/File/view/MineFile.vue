@@ -1,7 +1,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { changeFileInfo, getFilesByCondition, IFileInfoApi } from '../../../api/file';
+import { changeFileInfo, getFilesByCondition, getFilesFromMine, IFileInfoApi } from '../../../api/file';
 import { storeToRefs } from 'pinia';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
 import { NGradientText, NDivider, NButton } from 'naive-ui';
@@ -15,9 +15,8 @@ async function init() {
         window.$message.warning('你还未登录', { closable: true });
         return;
     }
-    let { code, data, msg } = await getFilesByCondition({
-        ownUserId: userInfo.value.id
-    }, undefined);
+    console.log(userInfo.value.id);
+    let { code, data, msg } = await getFilesFromMine(userInfo.value.id);
     if(code !== 200) return;
     data = data.filter((it: any) => it.status !== -1);
     data = data.map((it: any) => {
