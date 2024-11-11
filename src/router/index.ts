@@ -1,7 +1,6 @@
 
-import { createMemoryHistory, createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
-import { AUTHORIZATION } from '../constant/request';
 
 const routes: RouteRecordRaw[] = [
     {
@@ -110,7 +109,7 @@ const router = createRouter({
 const needAuthRouteNames = ['/user', '/friend', '/chat']
 
 router.beforeEach(async (to, from) => {
-    const isAuthenticated = localStorage.getItem(AUTHORIZATION);
+    const isAuthenticated = document.cookie.indexOf('saka-chat-short-token=') >= 0 && document.cookie.indexOf('saka-chat-long-token=') >= 0;
     const isNeedAuth = needAuthRouteNames.find(it => to.fullPath.indexOf(it));
     if (isNeedAuth && !isAuthenticated && to.name !== 'home') {
         window.$message.warning('您还未登录！', { closable: true });

@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia';
 import { Ref, ref } from 'vue';
 import { autoLoginApi, enrollApi, Ilogin, loginApi } from '../api/user/user';
-import { AUTHORIZATION } from '../constant/request';
 import { useMessage } from "naive-ui"
 import { getAllMyFriendApi, IUserFriend } from '../api/friend';
 import { IFriendHistoryMsg } from '../api/friendchatmsg';
@@ -137,7 +136,8 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         userInfo.value = null;
         userFriendList.value = null;
         isSocketLogin = false;
-        localStorage.removeItem(AUTHORIZATION);
+        document.cookie = "saka-chat-long-token=; max-age=-1; path=/;";
+        document.cookie = "saka-chat-short-token=; max-age=-1; path=/;";
         $off('notifyNewMsg');
         cb();
         router.push('/');
@@ -180,15 +180,13 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         /**
          * 实时聊天 + 用户上线
          */
-        let token = localStorage.getItem(AUTHORIZATION);
-        if(!token || !userInfo.value?.id) {
+        if(!userInfo.value?.id) {
             window.$message.warning("您还未登录，或者好友信息错误", { closable: true })
             return
         }
 
         isSocketLogin = true;
         socket.emit('userLogin', {
-            token,
             userId: userInfo.value?.id,
             socketId: socket.id
         })

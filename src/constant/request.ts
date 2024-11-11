@@ -1,7 +1,11 @@
 
 export const REQUEST_URL = 'http://localhost:3000';
 
-export const AUTHORIZATION = 'saka_chat_authorization';
+// 长token
+export const AUTHORIZATION = 'saka_chat_long_token';
+
+// 短token
+export const AUTHORIZATION_SHORT = 'saka_chat_short_token';
 
 export const normalImageRequest = "http://localhost:3000/common/uploadNormalFile/single/image";
 

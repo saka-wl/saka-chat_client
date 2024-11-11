@@ -4,7 +4,6 @@ import ChatRoomContent from '../component/ChatRoomContent.vue';
 import ChatRoomHead from '../component/ChatRoomHead.vue';
 import ChatRoomInput from '../component/ChatRoomInput.vue';
 import { ref, watch } from 'vue';
-import { AUTHORIZATION } from '../../../constant/request';
 import { storeToRefs } from 'pinia';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
 import { getFriendHistoryMsgApi, IFriendHistoryMsg, updateFriendChatMsgStatusApi } from '../../../api/friendchatmsg';
@@ -73,7 +72,6 @@ const handleSendMsg = () => {
     socket.emit('sendMsgToFriend', {
         userId: userInfo.value?.id,
         friendId: chatRoomInfo.friendId,
-        token: localStorage.getItem(AUTHORIZATION),
         message: inputMessage.value,
         chatRoomId: route.params?.chatRoomId
     });

@@ -5,7 +5,6 @@ import { handleFileChunkUpload, IFileInfo, useLargeUploadFile } from '../../util
 import { editNewFileInfoApi, IVideoPreviewPic, videoPreviewPicApi } from '../../api/file';
 import { storeToRefs } from 'pinia';
 import { socket } from '../../utils/socket';
-import { AUTHORIZATION } from '../../constant/request';
 import { useUserInfoStore } from '../../store/userInfo.pinia';
 import { getVideoFrame } from '../../utils/video';
 import { VIDEO_FRAME_SLICE_TIME } from '../../constant/file';
@@ -43,7 +42,6 @@ const fileUploadFinished = (fileId = fileInfo?.id) => {
     socket.emit('sendMsgToFriend', {
         userId: userInfo.value?.id,
         friendId: props.friendId,
-        token: localStorage.getItem(AUTHORIZATION),
         message: fileId.toString(),
         chatRoomId: props.chatRoomId,
         messageType: fileType,
