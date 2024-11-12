@@ -54,7 +54,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             return;
         }
         isUserInfoLoading = true;
-        let { code, data } = await getAllMyFriendApi(userInfo.value?.id || '')
+        let { code, data, msg } = await getAllMyFriendApi(userInfo.value?.id || '')
         isUserInfoLoading = false;
         if(code === 200) {
             data = data.map(it => {
@@ -68,7 +68,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             userFriendList.value = data
             return true;
         }
-        window.$message.warning("获取好友列表失败", { closable: true });
+        window.$message.warning(msg || "获取好友列表失败", { closable: true });
         return false;
     }
     // 登录
@@ -158,7 +158,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
 
     // 登录信息修改
     const changeUserInfo = (data: Ilogin) => {
-        console.log(userInfo.value, data);
+        // console.log(userInfo.value, data);
         if(userInfo.value) {
             userInfo.value.avatar = data.avatar;
             userInfo.value.email = data.email;

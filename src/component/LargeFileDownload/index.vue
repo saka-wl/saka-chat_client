@@ -33,7 +33,7 @@ const largeFileDownloadProcess = ref<number>(0);
 const handleFileDownloadNormal = (url: string) => {
     const link = document.createElement('a');
     link.href = url;
-    console.log(props.fileInfo.fileName);
+    // console.log(props.fileInfo.fileName);
     link.setAttribute('download', props.fileInfo.fileName as string);
     // link.download = props.fileInfo.fileName as string;
     link.target = "_blank"; // 可选，如果希望在新窗口中下载文件，请取消注释此行

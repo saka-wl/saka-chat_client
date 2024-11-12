@@ -15,7 +15,7 @@ async function init() {
         window.$message.warning('你还未登录', { closable: true });
         return;
     }
-    console.log(userInfo.value.id);
+    // console.log(userInfo.value.id);
     let { code, data, msg } = await getFilesFromMine(userInfo.value.id);
     if(code !== 200) return;
     data = data.filter((it: any) => it.status !== -1);

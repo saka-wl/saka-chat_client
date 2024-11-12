@@ -51,7 +51,7 @@ watch(() => props.avatarUrl, (newVal) => {
 const getScreenShotImage = () => {
     let curRangle = canvasController.getScreenShotImage();
     if(!curRangle || !WIDTH.value) return;
-    console.log(curRangle);
+    // console.log(curRangle);
     const image = new Image();
     image.height = 600;
     image.width = WIDTH.value || 800;
