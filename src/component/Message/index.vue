@@ -115,6 +115,6 @@ const withDrawMsg = () => {
     }
 }
 .chat-video-right{
-
+    margin-left: auto;
 }
 </style>

@@ -21,7 +21,7 @@ init();
 </script>
 
 <template>
-    <div class="chat-message-info-item-container">
+    <div class="chat-message-info-item-container" :class="[props.messageType]">
         <n-avatar :class="['avatar', props.type]" round size="small" :src="props.avatar" />
         <Message :message="props.message" :type="props.type" :messageType="props.messageType" :fileInfo="fileInfo" :chatMsgId="props.chatMsgId" :toUserId="props.toUserId" />
     </div>
@@ -36,7 +36,6 @@ init();
     margin-bottom: px2vw(20);
     position: relative;
     align-items: flex-start;
-    position: relative;
 
     .avatar {
         height: px2vw(30);

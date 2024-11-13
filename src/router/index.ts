@@ -51,6 +51,11 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("../view/Friend/view/Search.vue")
             },
             {
+                path: 'group-search',
+                name: 'group-search',
+                component: () => import("../view/Friend/view/GroupSearch.vue")
+            },
+            {
                 path: 'request-from-me',
                 name: 'request-from-me',
                 component: () => import("../view/Friend/view/RequestFromMe.vue")
