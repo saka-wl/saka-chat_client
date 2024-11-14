@@ -32,7 +32,6 @@ init()
 <template>
     <div class="minelist-container">
         <NormalItem word="去搜索你的朋友" type="icon-right" v-memo="[]" @click="$router.push({ name: 'search' })" />
-        <NormalItem word="创建/加入群聊" type="icon-right" v-memo="[]" @click="$router.push({ name: 'group-search' })" />
         <NormalItem word="我的好友请求" type="icon-right" v-memo="[]" @click="$router.push({ name: 'request-from-me' })" />
         <NormalItem word="ta想和我交朋友" type="icon-right" v-memo="[]" @click="$router.push({ name: 'request-to-me' })" />
         <NormalItem word="我的朋友" type="icon-left" v-memo="[]"
@@ -47,6 +46,7 @@ init()
                 @click="goToFriendDetail(item)"
             />
         </div>
+        <NormalItem word="创建/加入群聊" type="icon-right" v-memo="[]" @click="$router.push({ name: 'group-search' })" />
         <NormalItem word="我的群聊" type="icon-left" v-memo="[]"
             @click="isMyGroupFriendListShow = !isMyGroupFriendListShow" />
         <div class="mygroup-list" :style="{ height: isMyGroupFriendListShow ? '60%' : '0' }">
