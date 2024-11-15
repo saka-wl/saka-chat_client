@@ -47,6 +47,8 @@ init()
             />
         </div>
         <NormalItem word="创建/加入群聊" type="icon-right" v-memo="[]" @click="$router.push({ name: 'group-search' })" />
+        <NormalItem word="我发出群聊请求" type="icon-right" v-memo="[]" @click="$router.push({ name: 'group-request-from-me' })" />
+        <NormalItem word="邀请我加入群聊" type="icon-right" v-memo="[]" @click="$router.push({ name: 'group-request-to-me' })" />
         <NormalItem word="我的群聊" type="icon-left" v-memo="[]"
             @click="isMyGroupFriendListShow = !isMyGroupFriendListShow" />
         <div class="mygroup-list" :style="{ height: isMyGroupFriendListShow ? '60%' : '0' }">

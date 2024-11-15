@@ -74,6 +74,11 @@ const routes: RouteRecordRaw[] = [
                 path: 'groupDetail/:id',
                 name: 'groupDetail',
                 component: () => import("../view/Friend/view/GroupDetail.vue")
+            },
+            {
+                path: 'group-request-from-me',
+                name: 'group-request-from-me',
+                component: () => import("../view/Friend/view/GroupRequestFromMe.vue")
             }
         ]
     },

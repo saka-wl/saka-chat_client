@@ -2,8 +2,8 @@
 import { NDivider, NSelect, NButton, NInput, NFormItem, NGradientText } from 'naive-ui';
 import { ref } from 'vue';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
-import { createNewGroupChatApi } from '../../../api/groupchatmsg';
-import GroupChatCard from '../component/groupChatCard.vue';
+import { createNewGroupChatApi, getAllFriendChatGroupByConditionApi, IGroupChatRoom } from '../../../api/groupchatmsg';
+import GroupChatCard from '../component/GroupChatCard.vue';
 
 const makeGroupChatFormData = ref<{ chatRoomName: string, humanIds: (string | number)[] }>({
     chatRoomName: '',
@@ -20,7 +20,8 @@ const myFriends = ref(userFriendList?.map(it => {
         label: 'nickname: ' + it.friendNickname + ' - id: ' + it.id,
         value: it.id
     }
-}))
+}));
+const searchedGroupChatList = ref<IGroupChatRoom[]>([]);
 
 const createGroupChat = async () => {
     if (makeGroupChatFormData.value.chatRoomName === '' || makeGroupChatFormData.value.humanIds.length < 3) {
@@ -40,7 +41,24 @@ const createGroupChat = async () => {
 }
 
 const searchGroupChat = async () => {
-
+    if (!searchGroupChatFormData.value.id && searchGroupChatFormData.value.chatRoomName === '') {
+        window.$message.warning('请输入群聊名字或者id！', { closable: true })
+        return;
+    }
+    const params: { id?: number | string; chatRoomName?: string } = {};
+    if (searchGroupChatFormData.value.id) params.id = searchGroupChatFormData.value.id;
+    if (searchGroupChatFormData.value.chatRoomName) params.chatRoomName = searchGroupChatFormData.value.chatRoomName;
+    const { code, data, msg } = await getAllFriendChatGroupByConditionApi(params);
+    if (code !== 200 || !data) {
+        window.$message.warning(msg || '查询失败！', { closable: true });
+        return;
+    }
+    searchedGroupChatList.value = data.filter(it => {
+        const hasIncludedIds: (string | number)[] = JSON.parse(it.humanIds);
+        const userId = userInfo?.id || '';
+        if (hasIncludedIds.includes(userId.toString()) || hasIncludedIds.includes(~~userId)) return false;
+        return true;
+    });
 }
 
 </script>
@@ -86,7 +104,15 @@ const searchGroupChat = async () => {
                 <n-gradient-text type="success">
                     结果
                 </n-gradient-text>
-                <GroupChatCard chatRoomName="1111" id="111" />
+                <GroupChatCard v-for="item in searchedGroupChatList" :key="item.id" :chatRoomId="item.id"
+                    :chatRoomName="item.chatRoomName" :avatar="item.avatar" :toUserId="item.makerUserId"
+                    :fromUserId="userInfo?.id!" />
+                <p>
+                    <n-gradient-text type="primary" v-if="searchedGroupChatList && searchedGroupChatList.length === 0">
+                        Null~
+                    </n-gradient-text>
+                </p>
+
             </div>
         </div>
     </div>

@@ -2,6 +2,15 @@
 import { ResponseData } from '../common';
 import request from '../request';
 
+export interface IGroupChatRoom {
+    id: number | string;
+    chatRoomName: string;
+    makerUserId: number | string;
+    avatar: string | null;
+    humanNumber: number;
+    humanIds: string;
+}
+
 export interface ICreateGroupChatFormData {
     chatRoomName: string;
     humanIds: (string | number)[];
@@ -10,10 +19,97 @@ export interface ICreateGroupChatFormData {
     makerUserId: number | string;
 }
 
-export const createNewGroupChatApi = async (data: ICreateGroupChatFormData): Promise<ResponseData<any>> => {
+/**
+ * 创建新的群聊
+ * @param data 
+ * @returns 
+ */
+export const createNewGroupChatApi = async (data: ICreateGroupChatFormData): Promise<ResponseData<IGroupChatRoom>> => {
     return await request({
         method: 'POST',
         url: 'api/c/chatgroup/super/createNewChatGroup',
+        data
+    })
+}
+
+export interface IGroupChatRoomCondition {
+    chatRoomName?: string;
+    id?: number | string;
+    fromUserId?: number | string;
+    toUserId?: number | string;
+}
+
+/**
+ * 根据条件获取群聊列表
+ * 用于用户查询聊天列表
+ * @param data 
+ * @returns 
+ */
+export const getAllFriendChatGroupByConditionApi = async (data: IGroupChatRoomCondition): Promise<ResponseData<IGroupChatRoom[]>> => {
+    return await request({
+        method: 'POST',
+        url: 'api/c/chatgroup/super/getAllFriendChatGroupByCondition',
+        data
+    })
+}
+
+/**
+ * 群聊邀请用户加入: type = 0
+ * fromUserId -> makerUserId
+ * toUserId -> 被邀请用户的id
+ * 用户主动申请加入群聊: type = 1
+ * fromUserId -> 发出申请的用户id
+ * toUserId -> makerUserId
+ */
+export interface IChatGroupRequest {
+    chatRoomId: number | string;
+    chatRoomName: string;
+    fromUserId: number | string;
+    toUserId: number | string;
+    requestDesc: string;
+    type?: 0 | 1;
+    status?: 0 | 1 | 2;
+}
+
+/**
+ * 群聊邀请用户加入
+ * @param data 
+ */
+export const sendGroupChatRequestFromGroupApi = async (data: IChatGroupRequest) => {
+    data.type = 0;
+    data.status = 0;
+}
+
+/**
+ * 用户主动申请加入群聊: type = 1
+ * fromUserId -> 发出申请的用户id
+ * toUserId -> makerUserId
+ * @param data 
+ */
+export const sendGroupChatRequestFromUserApi = async (data: IChatGroupRequest): Promise<ResponseData<number | null>> => {
+    data.type = 1;
+    data.status = 0;
+    return await request({
+        method: 'POST',
+        url: 'api/c/chatgroup/super/sendGroupChatRequest',
+        data
+    });
+}
+
+export interface IChatGroupRequestCondition {
+    fromUserId?: number | string;
+    toUserId?: number | string;
+}
+
+/**
+ * 查询群聊请求
+ * @param data 
+ * @returns 
+ */
+export const getAllChatGroupRequestByConditionApi = async (data: IChatGroupRequestCondition): Promise<ResponseData<IGroupChatRoom[]>> => {
+    return await request({
+        method: 'POST',
+        url: 'api/c/chatgroup/super/getAllChatGroupRequestByCondition',
         data
     })
 }
