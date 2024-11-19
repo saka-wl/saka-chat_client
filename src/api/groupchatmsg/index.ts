@@ -54,6 +54,24 @@ export const getAllFriendChatGroupByConditionApi = async (data: IGroupChatRoomCo
 }
 
 /**
+ * 根据userId查询当前用户所有的群聊
+ * @param userId 
+ */
+export const getAllChatRoomGroupByUserId = async (userId: string | number): Promise<ResponseData<IGroupChatRoom[]>> => {
+    return await request({
+        method: 'get',
+        url: 'api/c/chatgroup/super/getAllChatRoomGroupByUserId',
+        params: {
+            userId
+        }
+    })
+}
+
+
+// -------- 下面是关于群聊请求的
+
+
+/**
  * 群聊邀请用户加入: type = 0
  * fromUserId -> makerUserId
  * toUserId -> 被邀请用户的id
@@ -62,6 +80,7 @@ export const getAllFriendChatGroupByConditionApi = async (data: IGroupChatRoomCo
  * toUserId -> makerUserId
  */
 export interface IChatGroupRequest {
+    id?: number | string;
     chatRoomId: number | string;
     chatRoomName: string;
     fromUserId: number | string;
@@ -69,6 +88,7 @@ export interface IChatGroupRequest {
     requestDesc: string;
     type?: 0 | 1;
     status?: 0 | 1 | 2;
+    chatRoomAvatar?: string;
 }
 
 /**
@@ -106,10 +126,30 @@ export interface IChatGroupRequestCondition {
  * @param data 
  * @returns 
  */
-export const getAllChatGroupRequestByConditionApi = async (data: IChatGroupRequestCondition): Promise<ResponseData<IGroupChatRoom[]>> => {
+export const getAllChatGroupRequestByConditionApi = async (data: IChatGroupRequestCondition): Promise<ResponseData<IChatGroupRequest[]>> => {
     return await request({
         method: 'POST',
         url: 'api/c/chatgroup/super/getAllChatGroupRequestByCondition',
+        data
+    })
+}
+
+interface IAddChatGroupRoom {
+    status: number;
+    userId: number | string;
+    requestId: number | string;
+    chatRoomId: number | string;
+}
+
+/**
+ * 允许/拒绝群聊请求
+ * @param data 
+ * @returns 
+ */
+export const addChatGroupRoomApi = async (data: IAddChatGroupRoom): Promise<ResponseData<boolean | null>> => {
+    return await request({
+        method: 'post',
+        url: 'api/c/chatgroup/super/addChatGroupRoom',
         data
     })
 }

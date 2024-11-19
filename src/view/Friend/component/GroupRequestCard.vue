@@ -2,17 +2,24 @@
 import { computed } from 'vue';
 import { normalImageUrl } from '../../../constant/request';
 import { NButton } from 'naive-ui';
+import { addChatGroupRoomApi } from '../../../api/groupchatmsg';
 
 interface IProps {
     chatRoomId: string | number;
     chatRoomName: string;
-    avatar: string | null;
+    avatar?: string | null;
     status: number;  // 0 - 处理中  1 - 已允许  2 - 已拒绝
     type: number;    // 0 - 群聊邀请用户  1 - 用户申请主动加入群聊
+    requestId: string | number;
+    fromUserId: number | string;
+    toUserId: number | string;
+
 }
 const props = withDefaults(defineProps<IProps>(), {
     avatar: '',
 });
+
+const emit = defineEmits(['updateRequest']);
 
 const imageUrl = computed(() => {
     return normalImageUrl + props.avatar
@@ -33,7 +40,21 @@ const getTextRecord = (status: number, type: number) => {
 }
 
 const handleGroupChatRequest = async (status: number) => {
-
+    let userId: number | string = '';
+    if(props.type === 0) userId = props.toUserId;
+    if(props.type === 1) userId = props.fromUserId;
+    const { code, data, msg } = await addChatGroupRoomApi({
+        status,
+        chatRoomId: props.chatRoomId,
+        requestId: props.requestId,
+        userId
+    });
+    if(code !== 200) {
+        window.$message.warning(msg || '操作失败！', { closable: true });
+        return;
+    }
+    data && window.$message.success(msg || '操作成功！', { closable: true });
+    emit('updateRequest');
 }
 
 </script>
@@ -74,6 +95,7 @@ const handleGroupChatRequest = async (status: number) => {
 
 .group-request-card {
     width: px2vw(700);
+    margin: px2vw(20);
     background-color: #f2f2f2;
     .group-chat-info {
         display: flex;

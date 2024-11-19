@@ -79,7 +79,12 @@ const routes: RouteRecordRaw[] = [
                 path: 'group-request-from-me',
                 name: 'group-request-from-me',
                 component: () => import("../view/Friend/view/GroupRequestFromMe.vue")
-            }
+            },
+            {
+                path: 'group-request-to-me',
+                name: 'group-request-to-me',
+                component: () => import("../view/Friend/view/GroupRequestToMe.vue")
+            },
         ]
     },
     {

@@ -3,6 +3,7 @@ import { NGradientText } from 'naive-ui';
 import { ref } from 'vue';
 import { getAllChatGroupRequestByConditionApi, IChatGroupRequest } from '../../../api/groupchatmsg';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
+import GroupRequestCard from '../component/GroupRequestCard.vue';
 
 const pendingRequest = ref<IChatGroupRequest[]>([]);
 const resolvedRequest = ref<IChatGroupRequest[]>([]);
@@ -14,7 +15,8 @@ async function init() {
         window.$message.warning(msg || '获取数据失败！', { closable: true });
         return;
     }
-    console.log(data);
+    pendingRequest.value = data.filter(it => it.status === 0);
+    resolvedRequest.value = data.filter(it => it.status === 1 || it.status === 2);
 }
 
 init();
@@ -27,11 +29,13 @@ init();
             <n-gradient-text type="info">
                 群主待处理的群聊请求
             </n-gradient-text>
+            <GroupRequestCard v-for="item in pendingRequest" @updateRequest="init()" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId" />
         </div>
         <div class="complete-request">
             <n-gradient-text type="info">
                 群主已完成的群聊请求
             </n-gradient-text>
+            <GroupRequestCard v-for="item in resolvedRequest" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId" />
         </div>
     </div>
 </template>

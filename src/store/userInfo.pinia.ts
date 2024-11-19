@@ -8,6 +8,7 @@ import { IFriendHistoryMsg } from '../api/friendchatmsg';
 import { socket } from "../utils/socket.ts";
 import { $emit, $off } from '../utils/emit.ts';
 import { useRouter } from 'vue-router';
+import { getAllChatRoomGroupByUserId, IGroupChatRoom } from '../api/groupchatmsg/index.ts';
 
 const router = useRouter();
 
@@ -24,6 +25,7 @@ export interface IUserEnrollParams {
 interface IUserStore {
     userInfo: Ref<Ilogin | null>;
     userFriendList: Ref<IUserFriend[] | null>;
+    chatGroupList: Ref<IGroupChatRoom[] | null>;
     isSocketLogin: boolean;
     userLogin: (account: string, password: string, code: string, reFreshCaptcha: Function) => Promise<boolean | undefined>;
     userEnroll: (obj: IUserEnrollParams, reFreshCaptcha: Function) => Promise<boolean | undefined>;
@@ -32,6 +34,7 @@ interface IUserStore {
     getUserFriendList: () => Promise<boolean | undefined>;
     socketLogin: () => Promise<void>;
     changeUserInfo: (data: Ilogin) => void;
+    getMyAllChatGroupRoom: () => void;
 }
 
 declare global {
@@ -42,10 +45,12 @@ declare global {
 
 export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
     const userInfo = ref<Ilogin | null>(null);
-    let isUserInfoLoading = false;
     const userFriendList = ref<IUserFriend[] | null>(null);
+    const chatGroupList = ref<IGroupChatRoom[] | null>(null);
+    let isUserInfoLoading = false;
     let isUserFriendListLoading = false;
     let isSocketLogin = false;
+    let isChatGroupListLoading = false;
 
     // 获取好友列表
     const getUserFriendList = async () => {
@@ -71,6 +76,25 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         window.$message.warning(msg || "获取好友列表失败", { closable: true });
         return false;
     }
+    // 获取我的群聊信息
+    const getMyAllChatGroupRoom = async () => {
+        if(!userInfo.value?.id) {
+            window.$message.warning("您还未登陆！", { closable: true });
+            return;
+        }
+        if(isChatGroupListLoading) {
+            window.$message.warning("上次请求还未完成,请等待一下吧！", { closable: true });
+            return;
+        }
+        isChatGroupListLoading = true;
+        const { code, data, msg } = await getAllChatRoomGroupByUserId(userInfo.value?.id);
+        if(code !== 200 || !data) {
+            window.$message.warning(msg || "获取群聊列表失败", { closable: true });
+            return;
+        }
+        chatGroupList.value = data;
+        isChatGroupListLoading = false;
+    }
     // 登录
     const userLogin = async (account: string, password: string, code: string, reFreshCaptcha: Function) => {
         if (isUserInfoLoading) {
@@ -92,6 +116,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         // 无需等待
         getUserFriendList();
         socketLogin();
+        getMyAllChatGroupRoom();
         return true;
     }
     // 注册
@@ -116,6 +141,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             isUserInfoLoading = false;
             getUserFriendList();
             socketLogin();
+            getMyAllChatGroupRoom();
             return true;
         }
         else if (resp.code === 410) {
@@ -151,6 +177,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             window.$message.success('自动登录成功，你好' + (resp.data?.nickname || 'saka'), { closable: true });
             await socketLogin();
             await getUserFriendList();
+            await getMyAllChatGroupRoom();
         } else {
             window.$message.warning(resp.msg, { closable: true });
         }
@@ -234,6 +261,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
 
     return {
         userInfo,
+        chatGroupList,
         userFriendList,
         isSocketLogin,
         userLogin,
@@ -242,6 +270,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
         userAutoLogin,
         getUserFriendList,
         socketLogin,
-        changeUserInfo
+        changeUserInfo,
+        getMyAllChatGroupRoom,
     }
 })
