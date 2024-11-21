@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { NDivider, NSelect, NButton, NInput, NFormItem, NGradientText } from 'naive-ui';
+import { NDivider, NSelect, NButton, NInput, NFormItem, NGradientText, UploadFileInfo, NUpload } from 'naive-ui';
 import { ref } from 'vue';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
 import { createNewGroupChatApi, getAllFriendChatGroupByConditionApi, IGroupChatRoom } from '../../../api/groupchatmsg';
 import GroupChatCard from '../component/GroupChatCard.vue';
+import { normalImageRequest } from '../../../constant/request';
 
-const makeGroupChatFormData = ref<{ chatRoomName: string, humanIds: (string | number)[] }>({
+const makeGroupChatFormData = ref<{ chatRoomName: string; humanIds: (string | number)[]; avatar: string | null; }>({
     chatRoomName: '',
     humanIds: [],
+    avatar: null
 })
 const searchGroupChatFormData = ref({
     id: null,
@@ -16,9 +18,12 @@ const searchGroupChatFormData = ref({
 const { userFriendList, userInfo } = useUserInfoStore();
 
 const myFriends = ref(userFriendList?.map(it => {
+    let userId: string | null = null;
+    if(it.userId != userInfo?.id) userId = it.userId;
+    else userId = it.friendId;
     return {
-        label: 'nickname: ' + it.friendNickname + ' - id: ' + it.id,
-        value: it.id
+        label: 'nickname: ' + it.friendNickname + ' - id: ' + userId,
+        value: userId
     }
 }));
 const searchedGroupChatList = ref<IGroupChatRoom[]>([]);
@@ -61,6 +66,38 @@ const searchGroupChat = async () => {
     });
 }
 
+const handleImageUploadFinish = ({
+    // @ts-ignore
+    file,
+    event
+}: {
+    file: UploadFileInfo
+    event?: ProgressEvent
+}) => {
+    let resp = JSON.parse((event?.target as XMLHttpRequest).response);
+    if (resp.code === 200 && resp.data) {
+        makeGroupChatFormData.value.avatar = resp.data;
+    }
+    else if (resp?.msg === 'File too large') {
+        window.$message.warning("文件过大，请重新上传", { closable: true });
+    }
+    else {
+        window.$message.warning(resp?.msg || "上传失败，请重新上传", { closable: true });
+    }
+}
+
+const imageExt = ["image/jpg", "image/tiff", "image/gif", "image/svg", "image/jfif", "image/webp", "image/png", "image/bmp", "image/jpeg", "image/x-icon"];
+const beforeImageUpload = (data: {
+    file: UploadFileInfo
+    fileList: UploadFileInfo[]
+}) => {
+    if (!imageExt.includes(data.file.file?.type || "")) {
+        window.$message.warning('只能上传图片文件，请重新上传', { closable: true })
+        return false
+    }
+    return true
+}
+
 </script>
 
 <template>
@@ -77,6 +114,12 @@ const searchGroupChat = async () => {
                 <n-form-item label="选择好友" :width="200">
                     <n-select v-model:value="makeGroupChatFormData.humanIds" multiple :options="myFriends"
                         style="max-width: 50%;" />
+                </n-form-item>
+                <n-form-item>
+                    <n-upload :action="normalImageRequest" list-type="image-card" @finish="handleImageUploadFinish"
+                        @before-upload="beforeImageUpload" :max="1">
+                        点击上传头像
+                    </n-upload>
                 </n-form-item>
             </n-form>
             <n-button attr-type="button" @click="createGroupChat">

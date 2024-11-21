@@ -6,11 +6,13 @@ import { useUserInfoStore } from '../../../store/userInfo.pinia';
 import { storeToRefs } from 'pinia';
 import FriendCard from './FriendCard.vue';
 import { useRouter } from 'vue-router';
+import GroupChatItem from './GroupChatItem.vue';
+import { IGroupChatRoom } from '../../../api/groupchatmsg';
 
 const isMyFriendListShow = ref(false)
 const isMyGroupFriendListShow = ref(false)
-const { userInfo, userFriendList } = storeToRefs(useUserInfoStore())
-const { getUserFriendList } = useUserInfoStore();
+const { userInfo, userFriendList, chatGroupList } = storeToRefs(useUserInfoStore())
+const { getUserFriendList, getMyAllChatGroupRoom } = useUserInfoStore();
 const router = useRouter();
 
 const init = async () => {
@@ -20,10 +22,17 @@ const init = async () => {
     if(!userFriendList?.value) {
         await getUserFriendList()
     }
+    if(!chatGroupList.value) {
+        await getMyAllChatGroupRoom();
+    }
 }
 
 const goToFriendDetail = (item: IUserFriend) => {
     router.push({ name: 'friendDetail', params: { id: item.id, chatRoomId: item.chatRoomId }});
+}
+
+const goToChatGroupDetail = (item: IGroupChatRoom) => {
+    router.push({ name: 'groupDetail', params: { id: item.id }});
 }
 
 init()
@@ -52,7 +61,13 @@ init()
         <NormalItem word="我的群聊" type="icon-left" v-memo="[]"
             @click="isMyGroupFriendListShow = !isMyGroupFriendListShow" />
         <div class="mygroup-list" :style="{ height: isMyGroupFriendListShow ? '60%' : '0' }">
-
+            <GroupChatItem 
+                v-for="item in chatGroupList"
+                :avatar="item.avatar"
+                :chatRoomId="item.id"
+                :chatRoomName="item.chatRoomName"
+                @click="goToChatGroupDetail(item)"
+            />
         </div>
     </div>
 </template>

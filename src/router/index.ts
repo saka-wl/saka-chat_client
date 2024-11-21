@@ -32,7 +32,12 @@ const routes: RouteRecordRaw[] = [
                     needAuth: true,
                     keepAlive: true
                 }
-            }
+            },
+            // {
+            //     path: 'grouproomchat',
+            //     name: 'grouproomchat',
+            //     component: () => import("")
+            // }
         ]
     },
     {

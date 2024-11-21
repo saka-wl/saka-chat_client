@@ -34,7 +34,7 @@ interface IUserStore {
     getUserFriendList: () => Promise<boolean | undefined>;
     socketLogin: () => Promise<void>;
     changeUserInfo: (data: Ilogin) => void;
-    getMyAllChatGroupRoom: () => void;
+    getMyAllChatGroupRoom: () => Promise<void>;
 }
 
 declare global {
