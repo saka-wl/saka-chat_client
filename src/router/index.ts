@@ -33,11 +33,11 @@ const routes: RouteRecordRaw[] = [
                     keepAlive: true
                 }
             },
-            // {
-            //     path: 'grouproomchat',
-            //     name: 'grouproomchat',
-            //     component: () => import("")
-            // }
+            {
+                path: 'grouproomchat',
+                name: 'grouproomchat',
+                component: () => import("../view/Chat/view/GroupChat.vue")
+            }
         ]
     },
     {

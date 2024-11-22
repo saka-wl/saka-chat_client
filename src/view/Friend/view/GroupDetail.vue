@@ -11,7 +11,7 @@ import { IGroupChatRoom } from '../../../api/groupchatmsg';
 const route = useRoute();
 const router = useRouter();
 const chatRoom = ref<IGroupChatRoom>();
-const { chatGroupList, userInfo } = storeToRefs(useUserInfoStore())
+const { chatGroupList, userInfo } = storeToRefs(useUserInfoStore());
 
 watch(() => route.params.id, (newVal) => {
     if (!newVal) {
@@ -22,17 +22,14 @@ watch(() => route.params.id, (newVal) => {
     immediate: true
 })
 const goToChat = () => {
-    // router.push({
-    //     name: 'friendchat',
-    //     params: {
-    //         userId: userInfo.value?.id || '',
-    //         friendAccount: chatRoom.value?.friendAccount || '',
-    //         friendId: chatRoom.value?.friendId || '',
-    //         friendNickname: chatRoom.value?.friendNickname || '',
-    //         friendAvatar: chatRoom.value?.friendAvatar || '',
-    //         chatRoomId: chatRoom.value?.chatRoomId as string,
-    //     }
-    // });
+    const chatRoomId = route.params.id;
+    // const chatRoomItem = chatGroupList.value?.find(it => it.id == chatRoomId);
+    router.push({
+        name: 'grouproomchat',
+        params: {
+            chatRoomId
+        }
+    })
 }
 
 const bgColor = ref<string>('#fff');
