@@ -9,6 +9,7 @@ import { socket } from "../utils/socket.ts";
 import { $emit, $off } from '../utils/emit.ts';
 import { useRouter } from 'vue-router';
 import { getAllChatRoomGroupByUserId, IGroupChatRoom } from '../api/groupchatmsg/index.ts';
+import { IGroupHistoryMsg } from '../api/groupchatmsg/message.ts';
 
 const router = useRouter();
 
@@ -185,7 +186,6 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
 
     // 登录信息修改
     const changeUserInfo = (data: Ilogin) => {
-        // console.log(userInfo.value, data);
         if(userInfo.value) {
             userInfo.value.avatar = data.avatar;
             userInfo.value.email = data.email;
@@ -226,6 +226,18 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             $emit('updateMineMsg', {
                 ... data,
                 userId: userInfo.value?.id
+            })
+        })
+
+        socket.on('getGroupMsgFromChatRoom', (data: IGroupHistoryMsg) => {
+            $emit('notifyNewGroupMsg', {
+                ... data
+            })
+        })
+
+        socket.on('getGroupMsgFromMine', (data: IGroupHistoryMsg) => {
+            $emit('updateMineGroupMsg', {
+                ... data
             })
         })
 

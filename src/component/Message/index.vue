@@ -11,7 +11,7 @@ const props = defineProps<{
     type: "right" | "left";
     fileInfo: Object | null;
     chatMsgId: Number | null;
-    toUserId: String | null;
+    toUserId?: String | null;
 }>();
 
 const withDrawMsg = () => {
@@ -27,7 +27,7 @@ const withDrawMsg = () => {
 
 <template>
     <div :class="['chat-message-bubble', 'message', props.type]" v-if="props.messageType === 'string'">
-        <n-popover trigger="hover" v-if="props.type === 'right'">
+        <n-popover trigger="hover" v-if="props.type === 'right' && props.toUserId">
             <template #trigger>
                 <p>{{ message }}</p>
             </template>

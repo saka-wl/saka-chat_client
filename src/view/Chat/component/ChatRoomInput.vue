@@ -10,12 +10,12 @@ const emit = defineEmits<{
     (e: 'update:inputMessage', value: string) : void
     (e: 'sendMessage') : void
 }>();
-const props = defineProps<{ inputMessage: string }>();
+const props = defineProps<{ inputMessage: string; isChatGroupType?: boolean }>();
 interface IFriendInfo { friendId: string; chatRoomId: string };
 const friendInfo = ref<IFriendInfo>();
 
 watch(() => (route.params as any), (newVal: IFriendInfo) => {
-    if(newVal) friendInfo.value = {
+    if(newVal && !props.isChatGroupType) friendInfo.value = {
         friendId: newVal.friendId,
         chatRoomId: newVal.chatRoomId
     }
@@ -24,7 +24,7 @@ watch(() => (route.params as any), (newVal: IFriendInfo) => {
 })
 
 const handleMsgSend = () => {
-    largeFileUploadRef.value.fileUploadFinished();
+    !props.isChatGroupType && largeFileUploadRef.value.fileUploadFinished();
     if(props.inputMessage !== '') emit('sendMessage');
 }
 </script>
@@ -33,7 +33,7 @@ const handleMsgSend = () => {
     <div class="chatroom-input">
         <div class="input-container">
             <n-input class="input" @input="(e) => { emit('update:inputMessage', e) }" type="textarea" placeholder="" />
-            <LargeFileUpload ref="largeFileUploadRef" class="large-file-upload" :friendId="friendInfo.friendId" :chatRoomId="friendInfo.chatRoomId"></LargeFileUpload>
+            <LargeFileUpload v-if="!isChatGroupType" ref="largeFileUploadRef" class="large-file-upload" :friendId="friendInfo?.friendId" :chatRoomId="friendInfo?.chatRoomId"></LargeFileUpload>
         </div>
         <n-button @click="handleMsgSend">send</n-button>
     </div>

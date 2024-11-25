@@ -12,6 +12,7 @@ export interface IGroupChatRoom {
 }
 
 export interface ICreateGroupChatFormData {
+    id: string;
     chatRoomName: string;
     humanIds: (string | number)[];
     humanNumber?: number;
