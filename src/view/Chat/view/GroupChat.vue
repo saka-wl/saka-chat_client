@@ -88,4 +88,27 @@ $on('updateMineGroupMsg', (data: IGroupHistoryMsg) => {
     </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.group-chat-container {
+    height: 100%;
+    background: linear-gradient(to right bottom, #EAD6EE, #d7f2f0);
+    display: flex;
+    flex-direction: column;
+    border-radius: px2vw(10) px2vw(10) 0 0;
+
+    .chatroom-head {
+        height: px2vw(45);
+        border-bottom: 0.8px solid rgb(206, 206, 206);
+    }
+
+    .chatroom-content {
+        flex: 1 1 auto;
+        overflow-y: scroll;
+    }
+
+    .chatroom-input {
+        height: px2vw(350);
+        border-top: 0.8px solid rgb(206, 206, 206);
+    }
+}
+</style>
