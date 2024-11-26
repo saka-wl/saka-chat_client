@@ -67,14 +67,16 @@ const handleSendMsg = () => {
  * 接收到消息就添加
  */
 $on('notifyNewGroupMsg', (data: IGroupHistoryMsg) => {
-    console.log(data);
+    if(chatMessage.value.find(it => it.id === data.id)) return;
+    chatMessage.value.push(data);
 });
 
 /**
  * 更新自己的消息
  */
 $on('updateMineGroupMsg', (data: IGroupHistoryMsg) => {
-    console.log(data);
+    if(chatMessage.value.find(it => it.id === data.id)) return;
+    chatMessage.value.push(data);
 });
 
 </script>

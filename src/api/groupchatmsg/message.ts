@@ -28,3 +28,16 @@ export const getChatGroupMessageApi = async (chatRoomId: string): Promise<Respon
         }
     })
 }
+
+export type INewMessageInfo = {
+    newMsgRes: Record<number, number>;
+    oldMsgRes: Record<number, number>;
+};
+
+export const getChatGroupAllNewMessageApi = async (userId: number | string): Promise<ResponseData<INewMessageInfo>> => {
+    return await request({
+        method: 'get',
+        url: '/api/c/chatgroupmessage/super/getChatGroupNewMessage',
+        params: { userId }
+    })
+}
