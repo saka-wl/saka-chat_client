@@ -29,13 +29,13 @@ init();
             <n-gradient-text type="info">
                 ta待处理的群聊请求
             </n-gradient-text>
-            <GroupRequestCard v-for="item in pendingRequest" @updateRequest="init()" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" cardType="request-from-me" />
+            <GroupRequestCard v-for="item in pendingRequest" @updateRequest="init()" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" cardType="mine-invite-others" />
         </div>
         <div class="complete-request">
             <n-gradient-text type="info">
                 ta已完成的群聊请求
             </n-gradient-text>
-            <GroupRequestCard v-for="item in resolvedRequest" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" cardType="request-from-me" />
+            <GroupRequestCard v-for="item in resolvedRequest" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" cardType="mine-invite-others" />
         </div>
     </div>
 </template>

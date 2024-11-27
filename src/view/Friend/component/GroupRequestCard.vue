@@ -13,6 +13,7 @@ interface IProps {
     requestId: string | number;
     fromUserId: number | string;
     toUserId: number | string;
+    cardType: 'mine-invite-others' | 'others-request-me';
 
 }
 const props = withDefaults(defineProps<IProps>(), {
@@ -28,17 +29,22 @@ const imageUrl = computed(() => {
 });
 
 const textRecord = {
-    'group-allowed': '您已同意了该群聊的邀请',
-    'group-rejected': '您已拒绝了该群聊的邀请',
-    'user-allowed': 'ta同意了您的加群申请',
-    'user-rejected': 'ta拒绝了您的加群申请',
+    'mine-invite-others-allowed': 'ta同意了加入该群的请求～',
+    'mine-invite-others-refused': 'ta拒绝了加入该群的请求～',
+    'mine-invite-others-pending': 'ta正在处理请求～',
+    'others-request-me-allowed': '您同意了该群聊的请求',
+    'others-request-me-refused': '您拒绝了该群聊的请求'
 }
 
 const getTextRecord = (status: number, type: number) => {
-    if(status === 1 && type === 0) return textRecord['user-allowed'];
-    if(status === 2 && type === 0) return textRecord['user-rejected'];
-    if(status === 1 && type === 1) return textRecord['group-allowed'];
-    if(status === 2 && type === 1) return textRecord['group-rejected'];
+    if(props.cardType === 'mine-invite-others') {
+        if(status === 0) return textRecord['mine-invite-others-pending'];
+        if(status === 1) return textRecord['mine-invite-others-allowed'];
+        if(status === 2) return textRecord['mine-invite-others-refused'];
+    }else{
+        if(status === 1) return textRecord['others-request-me-allowed'];
+        if(status === 2) return textRecord['others-request-me-refused'];
+    }
 }
 
 const handleGroupChatRequest = async (status: number) => {
@@ -76,7 +82,7 @@ const handleGroupChatRequest = async (status: number) => {
         </div>
         <div class="request-status">
             <!--处理中 -->
-            <div v-if="props.status === 0">
+            <div v-if="props.status === 0 && props.cardType === 'others-request-me'">
                 <n-button tertiary type="primary" @click="() => handleGroupChatRequest(1)">
                     同意
                 </n-button>
