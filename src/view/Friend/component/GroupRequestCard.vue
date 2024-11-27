@@ -19,6 +19,8 @@ const props = withDefaults(defineProps<IProps>(), {
     avatar: '',
 });
 
+console.log(props);
+
 const emit = defineEmits(['updateRequest']);
 
 const imageUrl = computed(() => {
@@ -33,10 +35,10 @@ const textRecord = {
 }
 
 const getTextRecord = (status: number, type: number) => {
-    if(status === 1 && type === 0) return textRecord['group-allowed'];
-    if(status === 2 && type === 0) return textRecord['group-rejected'];
-    if(status === 1 && type === 1) return textRecord['user-allowed'];
-    if(status === 2 && type === 1) return textRecord['user-rejected'];
+    if(status === 1 && type === 0) return textRecord['user-allowed'];
+    if(status === 2 && type === 0) return textRecord['user-rejected'];
+    if(status === 1 && type === 1) return textRecord['group-allowed'];
+    if(status === 2 && type === 1) return textRecord['group-rejected'];
 }
 
 const handleGroupChatRequest = async (status: number) => {

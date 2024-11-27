@@ -87,6 +87,7 @@ export const useUserInfoStore = defineStore('userInfo', (): IUserStore => {
             window.$message.warning("上次请求还未完成,请等待一下吧！", { closable: true });
             return;
         }
+        console.log(111)
         isChatGroupListLoading = true;
         const { code, data, msg } = await getAllChatRoomGroupByUserId(userInfo.value?.id);
         if(code !== 200 || !data) {

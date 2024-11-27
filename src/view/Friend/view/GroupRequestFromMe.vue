@@ -27,15 +27,15 @@ init();
     <div class="group-request-from-me-container">
         <div class="pending-request">
             <n-gradient-text type="info">
-                群主待处理的群聊请求
+                ta待处理的群聊请求
             </n-gradient-text>
-            <GroupRequestCard v-for="item in pendingRequest" @updateRequest="init()" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId" />
+            <GroupRequestCard v-for="item in pendingRequest" @updateRequest="init()" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" cardType="request-from-me" />
         </div>
         <div class="complete-request">
             <n-gradient-text type="info">
-                群主已完成的群聊请求
+                ta已完成的群聊请求
             </n-gradient-text>
-            <GroupRequestCard v-for="item in resolvedRequest" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId" />
+            <GroupRequestCard v-for="item in resolvedRequest" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" cardType="request-from-me" />
         </div>
     </div>
 </template>

@@ -85,7 +85,8 @@ export interface IChatGroupRequest {
     chatRoomId: number | string;
     chatRoomName: string;
     fromUserId: number | string;
-    toUserId: number | string;
+    toUserId?: number | string;
+    toUserIds?: (number | string)[];
     requestDesc: string;
     type?: 0 | 1;
     status?: 0 | 1 | 2;
@@ -99,6 +100,11 @@ export interface IChatGroupRequest {
 export const sendGroupChatRequestFromGroupApi = async (data: IChatGroupRequest) => {
     data.type = 0;
     data.status = 0;
+    return await request({
+        method: 'POST',
+        url: 'api/c/chatgroup/super/sendGroupChatRequest',
+        data
+    });
 }
 
 /**

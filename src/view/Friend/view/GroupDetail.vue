@@ -1,26 +1,66 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { NButton } from 'naive-ui';
+import { NButton, NGradientText, NAvatar, NFormItem, NSelect } from 'naive-ui';
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserInfoStore } from '../../../store/userInfo.pinia';
 import { normalImageUrl } from '../../../constant/request';
 import colorthief from 'colorthief';
-import { IGroupChatRoom } from '../../../api/groupchatmsg';
+import { IGroupChatRoom, sendGroupChatRequestFromGroupApi } from '../../../api/groupchatmsg';
 
 const route = useRoute();
 const router = useRouter();
 const chatRoom = ref<IGroupChatRoom>();
-const { chatGroupList, userInfo } = storeToRefs(useUserInfoStore());
+const usersAvatarList = ref<{ id: string; src: string; name: string }[]>([]);
+const notAddedChatGroupUserList = ref<{ label: string; value: string }[]>();
+const addGroupUsers = ref<(string | number)[]>([]);
+const { chatGroupList, userInfo, userFriendList } = storeToRefs(useUserInfoStore());
 
 watch(() => route.params.id, (newVal) => {
     if (!newVal) {
         return;
     }
-    chatRoom.value = chatGroupList.value?.find(it => it.id == newVal)
+    chatRoom.value = chatGroupList.value?.find(it => it.id == newVal);
+    if (!chatRoom.value?.humanIds) {
+        return;
+    }
+    const allUserIds = JSON.parse(chatRoom.value?.humanIds);
+    const addedTmp = [];
+    const notAddedTmp = [];
+    const userId = userInfo.value?.id;
+    for (let item of (userFriendList.value || [])) {
+        let friendId = item.friendId;
+        if(userId == item.friendId) friendId = item.userId;
+        if (allUserIds.includes(friendId.toString())) {
+            addedTmp.push({
+                id: item?.id,
+                name: item?.friendNickname,
+                src: normalImageUrl + item?.friendAvatar,
+            });
+        } else if (userInfo.value?.id && chatRoom.value.makerUserId == userInfo.value.id) {
+            notAddedTmp.push({
+                label: 'nickname: ' + item.friendNickname + ' - account: ' + item.id,
+                value: item.id
+            });
+        }
+    }
+    if (userInfo.value?.id && chatRoom.value.makerUserId == userInfo.value.id) notAddedChatGroupUserList.value = notAddedTmp;
+    usersAvatarList.value = addedTmp;
 }, {
     immediate: true
-})
+});
+
+const handleChatGroupInviteFriends = async () => {
+    await sendGroupChatRequestFromGroupApi({
+        chatRoomId: chatRoom.value?.id!,
+        chatRoomName: chatRoom.value?.chatRoomName!,
+        fromUserId: chatRoom.value?.makerUserId!,
+        toUserIds: addGroupUsers.value!,
+        requestDesc: '',
+        chatRoomAvatar: chatRoom.value?.avatar!,
+    });
+}
+
 const goToChat = () => {
     const chatRoomId = route.params.id;
     // const chatRoomItem = chatGroupList.value?.find(it => it.id == chatRoomId);
@@ -57,13 +97,14 @@ const onMouseEnter = async (event: MouseEvent) => {
 const onMouseLeave = () => {
     bgColor.value = '#fff'; // 主色：重置为白色
 }
+
 </script>
 
 <template>
     <div class="chat-group-detail-container" :style="{ backgroundColor: bgColor }">
         <div class="avatar">
-            <img :src="normalImageUrl + chatRoom?.avatar" alt="" class="avatar-image"
-                @mouseenter="onMouseEnter($event)" @mouseleave="onMouseLeave()" crossOrigin="anonymous">
+            <img :src="normalImageUrl + chatRoom?.avatar" alt="" class="avatar-image" @mouseenter="onMouseEnter($event)"
+                @mouseleave="onMouseLeave()" crossOrigin="anonymous">
         </div>
         <div class="user-info">
             <p>
@@ -77,6 +118,32 @@ const onMouseLeave = () => {
                     去聊天
                 </n-button>
             </div>
+        </div>
+        <p>
+            <n-gradient-text type="info" :size="22">
+                群内好友：
+            </n-gradient-text>
+        </p>
+        <div class="group-user-avatars">
+            <div class="user-item" v-for="item in usersAvatarList">
+                <n-avatar :src="item.src" object-fit="cover"></n-avatar>
+                <n-gradient-text type="success" class="user-item-name">
+                    {{ item.name }}
+                </n-gradient-text>
+            </div>
+        </div>
+        <div class="add-new-friend" v-if="userInfo?.id && chatRoom?.makerUserId == userInfo?.id">
+            <!-- 群主邀请其他人 -->
+            <p>
+                <n-gradient-text type="info" :size="22">
+                    邀请好友：
+                </n-gradient-text>
+            </p>
+            <n-form-item label="选择好友" :width="200">
+                <n-select v-model:value="addGroupUsers" multiple :options="notAddedChatGroupUserList"
+                    style="max-width: 50%;" />
+            </n-form-item>
+            <n-button @click="handleChatGroupInviteFriends">一键邀请</n-button>
         </div>
     </div>
 </template>
@@ -100,6 +167,18 @@ const onMouseLeave = () => {
     .user-info {
         p {
             text-align: center;
+        }
+    }
+
+    .group-user-avatars {
+        display: flex;
+
+        .user-item {
+            margin: px2vw(10);
+
+            .user-item-name {
+                margin-left: px2vw(5);
+            }
         }
     }
 }
