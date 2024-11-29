@@ -3,49 +3,80 @@ import { computed } from 'vue';
 import { normalImageUrl } from '../../../constant/request';
 import { NButton } from 'naive-ui';
 import { addChatGroupRoomApi } from '../../../api/groupchatmsg';
+import { useUserInfoStore } from '../../../store/userInfo.pinia';
 
 interface IProps {
     chatRoomId: string | number;
     chatRoomName: string;
     avatar?: string | null;
     status: number;  // 0 - 处理中  1 - 已允许  2 - 已拒绝
-    type: number;    // 0 - 群聊邀请用户  1 - 用户申请主动加入群聊
+    type: number;    // 0 - 由群主发起的群聊邀请->群聊的makerUserId为fromUserId  1 - 由用户发起的加群请求->群聊的makerUserId为toUserId
     requestId: string | number;
     fromUserId: number | string;
     toUserId: number | string;
-    cardType: 'mine-invite-others' | 'others-request-me';
-
 }
 const props = withDefaults(defineProps<IProps>(), {
     avatar: '',
 });
+const { userInfo } = useUserInfoStore();
 
-console.log(props);
+/**
+ * 1. 群主发起的群聊邀请 && 我是群主 -> ta同意/拒绝/正在处理你的群聊邀请
+ * 2. 群主发起的群聊邀请 && 我是用户 -> 按钮 ｜ 您已同意/拒绝了群主的群聊邀请
+ * 3. 用户发起的加群请求 && 我是群主 -> 按钮 ｜ 您已同意/拒绝了ta的群聊申请
+ * 4. 用户发起的加群请求 && 我是用户 -> 群主同意/拒绝/正在处理你的群聊申请
+ */
+const textEnum = {
+    'status-invite-iAm-leader': {
+        'allowed': 'ta同意了你的群聊邀请',
+        'rejected': 'ta拒绝了你的群聊邀请',
+        'pending': 'ta正在处理你的群聊邀请',
+    },
+    'status-invite-iAm-normalUser': {
+        'allowed': '您已经同意了群主的群聊邀请',
+        'rejected': '您已经拒绝了群主的群聊邀请',
+        'pending': null
+    },
+    'status-request-iAm-leader': {
+        'allowed': '您已经同意了ta的群聊申请',
+        'rejected': '您已经拒绝了ta的群聊申请',
+        'pending': null
+    },
+    'status-request-iAm-normalUser': {
+        'allowed': '群主同意了你的群聊申请',
+        'rejected': '群主拒绝了你的群聊申请',
+        'pending': '群主正在处理你的群聊申请',
+    }
+}
+
+const getTypeText = () => {
+    let key: 'allowed' | 'rejected' | 'pending' | null = null;
+    if(props.status === 0) key = 'pending';
+    if(props.status === 1) key = 'allowed';
+    if(props.status === 2) key = 'rejected';
+    if(userInfo?.id == props.fromUserId && props.type === 0) {
+        // 群主发起的群聊邀请 && 我是群主
+        return textEnum['status-invite-iAm-leader'][key!];
+    }
+    if(userInfo?.id != props.fromUserId && props.type === 0) {
+        // 群主发起的群聊邀请 && 我是用户
+        return textEnum['status-invite-iAm-normalUser'][key!];
+    }
+    if(userInfo?.id == props.toUserId && props.type === 1) {
+        // 用户发起的加群请求 && 我是群主
+        return textEnum['status-request-iAm-leader'][key!];
+    }
+    if(userInfo?.id != props.toUserId && props.type === 1) {
+        // 用户发起的加群请求 && 我是用户
+        return textEnum['status-request-iAm-normalUser'][key!];
+    }
+}
 
 const emit = defineEmits(['updateRequest']);
 
 const imageUrl = computed(() => {
     return normalImageUrl + props.avatar
 });
-
-const textRecord = {
-    'mine-invite-others-allowed': 'ta同意了加入该群的请求～',
-    'mine-invite-others-refused': 'ta拒绝了加入该群的请求～',
-    'mine-invite-others-pending': 'ta正在处理请求～',
-    'others-request-me-allowed': '您同意了该群聊的请求',
-    'others-request-me-refused': '您拒绝了该群聊的请求'
-}
-
-const getTextRecord = (status: number, type: number) => {
-    if(props.cardType === 'mine-invite-others') {
-        if(status === 0) return textRecord['mine-invite-others-pending'];
-        if(status === 1) return textRecord['mine-invite-others-allowed'];
-        if(status === 2) return textRecord['mine-invite-others-refused'];
-    }else{
-        if(status === 1) return textRecord['others-request-me-allowed'];
-        if(status === 2) return textRecord['others-request-me-refused'];
-    }
-}
 
 const handleGroupChatRequest = async (status: number) => {
     let userId: number | string = '';
@@ -81,8 +112,7 @@ const handleGroupChatRequest = async (status: number) => {
             </div>
         </div>
         <div class="request-status">
-            <!--处理中 -->
-            <div v-if="props.status === 0 && props.cardType === 'others-request-me'">
+            <div v-if="getTypeText() === null">
                 <n-button tertiary type="primary" @click="() => handleGroupChatRequest(1)">
                     同意
                 </n-button>
@@ -90,9 +120,8 @@ const handleGroupChatRequest = async (status: number) => {
                     拒绝
                 </n-button>
             </div>
-            <!-- 已允许 || 已拒绝 -->
             <div v-else>
-                {{ getTextRecord(props.status, props.type) }}
+                {{ getTypeText() }}
             </div>
         </div>
     </div>

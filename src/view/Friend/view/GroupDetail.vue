@@ -30,7 +30,7 @@ watch(() => route.params.id, (newVal) => {
     const userId = userInfo.value?.id;
     for (let item of (userFriendList.value || [])) {
         let friendId = item.friendId;
-        if(userId == item.friendId) friendId = item.userId;
+        if (userId == item.friendId) friendId = item.userId;
         if (allUserIds.includes(friendId.toString())) {
             addedTmp.push({
                 id: item?.id,
@@ -38,9 +38,11 @@ watch(() => route.params.id, (newVal) => {
                 src: normalImageUrl + item?.friendAvatar,
             });
         } else if (userInfo.value?.id && chatRoom.value.makerUserId == userInfo.value.id) {
+            let value = item.friendId;
+            if (value == userInfo.value.id) value = item.userId;
             notAddedTmp.push({
                 label: 'nickname: ' + item.friendNickname + ' - account: ' + item.id,
-                value: item.id
+                value
             });
         }
     }
@@ -51,19 +53,24 @@ watch(() => route.params.id, (newVal) => {
 });
 
 const handleChatGroupInviteFriends = async () => {
-    await sendGroupChatRequestFromGroupApi({
+    const { code, data, msg } = await sendGroupChatRequestFromGroupApi({
         chatRoomId: chatRoom.value?.id!,
         chatRoomName: chatRoom.value?.chatRoomName!,
         fromUserId: chatRoom.value?.makerUserId!,
         toUserIds: addGroupUsers.value!,
         requestDesc: '',
         chatRoomAvatar: chatRoom.value?.avatar!,
+        type: 0,   // 由群主发起的群聊邀请
     });
+    if(code !== 200) {
+        window.$message.warning(msg || '邀请失败！', { closable: true });
+        return;
+    }
+    window.$message.success('邀请成功！', { closable: true });
 }
 
 const goToChat = () => {
     const chatRoomId = route.params.id;
-    // const chatRoomItem = chatGroupList.value?.find(it => it.id == chatRoomId);
     router.push({
         name: 'grouproomchat',
         params: {

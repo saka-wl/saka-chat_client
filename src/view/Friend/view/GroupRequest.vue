@@ -10,7 +10,7 @@ const resolvedRequest = ref<IChatGroupRequest[]>([]);
 const { userInfo } = useUserInfoStore();
 
 async function init() {
-    const { code, data, msg } = await getAllChatGroupRequestByConditionApi({ toUserId: (userInfo?.id || '').toString() });
+    const { code, data, msg } = await getAllChatGroupRequestByConditionApi({ userId: (userInfo?.id || '').toString() });
     if(code !== 200 || !data) {
         window.$message.warning(msg || '获取数据失败！', { closable: true });
         return;
@@ -20,21 +20,22 @@ async function init() {
 }
 
 init();
+
 </script>
 
 <template>
-    <div class="group-request-to-me-container">
+    <div class="group-request-from-me-container">
         <div class="pending-request">
             <n-gradient-text type="info">
-                我待处理的群聊请求
+                待处理的
             </n-gradient-text>
-            <GroupRequestCard v-for="item in pendingRequest" @updateRequest="init()" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" cardType="others-request-me" />
+            <GroupRequestCard v-for="item in pendingRequest" @updateRequest="init()" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" />
         </div>
         <div class="complete-request">
             <n-gradient-text type="info">
-                我已完成的群聊请求
+                已完成的
             </n-gradient-text>
-            <GroupRequestCard v-for="item in resolvedRequest" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" cardType="others-request-me" />
+            <GroupRequestCard v-for="item in resolvedRequest" :chatRoomId="item.chatRoomId" :chatRoomName="item.chatRoomName" :status="item.status!" :type="item.type!" :requestId="item.id!" :fromUserId="item.fromUserId" :toUserId="item.toUserId!" />
         </div>
     </div>
 </template>

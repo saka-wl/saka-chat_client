@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<IProps>(), {
     }
     .word {
         font-size: px2vw(16);
-        width: px2vw(120);
+        width: px2vw(170);
     }
 }
 </style>

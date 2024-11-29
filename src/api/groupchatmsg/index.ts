@@ -12,7 +12,7 @@ export interface IGroupChatRoom {
 }
 
 export interface ICreateGroupChatFormData {
-    id: string;
+    id?: string;
     chatRoomName: string;
     humanIds: (string | number)[];
     humanNumber?: number;
@@ -97,7 +97,7 @@ export interface IChatGroupRequest {
  * 群聊邀请用户加入
  * @param data 
  */
-export const sendGroupChatRequestFromGroupApi = async (data: IChatGroupRequest) => {
+export const sendGroupChatRequestFromGroupApi = async (data: IChatGroupRequest): Promise<ResponseData<string>> => {
     data.type = 0;
     data.status = 0;
     return await request({
@@ -126,6 +126,7 @@ export const sendGroupChatRequestFromUserApi = async (data: IChatGroupRequest): 
 export interface IChatGroupRequestCondition {
     fromUserId?: number | string;
     toUserId?: number | string;
+    userId?: number | string;
 }
 
 /**

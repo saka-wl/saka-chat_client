@@ -81,15 +81,20 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("../view/Friend/view/GroupDetail.vue")
             },
             {
-                path: 'group-request-from-me',
-                name: 'group-request-from-me',
-                component: () => import("../view/Friend/view/GroupRequestFromMe.vue")
+                path: 'group-request',
+                name: 'group-request',
+                component: () => import("../view/Friend/view/GroupRequest.vue")
             },
-            {
-                path: 'group-request-to-me',
-                name: 'group-request-to-me',
-                component: () => import("../view/Friend/view/GroupRequestToMe.vue")
-            },
+            // {
+            //     path: 'group-invite-to-me',
+            //     name: 'group-invite-to-me',
+            //     component: () => import("../view/Friend/view/GroupInviteToMe.vue")
+            // },
+            // {
+            //     path: 'group-request-mine-handle',
+            //     name: 'group-request-mine-handle',
+            //     component: () => import("../view/Friend/view/GroupRequestMineHandle.vue")
+            // }
         ]
     },
     {

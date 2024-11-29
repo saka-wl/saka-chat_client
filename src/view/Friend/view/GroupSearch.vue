@@ -15,7 +15,7 @@ const searchGroupChatFormData = ref({
     id: null,
     chatRoomName: '',
 });
-const { userFriendList, userInfo } = useUserInfoStore();
+const { userFriendList, userInfo, getMyAllChatGroupRoom } = useUserInfoStore();
 
 const myFriends = ref(userFriendList?.map(it => {
     let userId: string | null = null;
@@ -39,7 +39,8 @@ const createGroupChat = async () => {
         humanNumber: makeGroupChatFormData.value.humanIds.length
     });
     if (code === 200 && data.id) {
-        window.$message.success(data.chatRoomName + '创建成功！', { closable: true })
+        window.$message.success(data.chatRoomName + '创建成功！', { closable: true });
+        getMyAllChatGroupRoom();
     } else {
         window.$message.warning(msg || '创建失败！', { closable: true })
     }

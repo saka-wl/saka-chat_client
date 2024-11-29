@@ -35,6 +35,7 @@ const joinGroupChat = async () => {
         toUserId: props.toUserId,
         requestDesc: chatDesc.value,
         chatRoomAvatar: props.avatar || '',
+        type: 1, // 用户发起群聊申请
     });
     if(code !== 200 || !data) {
         window.$message.warning(msg || '加入群聊发送申请失败！', { closable: true });
