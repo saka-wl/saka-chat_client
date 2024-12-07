@@ -15,16 +15,19 @@ export interface IFileSlice {
 export function createMd5ChunkInfo(file: File, index: number, chunkSize: number) {
     return new Promise((resolve) => {
         const start = index * chunkSize;
-        const end = start + chunkSize;
+        let end = start + chunkSize;
+        if(end > file.size) end = file.size;
         const fileReader = new FileReader();
         const spark = new sparkmd5.ArrayBuffer();
+        console.log(start, end);
         /**
          * onload 该事件在读取操作完成时触发
          * @param {*} e 就是 -> file.slice(start, end)
          */
         fileReader.onload = (e: any) => {
             // 速度加快一倍
-            spark.append(e.target.result.slice(0, Math.ceil(FILE_SLICE_SINGLE_SIZE / 5) + index));
+            // spark.append(e.target.result.slice(0, Math.ceil(FILE_SLICE_SINGLE_SIZE / 5) + index));
+            spark.append(e.target.result);
             resolve({
                 start,
                 end,
@@ -99,11 +102,11 @@ export const getLargeFileSliceInfo = async (file: File): Promise<IFileSlice[]> =
             );
             const startFileSliceIndex = i * singleWebWorkerHandleFileSliceNum;
             let endFileSliceIndex = startFileSliceIndex + singleWebWorkerHandleFileSliceNum;
-            if(endFileSliceIndex > fileHandleLength) endFileSliceIndex = fileHandleLength;
+            if (endFileSliceIndex > fileHandleLength) endFileSliceIndex = fileHandleLength;
             worker.postMessage({
-                file, 
-                chunkSize: FILE_SLICE_SINGLE_SIZE, 
-                startFileSliceIndex, 
+                file,
+                chunkSize: FILE_SLICE_SINGLE_SIZE,
+                startFileSliceIndex,
                 endFileSliceIndex
             })
             worker.onmessage = (e) => {
@@ -193,18 +196,29 @@ export interface IFileInfo {
     needUploadedHash: string[];
     videoPreview: string[];
 }
+/**
+ * 处理文件大上传
+ * @param fileInfo 
+ * @param chunkHash 
+ * @param updateFileUploadProcess 
+ * @param fileInit 
+ * @returns 
+ */
 export const handleFileChunkUpload = async (fileInfo: IFileInfo, chunkHash: string, updateFileUploadProcess: Function, fileInit: Function): Promise<IFileInfo | string> => {
     let item = fileInfo.fileSliceInfo.find(it => it.hash === chunkHash);
-    const resp = await addFileChunkApi(item?.content as File, fileInfo.id, chunkHash, fileInfo.fileId);
-    if (resp && typeof resp === 'string') {
+    const { data, code } = await addFileChunkApi(item?.content as File, fileInfo.id, chunkHash, fileInfo.fileId);
+    if (code === 200 && data && typeof data === 'string') {
+        // 文件上传完成，并且校验通过
         updateFileUploadProcess(100);
         window.$message.success("文件上传完成！", { closable: true });
         const timer = setTimeout(() => {
             // fileInit();
             clearTimeout(timer);
         }, 1000)
-        return resp;
-    } else if (resp && resp.length > 0) {
+        return data;
+    }
+    if (data && data.length > 0) {
+        // 文件还未上传完成 || 文件上传完成合并时发现文件切片存在问题
         fileInfo.needUploadedHash = fileInfo.needUploadedHash.filter(it => it !== chunkHash);
         fileInfo.hasUploadedHash.push(chunkHash);
         updateFileUploadProcess(Math.floor(100 / (fileInfo.needUploadedHash.length + fileInfo.hasUploadedHash.length)));

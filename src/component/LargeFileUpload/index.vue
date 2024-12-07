@@ -75,7 +75,7 @@ const handleUploadFile = async (e: any) => {
     const { fileSliceInfo, ...params } = await useLargeUploadFile(e.target?.files[0]);
     const videoFrame = await getVideoFrameImages(e);
 
-    const { id, needUploadedHash } = await editNewFileInfoApi({ ...params, ownUserId: userInfo.value?.id || '0', videoPreview: JSON.stringify(videoFrame.map(it => it.hash)) });
+    const { id, needUploadedHash } = await editNewFileInfoApi({ ...params, isNeedCheck: true, ownUserId: userInfo.value?.id || '0', videoPreview: JSON.stringify(videoFrame.map(it => it.hash)) });
     if (needUploadedHash) fileUploadProcess.value = Math.floor((fileSliceInfo.length - needUploadedHash.length) * 100 / fileSliceInfo.length);
     fileInfo = {
         id,
@@ -88,6 +88,10 @@ const handleUploadFile = async (e: any) => {
     }
     // 文件前后端分片信息处理完成
     fileInputStaus.value = 2;
+    if(fileInfo.needUploadedHash && fileInfo.needUploadedHash.length === 0) {
+        window.$message.success("文件已上传完成啦～", { closable: true });
+        return;
+    }
     window.$message.success("文件分片完成，可以上传文件!", { closable: true });
     console.log("文件分片信息：");
     console.log(fileInfo);
@@ -104,6 +108,10 @@ const fileUpload = async () => {
     if (fileInputStaus.value === 4) {
         // 需要等待？ - 点击暂停，恢复速度过快问题
         window.$message.warning("文件恢复上传成功！", { closable: true });
+    }
+    if(fileInfo.needUploadedHash && fileInfo.needUploadedHash.length === 0) {
+        window.$message.success("文件已上传完成啦～", { closable: true });
+        return;
     }
     fileInputStaus.value = 3;
     if (fileInfo.needUploadedHash.length === 0 && props.friendId && props.chatRoomId) {

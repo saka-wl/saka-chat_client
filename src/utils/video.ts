@@ -8,7 +8,7 @@ import { IVideoPreviewPic } from "../api/file";
  */
 export function getVideoFrame(file: File, duration: number): Promise<IVideoPreviewPic[]> | string {
     if(!file.name.endsWith('.mp4')) {
-        return '请放入一个mp4视频';
+        return '上传模式为普通模式（非视频）';
     }
     duration = ~~duration
     return new Promise((resolve, reject) => {

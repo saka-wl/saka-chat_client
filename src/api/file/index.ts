@@ -23,6 +23,7 @@ interface IEditNewFileInfo {
     ownUserId?: string;
     fileUploadInfo: IFileUploadInfo;
     videoPreview: string;
+    isNeedCheck?: boolean;
 }
 export interface IFileUploadInfo {
     fileId: string;
@@ -38,12 +39,12 @@ export const editNewFileInfoApi = async (param: IEditNewFileInfo): Promise<{ id:
 export const addFileChunkApi = async (file: File, id: string, hash: string, fileId: string) => {
     const formData = new FormData();
     formData.append('file', file);
-    const { code, data, msg } =  await axios.post<any, ResponseData<string | string[]>>(
+    const { code, data, msg } = await axios.post<any, ResponseData<string | string[]>>(
         `/common/uploadLargeFile/uploadFileChunk?id=${id}&chunkHash=${hash}&fileId=${fileId}`,
         formData
     );
     msg && window.$message.success(msg, { closable: true });
-    return data;
+    return { data, code };
 }
 
 // 文件信息获取 -》
@@ -68,12 +69,12 @@ export interface IFileInfoApi {
  * @returns 
  */
 export const getFileInfoApi = async (param: Partial<IFileInfoApi>): Promise<IFileInfoApi[] | null> => {
-    let { code, data, msg } =  await axios.post<Partial<IFileInfoApi>, ResponseData<IFileInfoApi[]>>(
+    let { code, data, msg } = await axios.post<Partial<IFileInfoApi>, ResponseData<IFileInfoApi[]>>(
         `/common/uploadLargeFile/getfileinfo`,
         param
     );
-    if(code !== 200) return null;
-    if(data && data.length > 0) {
+    if (code !== 200) return null;
+    if (data && data.length > 0) {
         data = data.map(it => {
             it.videoPreview = JSON.parse(it.videoPreview);
             it.fileUploadInfo = JSON.parse(it.fileUploadInfo as unknown as string);
@@ -161,7 +162,7 @@ export async function getFilesByCondition(
         ownUserId?: string | null;
         fileName?: string | null;
         status?: number | null;
-    }, 
+    },
     page: {
         page?: number;
         limit?: number;
@@ -191,7 +192,7 @@ export async function changeFileInfo(
     data: {
         status?: number;
         pwd?: string;
-    }, 
+    },
     where: {
         id: number;
         ownUserId: string;
