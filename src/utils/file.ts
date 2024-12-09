@@ -19,7 +19,6 @@ export function createMd5ChunkInfo(file: File, index: number, chunkSize: number)
         if(end > file.size) end = file.size;
         const fileReader = new FileReader();
         const spark = new sparkmd5.ArrayBuffer();
-        console.log(start, end);
         /**
          * onload 该事件在读取操作完成时触发
          * @param {*} e 就是 -> file.slice(start, end)
