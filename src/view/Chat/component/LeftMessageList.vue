@@ -79,7 +79,7 @@ const getChatGroupNewMsg = async () => {
         const chatRoomInfo = chatGroupList.value?.find(it => it.id == key);
         vals.push({
             chatRoomId: chatRoomInfo?.id?.toString(),
-            newMsgCount: newMsgRes[key],
+            newMsgCount: 0,
             type: 0,
             chatRoomName: chatRoomInfo?.chatRoomName,
             chatRoomAvatar: chatRoomInfo?.avatar!,
@@ -96,7 +96,6 @@ const getChatGroupNewMsg = async () => {
             chatRoomAvatar: chatRoomInfo?.avatar!,
         })
     }
-    console.log(vals);
     leftMsgList.value.push(... vals);
 }
 
