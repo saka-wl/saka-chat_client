@@ -20,6 +20,9 @@ const jumpTo = (path: string) => {
             <n-button quaternary type="info" @click="jumpTo('/file/mine-file')">
                 Mine File
             </n-button>
+            <n-button quaternary type="info" @click="jumpTo('/file/md-file')">
+                Md File
+            </n-button>
         </div>
         <router-view></router-view>
     </div>

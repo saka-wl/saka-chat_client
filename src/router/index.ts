@@ -122,6 +122,11 @@ const routes: RouteRecordRaw[] = [
                 name: 'mine-file',
                 component: () => import('../view/File/view/MineFile.vue')
             },
+            {
+                path: 'md-file',
+                name: 'md-file',
+                component: () => import('../view/File/view/MdFile.vue')
+            }
         ]
     }
 ]
