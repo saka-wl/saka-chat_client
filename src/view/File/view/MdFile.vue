@@ -31,7 +31,7 @@
                 <n-select v-model:value="mdFileInfo.collaborateUserIds" multiple :options="myFriends"
                         style="max-width: 50%;" />
             </div>
-            <Editor class="md-editor" :value="markdownContent" :locale="zhHans" @change="handleMdFileChange" />
+            <Editor class="md-editor" :value="markdownContent" :locale="zhHans" :uploadImages="uploadImage" @change="handleMdFileChange" />
             <n-button type="primary" @click="mdFileSubmit" style="margin-top: 20px;margin-bottom: 100px;">提交</n-button>
         </div>
     </div>
@@ -40,6 +40,8 @@
 <script setup lang="ts">
 
 import { Editor } from "@bytemd/vue-next"; // 导入编辑器组件
+import * as Y from 'yjs';   // 协同编辑算法库
+
 import zhHans from "bytemd/lib/locales/zh_Hans.json"; // 汉化
 import 'juejin-markdown-themes/dist/juejin.min.css'
 import "bytemd/dist/index.css"; // 导入编辑器样式
@@ -48,6 +50,10 @@ import NormalItem from "../../../component/Card/NormalItem.vue";
 import { changeMdFileApi, createMdFileApi, getMdFileContentApi, getMdFilesListApi, IMdFileInfo } from "../../../api/markdown";
 import { NFormItem, NInput, NSelect, NButton } from "naive-ui";
 import { useUserInfoStore } from "../../../store/userInfo.pinia";
+import { uploadImageApi } from "../../../api/file";
+import { normalImageUrl } from "../../../constant/request";
+
+const ydoc = new Y.Doc();
 
 const markdownContent = ref<string>('');
 const isMineMdFilesListShow = ref(false);
@@ -84,6 +90,16 @@ const createNewMdFile = async () => {
         fileTitle: null,
     }
     markdownContent.value = '';
+}
+
+const uploadImage = async (image: File[]) => {
+    const { code, data } = await uploadImageApi(image[0]);
+    return [
+        {
+            title: data,
+            url: normalImageUrl + data
+        }
+    ];
 }
 
 async function init() {
