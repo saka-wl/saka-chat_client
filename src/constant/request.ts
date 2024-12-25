@@ -16,3 +16,5 @@ export const largeFileUrl = "http://localhost:3000/static/largeFile/";
 export const largeFileChunkUrl = 'http://localhost:3000/static/largeFileChunk/';
 
 export const socketFriendChatUrl = "http://localhost:3000";
+
+export const yMdFileSocketUrl = "ws://localhost:3005";
