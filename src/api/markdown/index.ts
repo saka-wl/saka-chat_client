@@ -4,7 +4,7 @@ import axios from "../request.ts";
 export type IMdFileInfo = {
     id: string;
     fileTitle: string;
-    fileContent: string;
+    fileContent?: string;
     collaborateUserIds: string[] | string;
     ownUserId: string;
 };
