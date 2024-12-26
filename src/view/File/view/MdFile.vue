@@ -84,8 +84,10 @@ const {
     getQuillValue, 
     setQuillValue,
     initMdFile,
-    connectSocket
-} = useMdFile(mdFileInfo);
+    connectSocket,
+    destorySocket,
+    getBinding,
+} = useMdFile();
 
 const createNewMdFile = async () => {
     mdFileInfo.value = {
@@ -128,12 +130,30 @@ const handleClickMdFile = async (item: IMdFileInfo) => {
     mdFileInfo.value.collaborateUserIds = JSON.parse(data.collaborateUserIds as string);
     mdFileInfo.value.fileTitle = data.fileTitle;
     mdFileInfo.value.ownUserId = data.ownUserId;
-    
-    initMdFile();
-    // connectSocket(data.id);
+    destorySocket();
+    connectSocket(data.id);
     try {
-        setQuillValue(JSON.parse(data.fileContent as string));
+        setTimeout(() => {
+            setQuillValue(JSON.parse(data.fileContent as string));
+        }, 500)
+        // console.log(getBinding().awareness?.meta)
+        // if(!(getBinding()?.awareness?.meta.next instanceof Function)) {
+        //     console.log(12111333);
+        //     setQuillValue(JSON.parse(data.fileContent as string));
+        //     return;
+        // }
+        // if(Math.random() > 0.5) {
+        //     console.log(3213313);
+        //     setQuillValue(JSON.parse(data.fileContent as string));
+        // }
+        // const mapIter = getBinding()?.awareness?.meta.entries();
+        // console.log(mapIter);
+        // window.aa = mapIter;
+        // if(!mapIter.next().value || mapIter.next().done) {
+        //     setQuillValue(JSON.parse(data.fileContent as string));
+        // }
     } catch (err) {
+        console.log(err, '/view/File/view/MdFile.vue');
         setQuillValue([]);
     }
 }

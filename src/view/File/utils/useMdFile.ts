@@ -1,4 +1,4 @@
-import { onMounted, Ref, ref } from "vue";
+import { onMounted, onUnmounted, Ref, ref } from "vue";
 import Quill from 'quill'
 import QuillCursors from 'quill-cursors'
 // 粘贴图片上传
@@ -18,24 +18,31 @@ export interface IMdFileInfoEdit {
     fileTitle: string | null;
 }
 
-export const useMdFile = (mdFileInfo: IMdFileInfoEdit) => {
+export const useMdFile = () => {
     let quill: any = null;
-    // let wsProvider: any = null;
-    // let binding: any = null;
-    // let ytext = null;
-    // let ydoc = null;
-    const mdEditorRef = ref<HTMLElement>();
-    const imageUploadRef = ref<HTMLElement>();
+    let wsProvider: any = null;
+    let binding: any = null;
+    let ytext: any = null;
+    let ydoc: any = null;
+    const mdEditorRef = ref<HTMLElement | null>();
+    const imageUploadRef = ref<HTMLElement | null>();
 
     onMounted(() => {
-        initMdFile();
-        // connectSocket(null);
+        if(!quill) initMdFile();
+        connectSocket(null);
         // 当工具栏中的图片图标被单击的时候
         quill.getModule('toolbar').addHandler('image', (state: boolean) => {
             if (state) {
                 document.querySelector('#md-image-upload input')?.click();
             }
         });
+    })
+
+    onUnmounted(() => {
+        quill = null;
+        mdEditorRef.value = null;
+        imageUploadRef.value = null;
+        destorySocket();
     })
 
     Quill.register('modules/cursors', QuillCursors)
@@ -88,15 +95,15 @@ export const useMdFile = (mdFileInfo: IMdFileInfoEdit) => {
         })
 
         // Yjs文档，保存共享数据shared data
-        const ydoc = new Y.Doc()
+        ydoc = new Y.Doc()
         // 在文档上定义共享文本类型
-        const ytext = ydoc.getText('quill-demo')
-
-        const roomName = 'md_' + mdFileInfo.value.id
-        // 连接到 websocket 服务端 yjs提供的体验服务器
-        const wsProvider = new WebsocketProvider(yMdFileSocketUrl, roomName, ydoc)
-        // 绑定
-        new QuillBinding(ytext, quill, wsProvider.awareness);
+        ytext = ydoc.getText('quill-demo')
+        quill.on('text-change', (delta, oldDelta, source) => {
+            // console.log(source);
+            // console.log(delta);
+            // console.log(oldDelta);
+            // console.log('-----');
+        });
     }
 
     const handleImageUploadFinish = ({ file, event }: { file: File, event: any }) => {
@@ -108,21 +115,26 @@ export const useMdFile = (mdFileInfo: IMdFileInfoEdit) => {
         quill.setSelection(length + 1);
     }
 
-    const connectSocket = (id: string | null) => {
-        // console.log(wsProvider, binding);
-        // if (wsProvider) wsProvider.destroy();
-        // if (binding) binding.destroy();
-        // if (!id) return;
+    const destorySocket = () => {
+        if (wsProvider) wsProvider.destroy();
+        if (binding) binding.destroy();
+    }
 
-        // const roomName = 'md_' + id
-        // // 连接到 websocket 服务端 yjs提供的体验服务器
-        // wsProvider = new WebsocketProvider(yMdFileSocketUrl, roomName, ydoc)
-        // // 绑定
-        // binding = new QuillBinding(ytext, quill, wsProvider.awareness);
+    const connectSocket = (id: string | null) => {
+        if (!id) return;
+        const roomName = 'md_' + id
+        // 连接到 websocket 服务端 yjs提供的体验服务器
+        wsProvider = new WebsocketProvider(yMdFileSocketUrl, roomName, ydoc);
+        // 绑定
+        binding = new QuillBinding(ytext, quill, wsProvider.awareness);
     }
 
     const getQuillValue = () => {
         return quill;
+    }
+
+    const getBinding = () => {
+        return binding;
     }
 
     const setQuillValue = (val: Object) => {
@@ -138,5 +150,7 @@ export const useMdFile = (mdFileInfo: IMdFileInfoEdit) => {
         getQuillValue,
         setQuillValue,
         connectSocket,
+        destorySocket,
+        getBinding,
     }
 }
