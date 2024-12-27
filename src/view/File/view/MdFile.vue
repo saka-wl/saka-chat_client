@@ -32,6 +32,9 @@
                         style="max-width: 50%;" />
             </div>
             <!-- <Editor class="md-editor" :value="markdownContent" :locale="zhHans" :uploadImages="uploadImage" @change="handleMdFileChange" /> -->
+            <n-button @click="getMdInfo">
+                获取数据库文章数据
+            </n-button>
             <div id="markdown-editor" ref='mdEditorRef'></div>
             <n-button type="primary" @click="mdFileSubmit" style="margin-top: 20px;margin-bottom: 100px;">提交</n-button>
         </div>
@@ -76,6 +79,7 @@ const myFriends = ref(userFriendList?.map(it => {
         value: userId
     }
 }));
+let mdFileContent: any = ref(null);
 
 const { 
     mdEditorRef, 
@@ -120,7 +124,13 @@ async function init() {
 
 init();
 
+const getMdInfo = () => {
+    setQuillValue(JSON.parse(mdFileContent.value || '[]'));
+}
+
 const handleClickMdFile = async (item: IMdFileInfo) => {
+    destorySocket();
+    setQuillValue([]);
     const { code, data, msg } = await getMdFileContentApi({ id: item.id });
     if(code !== 200) {
         window.$message.warning(msg || '获取数据失败！');
@@ -130,12 +140,24 @@ const handleClickMdFile = async (item: IMdFileInfo) => {
     mdFileInfo.value.collaborateUserIds = JSON.parse(data.collaborateUserIds as string);
     mdFileInfo.value.fileTitle = data.fileTitle;
     mdFileInfo.value.ownUserId = data.ownUserId;
-    destorySocket();
     connectSocket(data.id);
+    // setQuillValue([]);
+    mdFileContent.value = data.fileContent;
     try {
-        setTimeout(() => {
-            setQuillValue(JSON.parse(data.fileContent as string));
-        }, 500)
+        // setTimeout(() => {
+            // const mapIter = getBinding()?.awareness;
+            // console.log(getBinding())
+            // console.log(getBinding().awareness.meta.size);
+            // console.log(getBinding()?.awareness.meta.size);
+        // }, 2000)
+        
+        // setTimeout(() => {
+        //     let content = getQuillValue().getContents().ops
+        //     console.log(content)
+        //     if(content.length === 0 || (content.length === 1 && content[0].insert === '\n'))
+        //         console.log('json', JSON.parse(data.fileContent as string))
+        //         setQuillValue(JSON.parse(data.fileContent as string));
+        // }, 500)
         // console.log(getBinding().awareness?.meta)
         // if(!(getBinding()?.awareness?.meta.next instanceof Function)) {
         //     console.log(12111333);
@@ -153,8 +175,8 @@ const handleClickMdFile = async (item: IMdFileInfo) => {
         //     setQuillValue(JSON.parse(data.fileContent as string));
         // }
     } catch (err) {
-        console.log(err, '/view/File/view/MdFile.vue');
-        setQuillValue([]);
+        // console.log(err, '/view/File/view/MdFile.vue');
+        // setQuillValue([]);
     }
 }
 
