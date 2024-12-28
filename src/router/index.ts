@@ -125,7 +125,19 @@ const routes: RouteRecordRaw[] = [
             {
                 path: 'md-file',
                 name: 'md-file',
-                component: () => import('../view/File/view/MdFile.vue')
+                component: () => import('../view/File/view/MdFile.vue'),
+                children: [
+                    {
+                        path: 'edit/:id',
+                        name: 'md-file-edit',
+                        component: () => import('../view/File/components/MdFileEdit.vue')
+                    },
+                    {
+                        path: 'add',
+                        name: 'md-file-add',
+                        component: () => import('../view/File/components/MdFileAdd.vue')
+                    }
+                ]
             }
         ]
     }
