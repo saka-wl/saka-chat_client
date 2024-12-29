@@ -26,8 +26,10 @@ import { normalImageRequest } from "../../../constant/request";
 import { NUpload } from 'naive-ui';
 import { type IMdFileInfoEdit, useMdFile } from '../utils/useMdFile';
 import { useRoute } from 'vue-router';
+import { useUserInfoStore } from '../../../store/userInfo.pinia';
 
 const route = useRoute();
+const { userInfo } = useUserInfoStore();
 
 const mdFileInfo = ref<IMdFileInfoEdit>({
     id: null,
@@ -64,10 +66,10 @@ async function init() {
 init();
 
 const connectSocketHandler = () => {
-    connectSocket(mdFileInfo.value.id);
+    console.log(userInfo)
+    connectSocket(mdFileInfo.value.id, userInfo?.nickname as string);
     setTimeout(() => {
         let content = getQuillValue().getContents().ops
-        console.log(content)
         if(content.length === 0 || (content.length === 1 && content[0].insert === '\n'))
             setQuillValue(JSON.parse(mdFileInfo.value.fileContent as string));
     }, 500)

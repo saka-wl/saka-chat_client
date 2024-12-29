@@ -6,6 +6,69 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1211271",
+      "name": "search",
+      "font_class": "search",
+      "unicode": "e623",
+      "unicode_decimal": 58915
+    },
+    {
+      "icon_id": "1397991",
+      "name": "Upload",
+      "font_class": "Upload",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "5171314",
+      "name": "mine",
+      "font_class": "mine",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "5317147",
+      "name": "home",
+      "font_class": "home",
+      "unicode": "e768",
+      "unicode_decimal": 59240
+    },
+    {
+      "icon_id": "5747648",
+      "name": "Add Friend",
+      "font_class": "AddFriend",
+      "unicode": "e728",
+      "unicode_decimal": 59176
+    },
+    {
+      "icon_id": "6242369",
+      "name": "mine",
+      "font_class": "mine1",
+      "unicode": "e7bd",
+      "unicode_decimal": 59325
+    },
+    {
+      "icon_id": "12004337",
+      "name": "Chat",
+      "font_class": "Chat",
+      "unicode": "ea94",
+      "unicode_decimal": 60052
+    },
+    {
+      "icon_id": "13743957",
+      "name": "markdown",
+      "font_class": "markdown",
+      "unicode": "e688",
+      "unicode_decimal": 59016
+    },
+    {
+      "icon_id": "15838480",
+      "name": "file",
+      "font_class": "file",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
       "icon_id": "31362410",
       "name": "播放",
       "font_class": "bofang",

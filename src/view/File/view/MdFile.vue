@@ -4,16 +4,16 @@
             <NormalItem word="新建你的文档" type="icon-right" v-memo="[]" @click="createNewMdFile" />
             <NormalItem word="我的文档" type="icon-left" v-memo="[]"
                 @click="isMineMdFilesListShow = !isMineMdFilesListShow" />
-            <div class="mine-mdFile-list" :style="{ height: isMineMdFilesListShow ? '60%' : '0' }">
+            <div class="mine-mdFile-list" v-show="isMineMdFilesListShow">
                 <div class="mdFile-item" v-for="item in mineMdFileList" :key="item.id" @click="handleClickMdFile(item)">
-                    《{{ item.fileTitle }}》
+                    {{ item.fileTitle }}
                 </div>
             </div>
             <NormalItem word="协作文档" type="icon-left" v-memo="[]" @click="isMdFilesListShow = !isMdFilesListShow" />
-            <div class="mine-mdFile-list" :style="{ height: isMdFilesListShow ? '60%' : '0' }">
+            <div class="mine-mdFile-list" v-show="isMdFilesListShow">
                 <div class="mdFile-item" v-for="item in collaborateFileList" :key="item.id"
                     @click="handleClickMdFile(item)">
-                    《{{ item.fileTitle }}》
+                    {{ item.fileTitle }}
                 </div>
             </div>
         </div>
@@ -95,9 +95,9 @@ const handleClickMdFile = (item: IMdFileInfo) => {
         // background-color: rgb(32, 67, 97);
         .mine-mdFile-list {
             background-color: rgb(228, 255, 255);
-            transition: all .1s;
+            transition: all .4s;
             overflow-y: auto;
-            // min-height: px2vw(500);
+            min-height: px2vw(1000);
         }
 
         .mdFile-item {
@@ -107,6 +107,7 @@ const handleClickMdFile = (item: IMdFileInfo) => {
             align-items: center;
             padding: px2vw(5);
             border-bottom: 1px solid rgb(236, 237, 237);
+            font-size: px2vw(20);
         }
     }
 

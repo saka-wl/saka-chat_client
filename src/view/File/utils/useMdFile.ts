@@ -110,15 +110,19 @@ export const useMdFile = () => {
     }
 
     const destorySocket = () => {
+        if(ydoc) ydoc.destroy();
         if (wsProvider) wsProvider.destroy();
         if (binding) binding.destroy();
     }
 
-    const connectSocket = (id: string | null) => {
+    const connectSocket = (id: string | null, nickname: string) => {
         if (!id) return;
         const roomName = 'md_' + id;
         // 连接到 websocket 服务端 yjs提供的体验服务器
         wsProvider = new WebsocketProvider(yMdFileSocketUrl, roomName, ydoc);
+        wsProvider.awareness.setLocalStateField('user', {
+            name: nickname || '-_-'
+        });
         // 绑定
         binding = new QuillBinding(ytext, quill, wsProvider.awareness);
     }

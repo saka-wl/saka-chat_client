@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useDialog, useMessage } from 'naive-ui';
+import { useDialog, useMessage, NDivider } from 'naive-ui';
 import HeadLeftIcon from './HeadLeftIcon.vue';
 import HeadRouterLinks from "./HeadRouterLinks.vue";
 import HeadAvatar from "./HeadAvatar.vue";
@@ -25,6 +25,7 @@ window.$dialog = dialog;
         <HeadRouterLinks />
         <HeadAvatar />
     </div>
+    <n-divider />
 </template>
 
 <style scoped lang="scss">
@@ -34,7 +35,9 @@ window.$dialog = dialog;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: px2vw(10) px2vw(20);
-    height: px2vw(50);
+    padding-top: px2vw(25);
+    padding-left: px2vw(25);
+    padding-right: px2vw(25);
+    height: px2vw(30);
 }
 </style>
