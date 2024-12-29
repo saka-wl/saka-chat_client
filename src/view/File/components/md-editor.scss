@@ -1,0 +1,9 @@
+@import "src/assets/style/common.scss";
+#markdown-editor {
+    height: px2vw(700);
+
+    img {
+        height: px2vw(100);
+        max-width: px2vw(200);
+    }
+}

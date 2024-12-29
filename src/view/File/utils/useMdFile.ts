@@ -30,7 +30,6 @@ export const useMdFile = () => {
 
     onMounted(() => {
         if(!quill) initMdFile();
-        // connectSocket(null);
         // 当工具栏中的图片图标被单击的时候
         quill.getModule('toolbar').addHandler('image', (state: boolean) => {
             if (state) {
@@ -99,12 +98,6 @@ export const useMdFile = () => {
         ydoc = new Y.Doc()
         // 在文档上定义共享文本类型
         ytext = ydoc.getText('quill_demo')
-        // quill.on('text-change', (delta, oldDelta, source) => {
-        //     // console.log(source);
-        //     // console.log(delta);
-        //     // console.log(oldDelta);
-        //     // console.log('-----');
-        // });
     }
 
     const handleImageUploadFinish = ({ file, event }: { file: File, event: any }) => {
@@ -124,10 +117,6 @@ export const useMdFile = () => {
     const connectSocket = (id: string | null) => {
         if (!id) return;
         const roomName = 'md_' + id;
-        // // Yjs文档，保存共享数据shared data
-        // ydoc = new Y.Doc();
-        // // 在文档上定义共享文本类型
-        // ytext = ydoc.getText('quill_demo');
         // 连接到 websocket 服务端 yjs提供的体验服务器
         wsProvider = new WebsocketProvider(yMdFileSocketUrl, roomName, ydoc);
         // 绑定

@@ -80,22 +80,15 @@ const mdFileSubmit = async () => {
         fileTitle: mdFileInfo.value.fileTitle || '',
         fileContent: JSON.stringify(getQuillValue().getContents())
     });
-    (code === 200) && window.$message.success('更新成功');
+    console.log(getQuillValue().getContents());
+    ;(code === 200) && window.$message.success('更新成功');
 }
 </script>
 
 <style lang="scss">
+@import url('./md-editor.scss');
 .collaborate-choose {
     margin: px2vw(10);
     margin-left: 0;
-}
-
-#markdown-editor {
-    height: 700px;
-
-    :deep(img) {
-        height: 100px;
-        max-width: 200px;
-    }
 }
 </style>

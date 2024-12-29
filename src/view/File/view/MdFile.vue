@@ -18,8 +18,7 @@
             </div>
         </div>
         <div class="right-content">
-            <router-view></router-view>
-
+            <router-view :key="$route.path"></router-view>
         </div>
 
     </div>
@@ -70,19 +69,14 @@ const createNewMdFile = () => {
 const handleClickMdFile = (item: IMdFileInfo) => {
     if (!item.id) return;
     router.push({
-        name: 'md-file-add'
+        name: 'md-file-edit',
+        query: {
+            id: item.id
+        },
+        params: {
+            id: item.id
+        }
     })
-    setTimeout(() => {
-        router.push({
-            name: 'md-file-edit',
-            query: {
-                id: item.id
-            },
-            params: {
-                id: item.id
-            }
-        })
-    }, 500)
 }
 
 </script>
@@ -102,15 +96,16 @@ const handleClickMdFile = (item: IMdFileInfo) => {
         .mine-mdFile-list {
             background-color: rgb(228, 255, 255);
             transition: all .1s;
-            overflow-y: scroll;
+            overflow-y: auto;
+            // min-height: px2vw(500);
         }
 
         .mdFile-item {
-            height: 30px;
+            height: px2vw(50);
             background-color: rgb(228, 255, 255);
             display: flex;
             align-items: center;
-            padding: 5px;
+            padding: px2vw(5);
             border-bottom: 1px solid rgb(236, 237, 237);
         }
     }

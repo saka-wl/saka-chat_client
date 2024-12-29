@@ -71,17 +71,9 @@ const mdFileSubmit = async () => {
 </script>
 
 <style lang="scss">
+@import url('./md-editor.scss');
 .collaborate-choose {
     margin: px2vw(10);
     margin-left: 0;
-}
-
-#markdown-editor {
-    height: 700px;
-
-    :deep(img) {
-        height: 100px;
-        max-width: 200px;
-    }
 }
 </style>
