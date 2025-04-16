@@ -1,0 +1,91 @@
+// 主题颜色
+$primary-color: #4a90e2;
+$secondary-color: #50c878;
+$accent-color: #ff6b6b;
+$background-color: #f5f7fa;
+$text-color: #2c3e50;
+$border-color: #e0e6ed;
+
+// 字体设置
+$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+// 阴影效果
+$box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+$hover-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.15);
+
+// 圆角
+$border-radius: 8px;
+$border-radius-sm: 4px;
+$border-radius-lg: 12px;
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// 过渡动画
+$transition-duration: 0.3s;
+$transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+// 混合器
+@mixin card {
+    background: white;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+    padding: $spacing-md;
+    transition: box-shadow $transition-duration $transition-timing;
+    
+    &:hover {
+        box-shadow: $hover-shadow;
+    }
+}
+
+@mixin button {
+    background: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm $spacing-md;
+    cursor: pointer;
+    transition: all $transition-duration $transition-timing;
+    
+    &:hover {
+        background: darken($primary-color, 10%);
+        transform: translateY(-1px);
+    }
+    
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+@mixin input {
+    border: 1px solid $border-color;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
+    font-family: $font-family;
+    transition: border-color $transition-duration $transition-timing;
+    
+    &:focus {
+        border-color: $primary-color;
+        outline: none;
+    }
+}
+
+// 响应式断点
+$breakpoints: (
+    'sm': 576px,
+    'md': 768px,
+    'lg': 992px,
+    'xl': 1200px
+);
+
+@mixin responsive($breakpoint) {
+    @if map-has-key($breakpoints, $breakpoint) {
+        @media (min-width: map-get($breakpoints, $breakpoint)) {
+            @content;
+        }
+    }
+}

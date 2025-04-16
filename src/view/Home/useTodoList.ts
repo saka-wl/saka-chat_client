@@ -62,28 +62,54 @@ export function useTodoList() {
         handleTodoListChange();
     }
 
-    let timer = setInterval(() => {
-        let warningMsg = '事件：';
-        let endMsg = '事件：';
-        let warningFlag = false;
-        let endFlag = false;
-        for(let item of todoList.value) {
-            console.log(Date.now(), item.deadline)
-            if(item.status !== 2 && Date.now() >= item.deadline) {
-                endMsg += item.eventName + ' ';
-                endFlag = true;
-            }else if(item.status !== 2 && Date.now() + 1000 * 60 * 5 >= item.deadline) {
-                warningMsg += item.eventName + ' ';
-                warningFlag = true;
+    // 使用requestAnimationFrame实现高精度计时器
+    let lastCheckTime = Date.now();
+    let animationFrameId: number | null = null;
+    
+    const checkTodoDeadlines = (timestamp: number) => {
+        // 每分钟检查一次
+        const currentTime = Date.now();
+        if (currentTime - lastCheckTime >= 1000 * 60) {
+            lastCheckTime = currentTime;
+            
+            let warningMsg = '事件：';
+            let endMsg = '事件：';
+            let warningFlag = false;
+            let endFlag = false;
+            
+            for (let item of todoList.value) {
+                // 使用高精度时间戳进行比较
+                if(item.status !== 2 && currentTime >= item.deadline) {
+                    endMsg += item.eventName + ' ';
+                    endFlag = true;
+                } else if(item.status !== 2 && currentTime + 1000 * 60 * 5 >= item.deadline) {
+                    warningMsg += item.eventName + ' ';
+                    warningFlag = true;
+                }
             }
+            
+            (warningFlag || endFlag) && window.$message.warning(
+                (warningFlag ? warningMsg + '，即将到截至时间！' : '') + 
+                '\n' + 
+                (endFlag ? endMsg + '，已经超时啦！' : ''), 
+                { closable: true }
+            );
         }
-        (warningFlag || endFlag) && window.$message.warning((warningFlag ? warningMsg + '，即将到截至时间！' : '') 
-        + '\n' + 
-        (endFlag ? endMsg + '，已经超时啦！' : ''), { closable: true });
-    }, 1000 * 60);
+        
+        // 继续下一帧
+        animationFrameId = requestAnimationFrame(checkTodoDeadlines);
+    };
+    
+    // 启动动画帧循环
+    const timer = {
+        id: requestAnimationFrame(checkTodoDeadlines)
+    };
 
     const closeTimer = () => {
-        clearInterval(timer);
+        if (timer.id) {
+            cancelAnimationFrame(timer.id);
+            timer.id = null;
+        }
     }
 
     return {

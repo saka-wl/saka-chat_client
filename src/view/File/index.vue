@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { RouterLink, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { NButton } from 'naive-ui';
 
 const router = useRouter();
@@ -20,9 +20,9 @@ const jumpTo = (path: string) => {
             <n-button quaternary type="info" @click="jumpTo('/file/mine-file')">
                 Mine File
             </n-button>
-            <n-button quaternary type="info" @click="jumpTo('/file/md-file')">
+            <!-- <n-button quaternary type="info" @click="jumpTo('/file/md-file')">
                 Md File
-            </n-button>
+            </n-button> -->
         </div>
         <router-view></router-view>
     </div>
@@ -30,8 +30,31 @@ const jumpTo = (path: string) => {
 
 <style lang="scss" scoped>
 .file-container {
-    .file-link {
+    padding: 20px;
+    background-color: #f5f7fa;
+    min-height: 100vh;
 
+    .file-link {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding: 16px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+        :deep(.n-button) {
+            min-width: 120px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(32, 128, 240, 0.2);
+            }
+        }
     }
 }
 </style>

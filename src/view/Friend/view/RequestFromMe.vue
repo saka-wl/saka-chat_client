@@ -39,22 +39,63 @@ const handleFriendRequest = (requestId: number, isDispose: number) => {
 <template>
     <div class="request-from-me-container">
         <div class="pending-request">
-            <n-gradient-text type="info">
+            <n-gradient-text type="info" class="section-title">
                 ta待处理的好友请求
             </n-gradient-text>
-            <FriendRequestCard @handleFriendRequest="handleFriendRequest" v-for="item in pendingRequest"
-                :props="{ ...item, type: 'requestFromMe' }" :key="item.requestId" />
+            <div class="request-cards">
+                <FriendRequestCard @handleFriendRequest="handleFriendRequest" v-for="item in pendingRequest"
+                    :props="{ ...item, type: 'requestFromMe' }" :key="item.requestId" />
+            </div>
         </div>
         <div class="complete-request">
-            <n-gradient-text type="info">
+            <n-gradient-text type="info" class="section-title">
                 ta已完成的好友请求
             </n-gradient-text>
-            <FriendRequestCard @handleFriendRequest="handleFriendRequest" v-for="item in completedRequest"
-                :props="{ ...item, type: 'requestFromMe' }" :key="item.requestId" />
+            <div class="request-cards">
+                <FriendRequestCard @handleFriendRequest="handleFriendRequest" v-for="item in completedRequest"
+                    :props="{ ...item, type: 'requestFromMe' }" :key="item.requestId" />
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped lang="scss">
 @import "src/assets/style/common.scss";
+
+.request-from-me-container {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .pending-request,
+    .complete-request {
+        background: var(--n-color);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .section-title {
+            display: block;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .request-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    }
+}
 </style>

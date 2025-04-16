@@ -58,4 +58,41 @@ const handleFriendRequest = (requestId: number, isDispose: number) => {
 
 <style scoped lang="scss">
 @import "src/assets/style/common.scss";
+
+.request-to-me-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    .pending-request,
+    .complete-request {
+        background: var(--n-color);
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .n-gradient-text {
+            display: block;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+    }
+
+    .pending-request {
+        border-left: 4px solid #18a058;
+    }
+
+    .complete-request {
+        border-left: 4px solid #2080f0;
+        opacity: 0.8;
+    }
+}
 </style>

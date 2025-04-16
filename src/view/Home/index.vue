@@ -12,7 +12,7 @@ const {
   eventTypeToFinished,
   deleteEvent,
   timer,
-  closeTimer
+  closeTimer,
 } = useTodoList();
 
 const todolistType = [
@@ -22,7 +22,7 @@ const todolistType = [
 ]
 
 onBeforeUnmount(() => {
-  clearInterval(timer);
+  closeTimer();
 })
 </script>
 
@@ -46,7 +46,62 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped lang="scss">
+@import "src/assets/style/theme.scss";
+
 .app-container {
-    margin: 15px;
+    padding: $spacing-lg;
+    max-width: 1000px;
+    margin: 0 auto;
+    
+    h1 {
+        color: $text-color;
+        margin-bottom: $spacing-md;
+        font-family: $font-family;
+    }
+    
+    h4 {
+        color: lighten($text-color, 20%);
+        margin-bottom: $spacing-lg;
+    }
+    
+    .add-btn {
+        display: flex;
+        gap: $spacing-md;
+        margin-bottom: $spacing-lg;
+        
+        input {
+            @include input;
+            flex: 1;
+        }
+        
+        button {
+            @include button;
+        }
+    }
+    
+    button {
+        @include button;
+        background: $secondary-color;
+        margin-bottom: $spacing-lg;
+        
+        &:hover {
+            background: darken($secondary-color, 10%);
+        }
+    }
+    
+    hr {
+        border: none;
+        border-top: 1px solid $border-color;
+        margin: $spacing-lg 0;
+    }
+    
+    .event-list-finished {
+        display: grid;
+        gap: $spacing-lg;
+        
+        @include responsive('md') {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
 }
 </style>
